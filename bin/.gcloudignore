@@ -1,0 +1,23 @@
+# nu trimite pe Google Cloud build-ul local sau secretele
+.git
+.gitignore
+.github
+target
+.idea
+.vscode
+*.iml
+.env
+.env.example
+
+# IDE
+.classpath
+.project
+.settings
+.springBeans
+
+# logs si dumps
+*.log
+*.dump
+
+# documentation pentru dev local
+HELP.md

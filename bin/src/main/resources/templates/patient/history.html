@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Istoric Medical | MediClinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        .history-tabs .nav-link {
+            color: #64748b;
+            border: none;
+            border-bottom: 2px solid transparent;
+            padding: .6rem 1.2rem;
+            font-weight: 600;
+            font-size: .875rem;
+            transition: color .15s, border-color .15s;
+            background: transparent;
+        }
+        .history-tabs .nav-link.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+            background: transparent;
+        }
+        .history-tabs .nav-link:hover:not(.active) { color: #1e40af; }
+        .history-tabs { border-bottom: 1px solid #e2e8f0; }
+
+        .record-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.25rem;
+            background: #fff;
+            transition: box-shadow .2s, transform .2s;
+        }
+        .record-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.08); transform: translateY(-1px); }
+
+        .record-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; flex-shrink: 0;
+        }
+        .icon-blue   { background: #eff6ff; color: #3b82f6; }
+        .icon-green  { background: #f0fdf4; color: #16a34a; }
+        .icon-purple { background: #faf5ff; color: #9333ea; }
+        .icon-amber  { background: #fffbeb; color: #d97706; }
+
+        .field-label {
+            font-size: .7rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .06em; color: #94a3b8; margin-bottom: 2px;
+        }
+        .field-value { font-size: .875rem; color: #334155; }
+
+        .invoice-badge-PAID      { background: #dcfce7; color: #166534; }
+        .invoice-badge-PENDING   { background: #fef9c3; color: #854d0e; }
+        .invoice-badge-CANCELLED { background: #f1f5f9; color: #475569; }
+
+        .empty-state { padding: 3.5rem 1rem; text-align: center; }
+        .empty-state .empty-icon { font-size: 3.5rem; opacity: .18; display: block; margin-bottom: .75rem; }
+.timeline { position: relative; padding-left: 2.5rem; }
+        .timeline::before {
+            content: ''; position: absolute; left: .85rem; top: 0; bottom: 0;
+            width: 2px; background: linear-gradient(to bottom, #e2e8f0 0%, transparent 100%);
+        }
+        .tl-item { position: relative; margin-bottom: 1.75rem; }
+        .tl-dot {
+            position: absolute; left: -2.05rem; top: .25rem;
+            width: 14px; height: 14px; border-radius: 50%;
+            border: 2.5px solid #fff; box-shadow: 0 0 0 2.5px currentColor;
+        }
+        .tl-dot-record      { color: #3b82f6; background: #3b82f6; }
+        .tl-dot-prescription{ color: #9333ea; background: #9333ea; }
+        .tl-dot-report      { color: #16a34a; background: #16a34a; }
+        .tl-dot-appointment { color: #f59e0b; background: #f59e0b; }
+        .tl-date { font-size: .7rem; font-weight: 700; text-transform: uppercase;
+                   letter-spacing: .06em; color: #94a3b8; margin-bottom: .35rem; }
+        .tl-card {
+            border: 1px solid #e2e8f0; border-radius: 10px;
+            padding: 1rem 1.1rem; background: #fff;
+            transition: box-shadow .15s, transform .15s;
+        }
+        .tl-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.07); transform: translateY(-1px); }
+        .tl-type-badge {
+            font-size: .62rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .06em; padding: .18rem .55rem; border-radius: 20px;
+        }
+        html[data-theme="dark"] .tl-card { background: var(--dm-surface,#1e293b); border-color: var(--dm-border,#334155); }
+        html[data-theme="dark"] .tl-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.3); }
+        html[data-theme="dark"] .timeline::before { background: linear-gradient(to bottom, #334155 0%, transparent 100%); }
+        html[data-theme="dark"] .tl-dot { border-color: var(--dm-surface, #1e293b); }
+    </style>
+</head>
+<body>
+<div class="app-wrapper">
+    <div th:replace="~{fragments/patient-nav :: sidebar(${patient})}"></div>
+    <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100"
+         style="background:rgba(0,0,0,.4);z-index:99;"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/patient-nav :: topbar('Istoric Medical')}"></div>
+
+        <div class="page-content">
+
+            
+            <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-1">
+                            <li class="breadcrumb-item"><a th:href="@{/patient/dashboard}" class="text-decoration-none">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Istoric Medical</li>
+                        </ol>
+                    </nav>
+                    <h2 class="mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>Istoric Medical</h2>
+                    <p class="text-muted small mb-0">Toate consulta?iile, re?etele ?i documentele tale medicale</p>
+                </div>
+            </div>
+
+            
+            <div th:if="${patient.allergies != null and !#strings.isEmpty(patient.allergies)}"
+                 class="alert d-flex align-items-center gap-2 mb-4"
+                 style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px 16px;">
+                <i class="bi bi-exclamation-triangle-fill text-warning fs-5 flex-shrink-0"></i>
+                <div>
+                    <span class="fw-bold small">Alergii �nregistrate: </span>
+                    <span class="small" th:text="${patient.allergies}"></span>
+                </div>
+            </div>
+
+            
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-blue"><i class="bi bi-journal-medical"></i></div>
+                        <div class="stat-body">
+                            <div class="stat-value" th:text="${totalRecords}">0</div>
+                            <div class="stat-label">Fi?e medicale</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#faf5ff;color:#9333ea;"><i class="bi bi-capsule"></i></div>
+                        <div class="stat-body">
+                            <div class="stat-value" th:text="${totalPrescriptions}">0</div>
+                            <div class="stat-label">Re?ete medicale</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#f0fdf4;color:#16a34a;"><i class="bi bi-file-earmark-medical"></i></div>
+                        <div class="stat-body">
+                            <div class="stat-value" th:text="${totalReports}">0</div>
+                            <div class="stat-label">Rapoarte PDF</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#fffbeb;color:#d97706;"><i class="bi bi-receipt"></i></div>
+                        <div class="stat-body">
+                            <div class="stat-value" th:text="${#lists.size(invoices)}">0</div>
+                            <div class="stat-label">Facturi</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="content-card">
+                <div class="content-card-body p-0">
+                    <ul class="nav history-tabs px-3 pt-3" id="historyTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="records-tab" data-bs-toggle="tab"
+                                    data-bs-target="#records-pane" type="button" role="tab">
+                                <i class="bi bi-journal-medical me-1"></i>Fi?e Medicale
+                                <span class="badge bg-primary-subtle text-primary ms-1" th:text="${totalRecords}"></span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="rx-tab" data-bs-toggle="tab"
+                                    data-bs-target="#rx-pane" type="button" role="tab">
+                                <i class="bi bi-capsule me-1"></i>Re?ete
+                                <span class="badge bg-purple-subtle text-purple ms-1"
+                                      style="background:#faf5ff;color:#9333ea;"
+                                      th:text="${totalPrescriptions}"></span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="reports-tab" data-bs-toggle="tab"
+                                    data-bs-target="#reports-pane" type="button" role="tab">
+                                <i class="bi bi-file-earmark-medical me-1"></i>Rapoarte
+                                <span class="badge ms-1" style="background:#f0fdf4;color:#16a34a;"
+                                      th:text="${totalReports}"></span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="invoices-tab" data-bs-toggle="tab"
+                                    data-bs-target="#invoices-pane" type="button" role="tab">
+                                <i class="bi bi-receipt me-1"></i>Facturi
+                                <span class="badge ms-1" style="background:#fffbeb;color:#d97706;"
+                                      th:text="${#lists.size(invoices)}"></span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="timeline-tab" data-bs-toggle="tab"
+                                    data-bs-target="#timeline-pane" type="button" role="tab">
+                                <i class="bi bi-clock-history me-1"></i>Timeline
+                                <span class="badge ms-1" style="background:#f1f5f9;color:#475569;"
+                                      th:text="${#lists.size(timeline)}"></span>
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content p-3" id="historyTabContent">
+<div class="tab-pane fade show active" id="records-pane" role="tabpanel">
+                            <div th:if="${#lists.isEmpty(records)}" class="empty-state">
+                                <i class="bi bi-journal-x empty-icon"></i>
+                                <p class="text-muted mb-0">Nu exista fi?e medicale �nregistrate.</p>
+                            </div>
+                            <div class="row g-3" th:unless="${#lists.isEmpty(records)}">
+                                <div th:each="rec : ${records}" class="col-md-6">
+                                    <div class="record-card h-100">
+                                        <div class="d-flex gap-3 mb-3">
+                                            <div class="record-icon icon-blue">
+                                                <i class="bi bi-journal-medical"></i>
+                                            </div>
+                                            <div class="flex-grow-1 overflow-hidden">
+                                                <div class="fw-700 text-dark text-truncate" th:text="${rec.title}">Titlu</div>
+                                                <div class="small text-muted">
+                                                    <i class="bi bi-person-badge me-1"></i>
+                                                    <span th:text="'Dr. ' + ${rec.doctor.fullName}"></span>
+                                                    <span class="ms-2">
+                                                        <i class="bi bi-calendar3 me-1"></i>
+                                                        <span th:text="${#temporals.format(rec.createdAt,'dd MMM yyyy')}"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-2">
+                                            <div th:if="${rec.symptoms}" class="col-12">
+                                                <div class="field-label">Simptome</div>
+                                                <div class="field-value" th:text="${rec.symptoms}"></div>
+                                            </div>
+                                            <div th:if="${rec.diagnosis}" class="col-12">
+                                                <div class="field-label">Diagnostic</div>
+                                                <div class="field-value fw-600" th:text="${rec.diagnosis}"></div>
+                                            </div>
+                                            <div th:if="${rec.treatment}" class="col-12">
+                                                <div class="field-label">Tratament</div>
+                                                <div class="field-value small bg-light rounded p-2"
+                                                     style="white-space:pre-wrap;" th:text="${rec.treatment}"></div>
+                                            </div>
+                                            <div th:if="${rec.notes}" class="col-12">
+                                                <div class="field-label">Observa?ii</div>
+                                                <div class="field-value small text-muted" th:text="${rec.notes}"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+<div class="tab-pane fade" id="rx-pane" role="tabpanel">
+                            <div th:if="${#lists.isEmpty(prescriptions)}" class="empty-state">
+                                <i class="bi bi-capsule empty-icon"></i>
+                                <p class="text-muted mb-0">Nu ai re?ete medicale emise.</p>
+                            </div>
+                            <div class="row g-3" th:unless="${#lists.isEmpty(prescriptions)}">
+                                <div th:each="rx : ${prescriptions}" class="col-md-6">
+                                    <div class="record-card h-100">
+                                        <div class="d-flex gap-3 mb-3">
+                                            <div class="record-icon icon-purple">
+                                                <i class="bi bi-capsule"></i>
+                                            </div>
+                                            <div class="flex-grow-1 overflow-hidden">
+                                                <div class="fw-700 text-dark">
+                                                    Re?eta #<span th:text="${rx.id}"></span>
+                                                </div>
+                                                <div class="small text-muted">
+                                                    <i class="bi bi-person-badge me-1"></i>
+                                                    <span th:text="'Dr. ' + ${rx.doctor.fullName} + ' - ' + ${rx.doctor.specialty}"></span>
+                                                </div>
+                                                <div class="small text-muted">
+                                                    <i class="bi bi-calendar3 me-1"></i>
+                                                    <span th:text="${#temporals.format(rx.issuedAt,'dd MMM yyyy')}"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-2 mb-3">
+                                            <div th:if="${rx.diagnosis}" class="col-12">
+                                                <div class="field-label">Diagnostic</div>
+                                                <div class="field-value fw-600" th:text="${rx.diagnosis}"></div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="field-label">Medicamente</div>
+                                                <div class="field-value small bg-light rounded p-2"
+                                                     style="white-space:pre-wrap;" th:text="${rx.medications}"></div>
+                                            </div>
+                                            <div th:if="${rx.instructions}" class="col-12">
+                                                <div class="field-label">Instruc?iuni</div>
+                                                <div class="field-value small text-muted"
+                                                     style="white-space:pre-wrap;" th:text="${rx.instructions}"></div>
+                                            </div>
+                                        </div>
+
+                                        <a th:href="@{/patient/prescriptions/{id}/download(id=${rx.id})}"
+                                           class="btn btn-sm btn-outline-danger w-100">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i>Descarca PDF
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+<div class="tab-pane fade" id="reports-pane" role="tabpanel">
+                            <div th:if="${#lists.isEmpty(reports)}" class="empty-state">
+                                <i class="bi bi-file-earmark-x empty-icon"></i>
+                                <p class="text-muted mb-0">Nu exista rapoarte medicale generate.</p>
+                            </div>
+                            <div class="row g-3" th:unless="${#lists.isEmpty(reports)}">
+                                <div th:each="rep : ${reports}" class="col-md-6">
+                                    <div class="record-card h-100">
+                                        <div class="d-flex gap-3 mb-3">
+                                            <div class="record-icon icon-green">
+                                                <i class="bi bi-file-earmark-medical"></i>
+                                            </div>
+                                            <div class="flex-grow-1 overflow-hidden">
+                                                <div class="fw-700 text-dark">
+                                                    Raport #<span th:text="${rep.id}"></span>
+                                                </div>
+                                                <div class="small text-muted">
+                                                    <i class="bi bi-person-badge me-1"></i>
+                                                    <span th:text="'Dr. ' + ${rep.doctor.fullName}"></span>
+                                                </div>
+                                                <div class="small text-muted">
+                                                    <i class="bi bi-calendar3 me-1"></i>
+                                                    <span th:text="${#temporals.format(rep.generatedAt,'dd MMM yyyy HH:mm')}"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-2 mb-3">
+                                            <div class="col-12">
+                                                <div class="field-label">Diagnostic</div>
+                                                <div class="field-value fw-600" th:text="${rep.diagnosis}"></div>
+                                            </div>
+                                            <div th:if="${rep.treatment}" class="col-12">
+                                                <div class="field-label">Tratament</div>
+                                                <div class="field-value small bg-light rounded p-2"
+                                                     style="white-space:pre-wrap;" th:text="${rep.treatment}"></div>
+                                            </div>
+                                            <div th:if="${rep.notes}" class="col-12">
+                                                <div class="field-label">Note</div>
+                                                <div class="field-value small text-muted" th:text="${rep.notes}"></div>
+                                            </div>
+                                        </div>
+
+                                        <a th:href="@{/patient/reports/{id}/download(id=${rep.id})}"
+                                           class="btn btn-sm btn-outline-success w-100">
+                                            <i class="bi bi-download me-1"></i>Descarca Raport PDF
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+<div class="tab-pane fade" id="invoices-pane" role="tabpanel">
+                            <div th:if="${#lists.isEmpty(invoices)}" class="empty-state">
+                                <i class="bi bi-receipt empty-icon"></i>
+                                <p class="text-muted mb-0">Nu exista facturi emise.</p>
+                            </div>
+                            <div class="table-responsive" th:unless="${#lists.isEmpty(invoices)}">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Descriere</th>
+                                            <th>Suma</th>
+                                            <th>Status</th>
+                                            <th>Data emiterii</th>
+                                            <th>Platita la</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="inv : ${invoices}">
+                                            <td class="fw-600 small text-muted" th:text="${inv.id}"></td>
+                                            <td>
+                                                <div class="small fw-600" th:text="${inv.description ?: 'Consulta?ie'}"></div>
+                                                <div class="small text-muted" th:if="${inv.paymentMethod}"
+                                                     th:text="${inv.paymentMethod}"></div>
+                                            </td>
+                                            <td class="fw-700" th:text="${#numbers.formatDecimal(inv.amount,1,'COMMA',2,'POINT')} + ' RON'"></td>
+                                            <td>
+                                                <span th:classappend="${'invoice-badge-' + inv.status}"
+                                                      class="badge fw-600 px-2 py-1" th:text="${inv.status}"></span>
+                                            </td>
+                                            <td class="small text-muted"
+                                                th:text="${#temporals.format(inv.issuedAt,'dd MMM yyyy')}"></td>
+                                            <td class="small text-muted">
+                                                <span th:if="${inv.paidAt}" th:text="${#temporals.format(inv.paidAt,'dd MMM yyyy')}"></span>
+                                                <span th:unless="${inv.paidAt}" class="text-muted">-</span>
+                                            </td>
+                                            <td>
+                                                <a th:href="@{/patient/invoices/{id}/download(id=${inv.id})}"
+                                                   class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-download"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+<div class="tab-pane fade" id="timeline-pane" role="tabpanel">
+                            <div th:if="${#lists.isEmpty(timeline)}" class="empty-state">
+                                <i class="bi bi-clock-history empty-icon"></i>
+                                <p class="text-muted mb-0">Nu exista evenimente medicale �nregistrate.</p>
+                            </div>
+
+                            <div th:unless="${#lists.isEmpty(timeline)}" class="timeline mt-3 mb-2">
+                                <div th:each="ev : ${timeline}" class="tl-item">
+
+                                    
+                                    <div th:class="${ev.type == 'RECORD' ? 'tl-dot tl-dot-record' : (ev.type == 'PRESCRIPTION' ? 'tl-dot tl-dot-prescription' : (ev.type == 'REPORT' ? 'tl-dot tl-dot-report' : 'tl-dot tl-dot-appointment'))}"></div>
+
+                                    
+                                    <div class="tl-date"
+                                         th:text="${#temporals.format(ev.date, 'dd MMM yyyy, HH:mm')}"></div>
+
+                                    
+                                    <div class="tl-card">
+                                        <div class="d-flex align-items-start justify-content-between gap-2 flex-wrap">
+                                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                
+                                                <span class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                                      th:style="${ev.type == 'RECORD' ? 'width:32px;height:32px;background:#eff6ff;color:#3b82f6;' : (ev.type == 'PRESCRIPTION' ? 'width:32px;height:32px;background:#faf5ff;color:#9333ea;' : (ev.type == 'REPORT' ? 'width:32px;height:32px;background:#f0fdf4;color:#16a34a;' : 'width:32px;height:32px;background:#fffbeb;color:#d97706;'))}">
+                                                    <i th:class="${ev.type == 'RECORD' ? 'bi bi-journal-medical' : (ev.type == 'PRESCRIPTION' ? 'bi bi-capsule' : (ev.type == 'REPORT' ? 'bi bi-file-earmark-medical' : 'bi bi-check2-circle'))}"></i>
+                                                </span>
+                                                <div>
+                                                    <div class="fw-semibold small" th:text="${ev.title}"></div>
+                                                    <div class="text-muted" style="font-size:.78rem;">
+                                                        <i class="bi bi-person-badge me-1"></i>
+                                                        <span th:text="${ev.subtitle}"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <span class="tl-type-badge flex-shrink-0"
+                                                  th:style="${ev.type == 'RECORD' ? 'background:#eff6ff;color:#3b82f6;' : (ev.type == 'PRESCRIPTION' ? 'background:#faf5ff;color:#9333ea;' : (ev.type == 'REPORT' ? 'background:#f0fdf4;color:#16a34a;' : 'background:#fffbeb;color:#d97706;'))}"
+                                                  th:text="${ev.type == 'RECORD' ? 'Fi?a' : (ev.type == 'PRESCRIPTION' ? 'Re?eta' : (ev.type == 'REPORT' ? 'Raport' : 'Consulta?ie'))}">
+                                            </span>
+                                        </div>
+                                        
+                                        <div th:if="${ev.description != null and !#strings.isEmpty(ev.description)}"
+                                             class="mt-2 small text-muted border-top pt-2"
+                                             th:text="${ev.description}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/app.js}"></script>
+<script>
+(function () {
+    var hash = window.location.hash;
+    if (hash) {
+        var tab = document.querySelector('#historyTabs button[data-bs-target="' + hash + '-pane"]');
+        if (tab) new bootstrap.Tab(tab).show();
+    }
+    document.querySelectorAll('#historyTabs button').forEach(function(btn) {
+        btn.addEventListener('shown.bs.tab', function(e) {
+            var target = e.target.getAttribute('data-bs-target').replace('-pane','');
+            history.replaceState(null, null, target);
+        });
+    });
+})();
+</script>
+</body>
+</html>

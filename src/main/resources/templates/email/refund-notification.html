@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rambursare procesata - MediClinic</title>
+</head>
+<body style="margin:0;padding:0;background:#f0f4f8;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;padding:40px 0;">
+  <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0"
+           style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+
+      
+      <tr>
+        <td style="background:linear-gradient(135deg,#6a1b9a,#4a148c);padding:28px 36px;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td>
+                <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:700;">&#x2665; MediClinic</h1>
+                <p style="color:#e1bee7;margin:4px 0 0;font-size:13px;">Platforma ta de sanatate</p>
+              </td>
+              <td align="right">
+                <span style="background:rgba(255,255,255,0.2);color:#fff;padding:6px 14px;
+                             border-radius:20px;font-size:12px;font-weight:600;">
+                  RAMBURSARE
+                </span>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      
+      <tr>
+        <td style="padding:36px;">
+          <h2 style="color:#6a1b9a;margin:0 0 8px;font-size:20px;">Rambursare procesata</h2>
+          <p style="color:#546e7a;margin:0 0 24px;font-size:14px;line-height:1.6;">
+            Buna ziua, <strong th:text="${patientName}">Pacient</strong>!<br>
+            Programarea ta a fost anulata ?i taxa de rezervare de <strong>$2</strong> a fost rambursata.
+          </p>
+
+          
+          <table width="100%" cellpadding="0" cellspacing="0"
+                 style="background:#fafafa;border:1px solid #ce93d8;border-radius:8px;margin-bottom:24px;">
+            <tr>
+              <td style="padding:20px 24px;">
+                <table width="100%" cellpadding="0" cellspacing="6">
+                  <tr>
+                    <td style="color:#90a4ae;font-size:12px;font-weight:600;text-transform:uppercase;padding:4px 0 2px;">DOCTOR</td>
+                    <td style="color:#546e7a;font-size:15px;font-weight:600;" th:text="${doctorName}">Dr. Popescu</td>
+                  </tr>
+                  <tr>
+                    <td style="color:#90a4ae;font-size:12px;font-weight:600;text-transform:uppercase;padding:4px 0 2px;">DATA PROGRAMARII</td>
+                    <td style="color:#546e7a;font-size:14px;text-decoration:line-through;" th:text="${dateTime}">01 ianuarie 2025 la 10:00</td>
+                  </tr>
+                  <tr>
+                    <td style="color:#90a4ae;font-size:12px;font-weight:600;text-transform:uppercase;padding:4px 0 2px;">SUMA RAMBURSATA</td>
+                    <td style="color:#4a148c;font-size:16px;font-weight:700;">$2.00 USD</td>
+                  </tr>
+                  <tr>
+                    <td style="color:#90a4ae;font-size:12px;font-weight:600;text-transform:uppercase;padding:4px 0 2px;">NUMAR PROGRAMARE</td>
+                    <td style="color:#546e7a;font-size:14px;">#<span th:text="${appointmentId}">1</span></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 24px 16px;">
+                <span style="background:#f3e5f5;color:#6a1b9a;padding:5px 12px;border-radius:12px;font-size:12px;font-weight:600;">
+                  &#x21A9; RAMBURSAT
+                </span>
+              </td>
+            </tr>
+          </table>
+
+          
+          <table width="100%" cellpadding="0" cellspacing="0"
+                 style="background:#ede7f6;border-left:4px solid #7b1fa2;border-radius:0 6px 6px 0;margin-bottom:24px;">
+            <tr>
+              <td style="padding:14px 18px;">
+                <p style="margin:0;color:#4a148c;font-size:13px;line-height:1.6;">
+                  Suma va aparea în contul dumneavoastra bancar în <strong>3–5 zile lucratoare</strong>,
+                  în func?ie de banca emitenta a cardului.
+                </p>
+              </td>
+            </tr>
+          </table>
+
+          <p style="color:#90a4ae;font-size:12px;margin:0;">
+            Pute?i face o noua programare oricând. &bull;
+            <a href="mailto:contact@mediclinic.ro" style="color:#2A9D8F;">contact@mediclinic.ro</a>
+          </p>
+        </td>
+      </tr>
+
+      
+      <tr>
+        <td style="background:#f8f9fa;padding:18px 36px;border-top:1px solid #eceff1;">
+          <p style="color:#b0bec5;font-size:11px;margin:0;text-align:center;">
+            &copy; 2025 MediClinic &bull; Str. Sanata?ii 1, Bucure?ti &bull; Tel: 021-000-0000
+          </p>
+        </td>
+      </tr>
+
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>

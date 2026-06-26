@@ -1,0 +1,8 @@
+{
+  "name": "mediclinic",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "java -cp \"target/clinic-1.0.0.jar;%USERPROFILE%\\.m2\\repository\\com\\h2database\\h2\\2.4.240\\h2-2.4.240.jar\" org.springframework.boot.loader.launch.JarLauncher --spring.profiles.active=dev --spring.config.additional-location=file:src/main/resources/"
+  }
+}

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Calendar | MediClinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+    <style>
+        #calendar-wrap { background:#fff; border-radius:12px; padding:20px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+        .fc .fc-toolbar-title { font-size:1.1rem; font-weight:700; }
+        .fc .fc-button { font-size:.82rem; }
+        .fc-event { cursor:pointer; border-radius:6px !important; border:none !important; font-size:.78rem; padding:2px 6px; }
+        .fc-daygrid-event-dot { display:none; }
+        
+        .legend-dot { width:12px;height:12px;border-radius:50%;display:inline-block; }
+    </style>
+</head>
+<body>
+<div class="app-wrapper">
+    <div th:replace="~{fragments/doctor-nav :: sidebar(${doctor})}"></div>
+    <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100"
+         style="background:rgba(0,0,0,.4);z-index:99;"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/doctor-nav :: topbar('Calendar programări')}"></div>
+
+        <div class="page-content">
+            <div class="page-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>Calendar programări</h2>
+                    <p class="text-muted small mb-0">Vizualizați toate programările în format calendar</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <span class="badge rounded-pill d-flex align-items-center gap-1 px-3 py-2" style="background:#fef3c7;color:#92400e;">
+                        <span class="legend-dot" style="background:#f59e0b;"></span> În așteptare
+                    </span>
+                    <span class="badge rounded-pill d-flex align-items-center gap-1 px-3 py-2" style="background:#dcfce7;color:#166534;">
+                        <span class="legend-dot" style="background:#22c55e;"></span> Confirmat
+                    </span>
+                    <span class="badge rounded-pill d-flex align-items-center gap-1 px-3 py-2" style="background:#dbeafe;color:#1e40af;">
+                        <span class="legend-dot" style="background:#2563eb;"></span> Finalizat
+                    </span>
+                    <span class="badge rounded-pill d-flex align-items-center gap-1 px-3 py-2" style="background:#f1f5f9;color:#64748b;">
+                        <span class="legend-dot" style="background:#94a3b8;"></span> Neachitat
+                    </span>
+                </div>
+            </div>
+
+            <div id="calendar-wrap">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="eventModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" id="modalHeader">
+                <h5 class="modal-title">
+                    <i class="bi bi-calendar-event me-2"></i>
+                    <span id="modalTitle"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                             id="modalAvatar"
+                             style="width:46px;height:46px;font-size:1.2rem;font-weight:700;background:#dbeafe;color:#1e40af;">
+                        </div>
+                        <div>
+                            <div class="fw-bold" id="modalPatient"></div>
+                            <div class="text-muted small" id="modalDateTime"></div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge rounded-pill px-3 py-2" id="modalStatus"></span>
+                    </div>
+                    <div id="modalNotesWrap" class="bg-light rounded p-3" style="display:none;">
+                        <div class="small text-muted mb-1"><i class="bi bi-journal-text me-1"></i>Note</div>
+                        <div id="modalNotes" class="small"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="modalDashboardLink" href="/doctor/dashboard" class="btn btn-primary btn-sm">
+                    <i class="bi bi-speedometer2 me-1"></i> Deschide dashboard
+                </a>
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Închide</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script th:src="@{/js/app.js}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const STATUS_LABELS = {
+        PENDING:         'În așteptare',
+        PENDING_PAYMENT: 'Neachitat',
+        CONFIRMED:       'Confirmat',
+        COMPLETED:       'Finalizat',
+        CANCELLED:       'Anulat',
+    };
+    const STATUS_BADGE = {
+        PENDING:         'background:#fef3c7;color:#92400e;',
+        PENDING_PAYMENT: 'background:#f1f5f9;color:#64748b;',
+        CONFIRMED:       'background:#dcfce7;color:#166534;',
+        COMPLETED:       'background:#dbeafe;color:#1e40af;',
+        CANCELLED:       'background:#fee2e2;color:#991b1b;',
+    };
+
+    const modal   = new bootstrap.Modal(document.getElementById('eventModal'));
+    const csrfEl  = document.getElementById('csrf-holder');
+    const headers = csrfEl
+        ? { [csrfEl.dataset.header]: csrfEl.dataset.token }
+        : {};
+
+    const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+        initialView:     'timeGridWeek',
+        locale:          'ro',
+        headerToolbar: {
+            left:   'prev,next today',
+            center: 'title',
+            right:  'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+        },
+        buttonText: {
+            today:    'Azi',
+            month:    'Lună',
+            week:     'Săptămână',
+            day:      'Zi',
+            list:     'Listă',
+        },
+        slotMinTime:     '07:00:00',
+        slotMaxTime:     '20:00:00',
+        allDaySlot:      false,
+        nowIndicator:    true,
+        height:          'auto',
+        eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+        events: {
+            url:     '/doctor/calendar/events',
+            method:  'GET',
+            failure: () => console.warn('Failed to load calendar events'),
+        },
+        eventClick: function (info) {
+            const ev   = info.event;
+            const props = ev.extendedProps;
+            const start = ev.start;
+            const fmt   = (d) => d.toLocaleString('ro-RO', { weekday:'short', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+
+            document.getElementById('modalTitle').textContent   = props.patient;
+            document.getElementById('modalPatient').textContent = props.patient;
+            document.getElementById('modalDateTime').textContent = fmt(start);
+            document.getElementById('modalAvatar').textContent  = props.patient.charAt(0).toUpperCase();
+
+            const statusBadge = document.getElementById('modalStatus');
+            statusBadge.textContent = STATUS_LABELS[props.status] || props.status;
+            statusBadge.style.cssText = STATUS_BADGE[props.status] || '';
+
+            const notesWrap = document.getElementById('modalNotesWrap');
+            if (props.notes) {
+                document.getElementById('modalNotes').textContent = props.notes;
+                notesWrap.style.display = 'block';
+            } else {
+                notesWrap.style.display = 'none';
+            }
+
+            document.getElementById('modalHeader').style.borderBottom = '3px solid ' + ev.backgroundColor;
+            modal.show();
+        },
+        eventMouseEnter: function (info) {
+            info.el.style.opacity = '0.85';
+            info.el.style.transform = 'scale(1.02)';
+            info.el.style.transition = 'transform .15s, opacity .15s';
+        },
+        eventMouseLeave: function (info) {
+            info.el.style.opacity = '';
+            info.el.style.transform = '';
+        },
+    });
+
+    calendar.render();
+});
+</script>
+</body>
+</html>

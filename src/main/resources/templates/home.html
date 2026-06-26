@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MediClinic - Smart Healthcare Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        :root {
+            --blue-dark: #0f172a;
+            --blue-mid: #1d4ed8;
+            --blue-light: #0ea5e9;
+            --green: #16a34a;
+            --surface: #f8fafc;
+        }
+        body { background: #fff; }
+.landing-nav {
+            position: sticky; top: 0; z-index: 1000;
+            padding: .9rem 2rem;
+            background: rgba(255,255,255,.88);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(0,0,0,.07);
+            display: flex; align-items: center; justify-content: space-between;
+            transition: box-shadow .3s;
+        }
+        .landing-nav.scrolled { box-shadow: 0 4px 20px rgba(0,0,0,.08); }
+        .landing-brand {
+            display: flex; align-items: center; gap: .65rem;
+            font-weight: 800; font-size: 1.2rem; color: var(--blue-mid);
+            text-decoration: none;
+        }
+        .landing-brand .brand-dot { color: var(--blue-light); }
+        .nav-links { display: flex; align-items: center; gap: .15rem; }
+        .nav-links a.nav-anchor {
+            padding: .45rem .85rem; border-radius: 8px; font-size: .875rem;
+            font-weight: 600; color: #475569; text-decoration: none;
+            transition: background .15s, color .15s;
+        }
+        .nav-links a.nav-anchor:hover { background: #f1f5f9; color: var(--blue-mid); }
+@keyframes gradient-shift {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 50%, #0ea5e9 80%, #1d4ed8 100%);
+            background-size: 300% 300%;
+            animation: gradient-shift 12s ease infinite;
+            padding: 6.5rem 0 5rem;
+            position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content:''; position:absolute; inset:0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: .4rem;
+            background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+            color: #e0f2fe; padding: .35rem .85rem; border-radius: 100px;
+            font-size: .78rem; font-weight: 600; margin-bottom: 1.5rem;
+            backdrop-filter: blur(6px);
+        }
+        .hero h1 {
+            font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+            font-weight: 900; color: #fff; line-height: 1.12;
+            margin-bottom: 1.5rem;
+        }
+        .hero h1 .accent { color: #38bdf8; }
+        .hero p.lead {
+            color: rgba(255,255,255,.78); font-size: 1.15rem;
+            line-height: 1.7; max-width: 520px; margin-bottom: 2.25rem;
+        }
+        .hero-cta { display: flex; flex-wrap: wrap; gap: .85rem; }
+        .btn-hero-primary {
+            background: #fff; color: var(--blue-mid); border: none;
+            padding: .85rem 2rem; border-radius: 10px;
+            font-weight: 700; font-size: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,.2);
+            transition: all .2s; text-decoration: none; display: inline-flex; align-items: center;
+        }
+        .btn-hero-primary:hover { background: #eff6ff; color: var(--blue-mid); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,.25); }
+        .btn-hero-outline {
+            background: transparent; color: #fff;
+            border: 2px solid rgba(255,255,255,.4);
+            padding: .85rem 2rem; border-radius: 10px;
+            font-weight: 600; font-size: 1rem; transition: all .2s;
+            text-decoration: none; display: inline-flex; align-items: center;
+        }
+        .btn-hero-outline:hover { border-color: #fff; background: rgba(255,255,255,.12); color: #fff; transform: translateY(-2px); }
+.stats-strip { background: rgba(0,0,0,.22); padding: 1.35rem 0; }
+        .stat-item { text-align: center; color: #fff; }
+        .stat-item .stat-number { display: block; font-size: 1.65rem; font-weight: 800; line-height: 1; }
+        .stat-item span.label { font-size: .75rem; opacity: .7; text-transform: uppercase; letter-spacing: .06em; }
+.preview-card {
+            background: #fff; border-radius: 16px;
+            box-shadow: 0 28px 70px rgba(0,0,0,.32);
+            overflow: hidden; transform: perspective(1000px) rotateY(-3deg) rotateX(2deg);
+            transition: transform .4s;
+        }
+        .preview-card:hover { transform: perspective(1000px) rotateY(0) rotateX(0); }
+        .preview-topbar {
+            background: #f1f5f9; padding: .75rem 1rem;
+            display: flex; gap: 6px; align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .dot { width: 11px; height: 11px; border-radius: 50%; }
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #f59e0b; }
+        .dot-green { background: #22c55e; }
+        .preview-body { padding: 1.25rem; }
+        .mini-stat {
+            background: #f8fafc; border-radius: 10px; padding: .85rem;
+            border: 1px solid #e2e8f0;
+        }
+        .mini-stat-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }
+        .mini-stat-lbl { font-size: .7rem; color: #64748b; text-transform: uppercase; letter-spacing: .05em; }
+        .mini-appt {
+            background: #eff6ff; border-radius: 8px; padding: .6rem .8rem;
+            border-left: 3px solid #3b82f6; margin-bottom: .5rem; font-size: .8rem;
+        }
+        .mini-appt-name { font-weight: 700; color: #1e3a8a; }
+        .mini-appt-time { color: #3b82f6; }
+.section-pill {
+            display: inline-flex; align-items: center; gap: .4rem;
+            background: #eff6ff; color: var(--blue-mid);
+            padding: .3rem .85rem; border-radius: 100px;
+            font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+            margin-bottom: 1rem;
+        }
+        .section-title {
+            font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+            font-weight: 800; color: #0f172a; line-height: 1.2;
+        }
+.feat-card {
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
+            padding: 1.75rem; height: 100%;
+            transition: all .25s;
+        }
+        .feat-card:hover {
+            border-color: #bfdbfe; box-shadow: 0 8px 30px rgba(29,78,216,.09);
+            transform: translateY(-4px);
+        }
+        .feat-icon {
+            width: 52px; height: 52px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; margin-bottom: 1.1rem;
+        }
+        .feat-title { font-weight: 700; font-size: 1rem; color: #0f172a; margin-bottom: .4rem; }
+        .feat-desc { font-size: .875rem; color: #64748b; line-height: 1.65; margin: 0; }
+.how-section { background: var(--surface); }
+        .step-num {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+            color: #fff; font-weight: 800; font-size: 1.1rem;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; box-shadow: 0 4px 14px rgba(29,78,216,.3);
+        }
+.role-card {
+            border-radius: 16px; padding: 2rem; text-align: center;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .role-card:hover { transform: translateY(-5px); box-shadow: 0 14px 40px rgba(0,0,0,.13); }
+        .role-patient { background: linear-gradient(135deg,#eff6ff,#dbeafe); border: 1px solid #bfdbfe; }
+        .role-doctor  { background: linear-gradient(135deg,#f0fdf4,#dcfce7); border: 1px solid #bbf7d0; }
+        .role-admin   { background: linear-gradient(135deg,#f8fafc,#f1f5f9); border: 1px solid #e2e8f0; }
+        .role-icon {
+            width: 68px; height: 68px; border-radius: 22px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.9rem; margin: 0 auto 1.1rem;
+        }
+.demo-card {
+            border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .demo-card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(0,0,0,.1); }
+        .demo-card-header {
+            padding: 1.25rem 1.5rem;
+            display: flex; align-items: center; gap: .85rem;
+        }
+        .demo-card-body { padding: 1.25rem 1.5rem; background: #fff; }
+        .demo-field { margin-bottom: .6rem; }
+        .demo-label { font-size: .7rem; font-weight: 700; text-transform: uppercase;
+                      letter-spacing: .06em; color: #94a3b8; margin-bottom: 2px; }
+        .demo-value {
+            font-family: 'Courier New', monospace; font-size: .875rem;
+            background: #f1f5f9; padding: .3rem .65rem; border-radius: 6px;
+            display: inline-block; color: #334155; font-weight: 600;
+        }
+        .copy-btn {
+            cursor: pointer; background: none; border: none; padding: 2px 5px;
+            color: #94a3b8; font-size: .8rem; transition: color .15s;
+        }
+        .copy-btn:hover { color: var(--blue-mid); }
+.tech-badge {
+            display: inline-flex; align-items: center; gap: .4rem;
+            background: #f8fafc; border: 1px solid #e2e8f0;
+            border-radius: 8px; padding: .45rem .85rem;
+            font-size: .8rem; font-weight: 600; color: #334155;
+            transition: border-color .2s, background .2s;
+        }
+        .tech-badge:hover { border-color: #bfdbfe; background: #eff6ff; }
+.faq-item .accordion-button {
+            font-weight: 600; font-size: .95rem; background: #fff;
+            box-shadow: none; color: #0f172a;
+        }
+        .faq-item .accordion-button:not(.collapsed) { color: var(--blue-mid); background: #eff6ff; }
+        .faq-item .accordion-button::after { filter: none; }
+        .faq-item .accordion-body { color: #475569; font-size: .9rem; line-height: 1.7; }
+.cta-section {
+            background: linear-gradient(135deg, #0f172a 0%, var(--blue-mid) 100%);
+        }
+footer { background: #0f172a; color: #94a3b8; }
+        footer a { color: #94a3b8; text-decoration: none; transition: color .15s; }
+        footer a:hover { color: #e2e8f0; }
+        footer .footer-brand { color: #e2e8f0; font-weight: 800; }
+.reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity .6s ease, transform .6s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: .1s; }
+        .reveal-delay-2 { transition-delay: .2s; }
+        .reveal-delay-3 { transition-delay: .3s; }
+        .reveal-delay-4 { transition-delay: .4s; }
+        .reveal-delay-5 { transition-delay: .5s; }
+@media (max-width: 767px) {
+            .nav-links { display: none; }
+            .nav-links.open {
+                display: flex; flex-direction: column;
+                position: absolute; top: 65px; left: 0; right: 0;
+                background: rgba(255,255,255,.97); backdrop-filter: blur(12px);
+                border-bottom: 1px solid #e2e8f0;
+                padding: .75rem 1rem;
+                gap: .25rem; z-index: 999;
+            }
+            .hamburger { display: block !important; }
+        }
+        .hamburger { display: none; background: none; border: none; font-size: 1.4rem; color: #334155; cursor: pointer; }
+    </style>
+</head>
+<body>
+<nav class="landing-nav" id="landingNav">
+    <a href="#" class="landing-brand">
+        <i class="bi bi-heart-pulse-fill"></i>
+        Medi<span class="brand-dot">Clinic</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+        <a href="#features" class="nav-anchor">Func?ionalita?i</a>
+        <a href="#how" class="nav-anchor">Cum func?ioneaza</a>
+        <a href="#roles" class="nav-anchor">Roluri</a>
+        <a href="#demo" class="nav-anchor">Demo</a>
+        <a href="#faq" class="nav-anchor">FAQ</a>
+        <div class="ms-2 d-flex gap-2">
+            <a th:href="@{/login}" class="btn btn-outline-primary btn-sm px-3">Login</a>
+            <a th:href="@{/register}" class="btn btn-primary btn-sm px-3 fw-600">Înregistrare</a>
+        </div>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <i class="bi bi-list"></i>
+    </button>
+</nav>
+<section class="hero">
+    <div class="container position-relative">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <div class="hero-badge">
+                    <i class="bi bi-stars"></i> Smart Healthcare Platform · Proiect de licen?a
+                </div>
+                <h1>
+                    Sanatate inteligenta,<br>
+                    gestionata <span class="accent">simplu</span>
+                </h1>
+                <p class="lead">
+                    MediClinic este platforma all-in-one pentru clinici moderne: programari AI-assisted,
+                    dosare medicale digitale, pla?i Stripe, notificari automate ?i analiza în timp real.
+                </p>
+                <div class="hero-cta">
+                    <a th:href="@{/register}" class="btn-hero-primary">
+                        <i class="bi bi-person-plus-fill me-2"></i>Creeaza cont gratuit
+                    </a>
+                    <a th:href="@{/login}" class="btn-hero-outline">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Intra în cont
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="preview-card">
+                    <div class="preview-topbar">
+                        <div class="dot dot-red"></div>
+                        <div class="dot dot-yellow"></div>
+                        <div class="dot dot-green"></div>
+                        <span class="ms-2 small text-muted fw-600">MediClinic - Dashboard Doctor</span>
+                    </div>
+                    <div class="preview-body">
+                        <div class="row g-2 mb-3">
+                            <div class="col-4">
+                                <div class="mini-stat">
+                                    <div class="mini-stat-val text-primary">12</div>
+                                    <div class="mini-stat-lbl">Programari azi</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="mini-stat">
+                                    <div class="mini-stat-val text-success">8</div>
+                                    <div class="mini-stat-lbl">Confirmate</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="mini-stat">
+                                    <div class="mini-stat-val text-warning">4</div>
+                                    <div class="mini-stat-lbl">În a?teptare</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fw-700 small text-muted mb-2 text-uppercase" style="font-size:.7rem;letter-spacing:.06em;">Programari astazi</div>
+                        <div class="mini-appt">
+                            <div class="d-flex justify-content-between">
+                                <span class="mini-appt-name">Ion Popescu</span>
+                                <span class="mini-appt-time">09:00</span>
+                            </div>
+                            <div style="color:#64748b;font-size:.75rem;">Dr. Ionescu · Cardiologie ·
+                                <span class="badge bg-success" style="font-size:.65rem;">CONFIRMAT</span>
+                            </div>
+                        </div>
+                        <div class="mini-appt" style="border-left-color:#f59e0b;background:#fffbeb;">
+                            <div class="d-flex justify-content-between">
+                                <span class="mini-appt-name" style="color:#92400e;">Ana Radu</span>
+                                <span class="mini-appt-time" style="color:#d97706;">10:30</span>
+                            </div>
+                            <div style="color:#64748b;font-size:.75rem;">Dr. Popescu · Neurologie ·
+                                <span class="badge bg-warning text-dark" style="font-size:.65rem;">PLATA NECESARA</span>
+                            </div>
+                        </div>
+                        <div class="mini-appt" style="border-left-color:#22c55e;background:#f0fdf4;">
+                            <div class="d-flex justify-content-between">
+                                <span class="mini-appt-name" style="color:#166534;">Maria Constantin</span>
+                                <span class="mini-appt-time" style="color:#16a34a;">11:15</span>
+                            </div>
+                            <div style="color:#64748b;font-size:.75rem;">Dr. Radu · Dermatologie ·
+                                <span class="badge bg-success" style="font-size:.65rem;">CONFIRMAT</span>
+                            </div>
+                        </div>
+                        <div class="mt-2 p-2 rounded d-flex align-items-center gap-2"
+                             style="background:#faf5ff;border:1px solid #e9d5ff;font-size:.75rem;">
+                            <i class="bi bi-robot text-purple" style="color:#9333ea;"></i>
+                            <span style="color:#6b21a8;">AI detectat: <strong>URGENT</strong> - dureri toracice (Prioritate CRITICAL)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="stats-strip mt-5">
+        <div class="container">
+            <div class="row g-3 text-center">
+                <div class="col-6 col-md-3">
+                    <div class="stat-item">
+                        <strong class="stat-number" data-count="3">3</strong>
+                        <span class="label">Roluri: Pacient · Doctor · Admin</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-item">
+                        <strong class="stat-number" data-count="12">12</strong>
+                        <span class="label">Specialita?i medicale</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-item">
+                        <strong class="stat-number" data-count="10">10+</strong>
+                        <span class="label">Tehnologii integrate</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-item">
+                        <strong class="stat-number" data-count="100">100%</strong>
+                        <span class="label">Open source · Java 21</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="features" style="padding: 5.5rem 0;">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <div class="section-pill"><i class="bi bi-grid-3x3-gap-fill"></i> Func?ionalita?i</div>
+            <h2 class="section-title">Tot ce ai nevoie într-o singura platforma</h2>
+            <p class="text-muted mt-2" style="max-width:560px;margin:auto;font-size:.95rem;">
+                De la programarea asistata AI la rapoarte medicale PDF, MediClinic acopera fiecare etapa a fluxului clinic.
+            </p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4 reveal reveal-delay-1">
+                <div class="feat-card">
+                    <div class="feat-icon" style="background:#eff6ff;color:#1d4ed8;">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <div class="feat-title">Asistent AI pentru Triage</div>
+                    <p class="feat-desc">Analiza simptomelor cu DeepSeek AI, detec?ie urgen?e, recomandare specialitate ?i nivel de prioritate (CRITICAL / HIGH / MEDIUM / LOW).</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 reveal reveal-delay-2">
+                <div class="feat-card">
+                    <div class="feat-icon" style="background:#f0fdf4;color:#16a34a;">
+                        <i class="bi bi-calendar2-check"></i>
+                    </div>
+                    <div class="feat-title">Programari Inteligente</div>
+                    <p class="feat-desc">Detectare conflicte în timp real, validare interval orar 08:00–18:00, alocare automata bazata pe specialitate ?i disponibilitate.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 reveal reveal-delay-3">
+                <div class="feat-card">
+                    <div class="feat-icon" style="background:#faf5ff;color:#9333ea;">
+                        <i class="bi bi-credit-card-2-front"></i>
+                    </div>
+                    <div class="feat-title">Pla?i Stripe Integrate</div>
+                    <p class="feat-desc">Checkout securizat prin Stripe, confirmare plata prin webhook, rambursari automate la anulare ?i facturi PDF descarcabile.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 reveal reveal-delay-1">
+                <div class="feat-card">
+                    <div class="feat-icon" style="background:#fff7ed;color:#ea580c;">
+                        <i class="bi bi-file-earmark-medical"></i>
+                    </div>
+                    <div class="feat-title">Rapoarte &amp; Re?ete PDF</div>
+                    <p class="feat-desc">Generare automata de rapoarte medicale ?i re?ete PDF cu design profesional, semnate digital de medic ?i stocate securizat.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 reveal reveal-delay-2">
+                <div class="feat-card">
+                    <div class="feat-icon" style="background:#f0f9ff;color:#0284c7;">
+                        <i class="bi bi-bell-fill"></i>
+                    </div>
+                    <div class="feat-title">Notificari Automate</div>
+                    <p class="feat-desc">Email-uri de confirmare, reminder-uri cu 24h înainte, notificari de anulare ?i rambursare - prin JavaMailSender ?i Twilio SMS.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 reveal reveal-delay-3">
+                <div class="feat-card">
+                    <div class="feat-icon" style="background:#fefce8;color:#ca8a04;">
+                        <i class="bi bi-bar-chart-fill"></i>
+                    </div>
+                    <div class="feat-title">Analiza &amp; Dashboard Admin</div>
+                    <p class="feat-desc">KPI-uri în timp real, grafice revenue lunar, ore de vârf, top doctori cu rating, rata de anulare ?i export CSV al datelor.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="how" class="how-section" style="padding: 5.5rem 0;">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <div class="section-pill"><i class="bi bi-signpost-split"></i> Cum func?ioneaza</div>
+            <h2 class="section-title">3 pa?i simpli pentru o programare</h2>
+        </div>
+        <div class="row justify-content-center g-4">
+            <div class="col-md-4 text-center reveal reveal-delay-1">
+                <div class="step-num mx-auto mb-3">1</div>
+                <h5 class="fw-700">Descrie simptomele</h5>
+                <p class="text-muted small">Asistentul AI analizeaza simptomele ?i recomanda specializarea potrivita, indicând nivelul de urgen?a.</p>
+            </div>
+            <div class="col-md-4 text-center reveal reveal-delay-2">
+                <div class="step-num mx-auto mb-3">2</div>
+                <h5 class="fw-700">Alege doctorul ?i ora</h5>
+                <p class="text-muted small">Selectezi din lista de doctori disponibili, alegi data ?i ora. Sistemul verifica automat conflictele de program.</p>
+            </div>
+            <div class="col-md-4 text-center reveal reveal-delay-3">
+                <div class="step-num mx-auto mb-3">3</div>
+                <h5 class="fw-700">Plate?ti &amp; e?ti confirmat</h5>
+                <p class="text-muted small">Plata se face securizat (sau în mod demonstrativ). La confirmare prime?ti email automat ?i reminder înainte de consulta?ie.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="roles" style="padding: 5.5rem 0;">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <div class="section-pill"><i class="bi bi-people-fill"></i> Roluri</div>
+            <h2 class="section-title">Proiectat pentru fiecare actor din clinica</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 reveal reveal-delay-1">
+                <div class="role-card role-patient h-100">
+                    <div class="role-icon" style="background:#dbeafe;">
+                        <i class="bi bi-person-heart text-primary fs-3"></i>
+                    </div>
+                    <h5 class="fw-800 text-primary mb-2">Pacient</h5>
+                    <ul class="list-unstyled text-start small text-secondary mb-3">
+                        <li class="mb-1"><i class="bi bi-check-circle-fill text-primary me-2"></i>Programeaza consulta?ii cu AI</li>
+                        <li class="mb-1"><i class="bi bi-check-circle-fill text-primary me-2"></i>Plate?te online prin Stripe</li>
+                        <li class="mb-1"><i class="bi bi-check-circle-fill text-primary me-2"></i>Acces la istoricul medical complet</li>
+                        <li class="mb-1"><i class="bi bi-check-circle-fill text-primary me-2"></i>Descarca re?ete ?i rapoarte PDF</li>
+                        <li><i class="bi bi-check-circle-fill text-primary me-2"></i>Evalueaza consulta?iile</li>
+                    </ul>
+                    <a th:href="@{/register}" class="btn btn-primary btn-sm w-100 fw-600">Înregistreaza-te ca pacient</a>
+                </div>
+            </div>
+            <div class="col-md-4 reveal reveal-delay-2">
+                <div class="role-card role-doctor h-100">
+                    <div class="role-icon" style="background:#dcfce7;">
+                        <i class="bi bi-clipboard2-pulse-fill text-success fs-3"></i>
+                    </div>
+                    <h5 class="fw-800 text-success mb-2">Doctor</h5>
+                    <ul class="list-unstyled text-start small text-secondary mb-3">
+                        <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Gestioneaza agenda zilnica</li>
+                        <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Confirma sau anuleaza programari</li>
+                        <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Emite re?ete ?i rapoarte PDF</li>
+                        <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Scrie fi?e ?i dosare medicale</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Statistici lunare personale</li>
+                    </ul>
+                    <a th:href="@{/login}" class="btn btn-success btn-sm w-100 fw-600">Autentificare doctor</a>
+                </div>
+            </div>
+            <div class="col-md-4 reveal reveal-delay-3">
+                <div class="role-card role-admin h-100">
+                    <div class="role-icon" style="background:#e2e8f0;">
+                        <i class="bi bi-speedometer2 text-secondary fs-3"></i>
+                    </div>
+                    <h5 class="fw-800 text-dark mb-2">Administrator</h5>
+                    <ul class="list-unstyled text-start small text-secondary mb-3">
+                        <li class="mb-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Dashboard KPI cu Chart.js</li>
+                        <li class="mb-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Gestionare completa a utilizatorilor</li>
+                        <li class="mb-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Analiza revenue ?i ore de vârf</li>
+                        <li class="mb-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Export date CSV</li>
+                        <li><i class="bi bi-check-circle-fill text-secondary me-2"></i>Audit log complet</li>
+                    </ul>
+                    <a th:href="@{/login}" class="btn btn-dark btn-sm w-100 fw-600">Panou administrare</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="demo" style="padding: 5.5rem 0; background: var(--surface);">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <div class="section-pill" style="background:#fff7ed;color:#ea580c;"><i class="bi bi-play-circle-fill"></i> Demo live</div>
+            <h2 class="section-title">Testeaza aplica?ia acum</h2>
+            <p class="text-muted mt-2" style="max-width:520px;margin:auto;font-size:.95rem;">
+                Folose?te unul din conturile de demonstra?ie de mai jos pentru a explora platforma în mod complet.
+            </p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            
+            <div class="col-md-6 col-lg-4 reveal reveal-delay-1">
+                <div class="demo-card h-100">
+                    <div class="demo-card-header" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);">
+                        <div class="role-icon" style="background:#dbeafe;width:48px;height:48px;border-radius:14px;font-size:1.3rem;">
+                            <i class="bi bi-person-heart text-primary"></i>
+                        </div>
+                        <div>
+                            <div class="fw-700 text-primary" style="font-size:.95rem;">Cont Pacient</div>
+                            <div class="small text-muted">Rezervari, pla?i, istoric</div>
+                        </div>
+                    </div>
+                    <div class="demo-card-body">
+                        <div class="demo-field">
+                            <div class="demo-label">Email</div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="demo-value" id="pEmail">mihai@email.com</span>
+                                <button class="copy-btn" onclick="copyText('mihai@email.com', this)" title="Copiaza">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="demo-field">
+                            <div class="demo-label">Parola</div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="demo-value">patient123</span>
+                                <button class="copy-btn" onclick="copyText('patient123', this)" title="Copiaza">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <a th:href="@{/login}" class="btn btn-primary btn-sm w-100 mt-2 fw-600">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Intra ca Pacient
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 reveal reveal-delay-2">
+                <div class="demo-card h-100">
+                    <div class="demo-card-header" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
+                        <div class="role-icon" style="background:#dcfce7;width:48px;height:48px;border-radius:14px;font-size:1.3rem;">
+                            <i class="bi bi-clipboard2-pulse-fill text-success"></i>
+                        </div>
+                        <div>
+                            <div class="fw-700 text-success" style="font-size:.95rem;">Cont Doctor</div>
+                            <div class="small text-muted">Agenda, re?ete, rapoarte</div>
+                        </div>
+                    </div>
+                    <div class="demo-card-body">
+                        <div class="demo-field">
+                            <div class="demo-label">Email</div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="demo-value">doctor1@clinic.com</span>
+                                <button class="copy-btn" onclick="copyText('doctor1@clinic.com', this)" title="Copieaza">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="demo-field">
+                            <div class="demo-label">Parola</div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="demo-value">doctor123</span>
+                                <button class="copy-btn" onclick="copyText('doctor123', this)" title="Copieaza">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <a th:href="@{/login}" class="btn btn-success btn-sm w-100 mt-2 fw-600">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Intra ca Doctor
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 reveal reveal-delay-3">
+                <div class="demo-card h-100">
+                    <div class="demo-card-header" style="background:linear-gradient(135deg,#f8fafc,#f1f5f9);">
+                        <div class="role-icon" style="background:#e2e8f0;width:48px;height:48px;border-radius:14px;font-size:1.3rem;">
+                            <i class="bi bi-speedometer2 text-secondary"></i>
+                        </div>
+                        <div>
+                            <div class="fw-700 text-dark" style="font-size:.95rem;">Cont Admin</div>
+                            <div class="small text-muted">Dashboard KPI, utilizatori</div>
+                        </div>
+                    </div>
+                    <div class="demo-card-body">
+                        <div class="demo-field">
+                            <div class="demo-label">Email</div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="demo-value">admin@clinic.com</span>
+                                <button class="copy-btn" onclick="copyText('admin@clinic.com', this)" title="Copieaza">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="demo-field">
+                            <div class="demo-label">Parola</div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="demo-value">admin123</span>
+                                <button class="copy-btn" onclick="copyText('admin123', this)" title="Copieaza">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <a th:href="@{/login}" class="btn btn-dark btn-sm w-100 mt-2 fw-600">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Intra ca Admin
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="text-center text-muted small mt-4">
+            <i class="bi bi-info-circle me-1"></i>
+            Pla?ile Stripe ruleaza în <strong>mod demonstrativ</strong> - nicio suma reala nu este debitata.
+        </p>
+    </div>
+</section>
+<section style="padding: 4rem 0;">
+    <div class="container text-center reveal">
+        <p class="text-muted small fw-700 text-uppercase mb-3" style="letter-spacing:.12em;">Construit cu tehnologii moderne</p>
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+            <span class="tech-badge"><i class="bi bi-leaf text-success"></i> Spring Boot 4</span>
+            <span class="tech-badge"><i class="bi bi-database text-primary"></i> MySQL + JPA</span>
+            <span class="tech-badge"><i class="bi bi-robot text-info"></i> DeepSeek AI</span>
+            <span class="tech-badge"><i class="bi bi-credit-card text-warning"></i> Stripe Payments</span>
+            <span class="tech-badge"><i class="bi bi-shield-check text-danger"></i> Spring Security</span>
+            <span class="tech-badge"><i class="bi bi-filetype-pdf text-danger"></i> OpenPDF</span>
+            <span class="tech-badge"><i class="bi bi-envelope text-primary"></i> JavaMailSender</span>
+            <span class="tech-badge"><i class="bi bi-phone text-success"></i> Twilio SMS</span>
+            <span class="tech-badge"><i class="bi bi-bar-chart text-warning"></i> Chart.js</span>
+            <span class="tech-badge" style="color:#7c3aed;border-color:#e9d5ff;background:#faf5ff;"><i class="bi bi-bootstrap"></i> Bootstrap 5</span>
+        </div>
+    </div>
+</section>
+<section id="faq" style="padding: 5rem 0; background: var(--surface);">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <div class="section-pill"><i class="bi bi-patch-question-fill"></i> Întrebari frecvente</div>
+            <h2 class="section-title">Ai întrebari?</h2>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8 reveal">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item faq-item border mb-2 rounded-3 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                Pla?ile sunt reale sau simulate?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                În modul demonstrativ (fara cheie Stripe configurata), pla?ile sunt simulate - nicio suma reala nu este debitata.
+                                Daca este configurat un cont Stripe în modul <code>test</code>, se folosesc carduri de test Stripe (ex: <code>4242 4242 4242 4242</code>).
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item faq-item border mb-2 rounded-3 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                Cum func?ioneaza analiza AI a simptomelor?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                La crearea unei programari, simptomele descrise sunt trimise la DeepSeek AI, care returneaza o analiza structurata:
+                                specialitate recomandata, nivel de urgen?a (CRITICAL / HIGH / MEDIUM / LOW) ?i motivul prioritizarii.
+                                Daca API-ul nu este configurat, se folose?te o analiza implicita (prioritate LOW).
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item faq-item border mb-2 rounded-3 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                Cum rulezi proiectul local?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Ai nevoie de <strong>Java 21</strong>, <strong>Maven</strong> ?i <strong>MySQL</strong> (XAMPP recomandat).
+                                Creezi baza de date <code>clinic</code>, configurezi <code>application.properties</code> ?i rulezi
+                                <code>mvn spring-boot:run</code>. Aplica?ia porne?te pe <code>http://localhost:8082</code>.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item faq-item border mb-2 rounded-3 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                Notificarile email ?i SMS func?ioneaza în demo?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Notificarile sunt dezactivate implicit (<code>app.mail.enabled=false</code>, <code>app.sms.enabled=false</code>).
+                                Se activeaza setând variabilele <code>MAIL_HOST</code>, <code>MAIL_USERNAME</code>, <code>MAIL_PASSWORD</code>
+                                pentru email ?i <code>TWILIO_*</code> pentru SMS.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item faq-item border rounded-3 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                Ce tehnologii sunt folosite în backend?
+                            </button>
+                        </h2>
+                        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Backend: <strong>Spring Boot 4.0.5 / Java 21</strong>, Spring Security, Spring Data JPA, Hibernate, MySQL.
+                                Frontend: <strong>Thymeleaf + Bootstrap 5</strong>. Servicii ter?e: DeepSeek AI, Stripe, Twilio, JavaMailSender.
+                                Generare PDF: OpenPDF. Analiza date: Chart.js.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="cta-section text-white" style="padding: 5.5rem 0;">
+    <div class="container text-center reveal">
+        <h2 class="fw-900 mb-3" style="font-size:clamp(1.8rem,4vw,2.8rem);">Gata sa modernizezi clinica ta?</h2>
+        <p class="opacity-75 mb-4" style="max-width:480px;margin:auto;">
+            Înregistreaza-te acum ?i exploreaza toate func?ionalita?ile platformei MediClinic.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a th:href="@{/register}" class="btn-hero-primary">
+                <i class="bi bi-rocket-takeoff me-2"></i>Porne?te acum - gratuit
+            </a>
+            <a th:href="@{/login}" class="btn-hero-outline">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Am deja cont
+            </a>
+        </div>
+    </div>
+</section>
+<footer style="padding: 2.5rem 0;">
+    <div class="container">
+        <div class="row align-items-center g-3">
+            <div class="col-md-4">
+                <div class="footer-brand d-flex align-items-center gap-2 mb-1">
+                    <i class="bi bi-heart-pulse-fill text-primary"></i> MediClinic
+                </div>
+                <div style="font-size:.8rem;opacity:.55;">Smart Healthcare Platform &copy; 2025</div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div style="font-size:.8rem;opacity:.45;">Proiect de licen?a · Spring Boot 4 · Java 21 · MySQL</div>
+            </div>
+            <div class="col-md-4 text-end">
+                <a th:href="@{/login}" class="me-3" style="font-size:.85rem;">Login</a>
+                <a th:href="@{/register}" style="font-size:.85rem;">Înregistrare</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+    const nav = document.getElementById('landingNav');
+    window.addEventListener('scroll', function () {
+        nav.classList.toggle('scrolled', window.scrollY > 30);
+    });
+    document.getElementById('hamburger').addEventListener('click', function () {
+        document.getElementById('navLinks').classList.toggle('open');
+    });
+    document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+        a.addEventListener('click', function (e) {
+            var target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                document.getElementById('navLinks').classList.remove('open');
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+    var reveals = document.querySelectorAll('.reveal');
+    var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.12 });
+    reveals.forEach(function (el) { observer.observe(el); });
+    window.copyText = function (text, btn) {
+        navigator.clipboard.writeText(text).then(function () {
+            var icon = btn.querySelector('i');
+            icon.className = 'bi bi-check-lg text-success';
+            setTimeout(function () { icon.className = 'bi bi-clipboard'; }, 1500);
+        });
+    };
+})();
+</script>
+</body>
+</html>

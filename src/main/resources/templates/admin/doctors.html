@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Doctori | Admin MediClinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+<div class="app-wrapper">
+    <div th:replace="~{fragments/admin-nav :: sidebar}"></div>
+    <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100"
+         style="background:rgba(0,0,0,.4);z-index:99;"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/admin-nav :: topbar('Doctori')}"></div>
+
+        <div class="page-content">
+            <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <nav aria-label="breadcrumb" class="mb-1">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}" class="text-decoration-none">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Doctori</li>
+                        </ol>
+                    </nav>
+                    <h2 class="mb-0"><i class="bi bi-person-badge-fill me-2 text-success"></i>Corpul medical</h2>
+                    <p class="text-muted small mb-0" th:text="'Total: ' + ${#lists.size(doctors)} + ' doctori'"></p>
+                </div>
+            </div>
+
+            
+            <div th:if="${!#lists.isEmpty(doctors)}" class="mb-4 d-flex flex-wrap gap-2">
+                <span class="badge rounded-pill px-3 py-2" style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;font-size:.8rem;">
+                    <i class="bi bi-grid me-1"></i>
+                    <span th:text="${#lists.size(doctors)}"></span> doctori total
+                </span>
+            </div>
+
+            <div class="row g-4" th:unless="${#lists.isEmpty(doctors)}">
+                <div th:each="doc : ${doctors}" class="col-md-6 col-lg-4">
+                    <div class="content-card h-100" style="transition:all .2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                        <div class="content-card-body">
+                            <div class="d-flex gap-3 mb-3">
+                                <div class="avatar" style="width:52px;height:52px;font-size:1.2rem;background:linear-gradient(135deg,#1a7f46,#0f5132);color:#fff;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                                    <span th:text="${doc.firstName != null ? doc.firstName.substring(0,1).toUpperCase() : 'D'}"></span>
+                                </div>
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div class="fw-700 text-dark" th:text="'Dr. ' + ${doc.fullName}"></div>
+                                    <div class="small">
+                                        <span class="badge rounded-pill" style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;"
+                                              th:text="${doc.specialty ?: 'Nespecificat'}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row g-2 small text-muted">
+                                <div class="col-12" th:if="${doc.phone}">
+                                    <i class="bi bi-telephone me-2"></i>
+                                    <span th:text="${doc.phone}"></span>
+                                </div>
+                                <div class="col-12" th:if="${doc.user != null}">
+                                    <i class="bi bi-envelope me-2"></i>
+                                    <span th:text="${doc.user.email}"></span>
+                                </div>
+                                <div class="col-12">
+                                    <i class="bi bi-hash me-2"></i>
+                                    <span class="text-muted">ID: </span>
+                                    <span th:text="${doc.id}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(doctors)}" class="content-card text-center py-5 text-muted">
+                <i class="bi bi-person-badge fs-1 d-block mb-2 opacity-25"></i>
+                Nu există doctori înregistrați.
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Notificari | MediClinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+<div class="app-wrapper">
+    <div th:replace="~{fragments/patient-nav :: sidebar(${patient})}"></div>
+    <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100"
+         style="background:rgba(0,0,0,.4);z-index:99;"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/patient-nav :: topbar('Notificari')}"></div>
+
+        <div class="page-content">
+            <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                <div>
+                    <nav aria-label="breadcrumb" class="mb-1">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a th:href="@{/patient/dashboard}" class="text-decoration-none">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Notificari</li>
+                        </ol>
+                    </nav>
+                    <h2 class="mb-0"><i class="bi bi-bell-fill me-2 text-primary"></i>Istoricul notificarilor</h2>
+                    <p class="text-muted small mb-0">
+                        <span th:if="${#lists.isEmpty(notifications)}">Nu ai notificari.</span>
+                        <span th:unless="${#lists.isEmpty(notifications)}" th:text="${notifications.size() + ' notificari în total'}"></span>
+                    </p>
+                </div>
+            </div>
+
+            
+            <div th:if="${#lists.isEmpty(notifications)}" class="content-card text-center py-5">
+                <i class="bi bi-bell-slash display-4 text-muted mb-3 d-block"></i>
+                <h5 class="text-muted">Nu ai notificari</h5>
+                <p class="text-muted small">Vei fi notificat când statusul programarilor tale se schimba.</p>
+                <a th:href="@{/patient/dashboard}" class="btn btn-primary mt-2">
+                    <i class="bi bi-speedometer2 me-1"></i> Mergi la Dashboard
+                </a>
+            </div>
+
+            
+            <div th:unless="${#lists.isEmpty(notifications)}" class="content-card">
+                <div class="content-card-header">
+                    <h5 class="content-card-title mb-0">
+                        <i class="bi bi-list-ul me-2"></i>Toate notificarile
+                    </h5>
+                </div>
+                <div class="content-card-body p-0">
+                    <div th:each="notif : ${notifications}"
+                         th:class="${!notif.read} ? 'notif-item notif-unread' : 'notif-item'"
+                         class="notif-item d-flex align-items-start gap-3 px-4 py-3 border-bottom">
+
+                        
+                        <div class="notif-icon flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center"
+                             th:style="${notif.type == 'CONFIRMED' ? 'background:#dcfce7;width:42px;height:42px;' : (notif.type == 'CANCELLED' ? 'background:#fee2e2;width:42px;height:42px;' : (notif.type == 'COMPLETED' ? 'background:#dbeafe;width:42px;height:42px;' : 'background:#fef9c3;width:42px;height:42px;'))}">
+                            <i th:class="${notif.type == 'CONFIRMED' ? 'bi bi-check-circle-fill fs-5' : (notif.type == 'CANCELLED' ? 'bi bi-x-circle-fill fs-5' : (notif.type == 'COMPLETED' ? 'bi bi-award-fill fs-5' : 'bi bi-bell-fill fs-5'))}"
+                               th:style="${notif.type == 'CONFIRMED' ? 'color:#16a34a;' : (notif.type == 'CANCELLED' ? 'color:#dc2626;' : (notif.type == 'COMPLETED' ? 'color:#2563eb;' : 'color:#ca8a04;'))}"></i>
+                        </div>
+
+                        
+                        <div class="flex-grow-1 min-width-0">
+                            <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+                                <div>
+                                    <span class="fw-semibold small">
+                                        <span th:switch="${notif.type}">
+                                            <span th:case="'CONFIRMED'">Programare confirmata</span>
+                                            <span th:case="'CANCELLED'">Programare anulata</span>
+                                            <span th:case="'COMPLETED'">Consulta?ie finalizata</span>
+                                            <span th:case="*">Notificare</span>
+                                        </span>
+                                        <span th:if="${notif.appointmentId != null}"
+                                              class="text-muted fw-normal"
+                                              th:text="' - #' + ${notif.appointmentId}"></span>
+                                    </span>
+                                    <div class="text-muted small mt-1" th:text="${notif.message}"></div>
+                                    <div class="text-muted mt-1" style="font-size:.75rem;"
+                                         th:text="${notif.actorName}"></div>
+                                </div>
+                                <div class="text-end flex-shrink-0">
+                                    <span class="badge rounded-pill px-2 py-1 small"
+                                          th:style="${notif.type == 'CONFIRMED' ? 'background:#dcfce7;color:#16a34a;' : (notif.type == 'CANCELLED' ? 'background:#fee2e2;color:#dc2626;' : (notif.type == 'COMPLETED' ? 'background:#dbeafe;color:#2563eb;' : 'background:#fef9c3;color:#ca8a04;'))}"
+                                          th:text="${notif.type == 'CONFIRMED' ? 'Confirmata' : (notif.type == 'CANCELLED' ? 'Anulata' : (notif.type == 'COMPLETED' ? 'Finalizata' : notif.type))}">
+                                    </span>
+                                    <div class="text-muted mt-1" style="font-size:.7rem;"
+                                         th:text="${#temporals.format(notif.createdAt, 'dd MMM yyyy, HH:mm')}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/app.js}"></script>
+<style>
+.notif-item { transition: background .15s; }
+.notif-item:hover { background: var(--bs-tertiary-bg, #f8f9fa); }
+.notif-unread { background: #f0f9ff; }
+html[data-theme="dark"] .notif-unread { background: #1e3a4c; }
+html[data-theme="dark"] .notif-item:hover { background: rgba(255,255,255,.04); }
+</style>
+</body>
+</html>

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Plata securizata | MediClinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        .pay-hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 52%, #7c3aed 100%);
+            color: #fff;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+        }
+        .pay-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+        .pay-card {
+            border-radius: 20px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        }
+        #card-element {
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 14px 16px;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        #card-element.StripeElement--focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+        .pay-btn {
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            border: none;
+            border-radius: 14px;
+            padding: 0.9rem 1.25rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28);
+        }
+        .pay-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 28px rgba(37, 99, 235, 0.36);
+        }
+        .pay-btn:disabled {
+            opacity: 0.72;
+            cursor: not-allowed;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 10px 0;
+            border-bottom: 1px dashed #e2e8f0;
+            font-size: 0.92rem;
+        }
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+        .summary-total {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(124, 58, 237, 0.08));
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-top: 14px;
+        }
+        .sec-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #f0fdf4;
+            color: #166534;
+            font-size: 0.72rem;
+            font-weight: 700;
+            border: 1px solid #bbf7d0;
+        }
+        .pay-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.58);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .overlay-card {
+            background: #fff;
+            border-radius: 22px;
+            padding: 34px 30px;
+            text-align: center;
+            min-width: 300px;
+            max-width: 390px;
+            box-shadow: 0 28px 60px rgba(15, 23, 42, 0.28);
+        }
+    </style>
+</head>
+<body>
+<div class="app-wrapper">
+    <div th:replace="~{fragments/patient-nav :: sidebar(${patient})}"></div>
+    <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100"
+         style="background:rgba(0,0,0,.4);z-index:99;"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/patient-nav :: topbar('Plata securizata')}"></div>
+
+        <div class="page-content">
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <div class="pay-hero mb-4">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                            <span class="pay-pill"><i class="bi bi-shield-lock-fill"></i>Stripe Elements</span>
+                            <span class="pay-pill"><i class="bi bi-credit-card-fill"></i>Cardul se proceseaza de Stripe</span>
+                        </div>
+                        <h2 class="fw-700 mb-2">Plateste direct in pagina</h2>
+                        <p class="mb-0 text-white-50">
+                            Introduci cardul aici, iar Stripe proceseaza plata si trimite banii in contul tau Stripe.
+                            MediClinic primeste doar confirmarea platii.
+                        </p>
+                    </div>
+
+                    <div class="content-card pay-card mb-3">
+                        <div class="content-card-header">
+                            <h5 class="content-card-title mb-0">
+                                <i class="bi bi-lock-fill me-2 text-primary"></i>Date card
+                            </h5>
+                            <span class="badge bg-success">Secure</span>
+                        </div>
+                        <div class="content-card-body">
+                            <div th:if="${!stripeReady}" class="alert alert-warning mb-3">
+                                <strong>Stripe nu este gata.</strong>
+                                Seteaza <code>STRIPE_SECRET_KEY</code>, <code>STRIPE_WEBHOOK_SECRET</code>
+                                si <code>STRIPE_PUBLISHABLE_KEY</code>.
+                            </div>
+
+                            <form id="paymentForm">
+                                <div class="mb-3">
+                                    <label class="pay-label d-block" for="couponCode">Cod cupon</label>
+                                    <div class="input-group">
+                                        <input id="couponCode" class="form-control" type="text"
+                                               placeholder="Ex: ahmad123" autocomplete="off">
+                                        <button id="applyCouponBtn" class="btn btn-outline-primary" type="button">
+                                            Aplica cuponul
+                                        </button>
+                                    </div>
+                                    <div class="form-text">
+                                        Daca ai un cod valid, taxa de rezervare este anulata si programarea se salveaza direct.
+                                    </div>
+                                    <div id="coupon-errors" class="text-danger small mt-2" role="alert"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="pay-label d-block" for="cardHolder">Nume titular</label>
+                                    <input id="cardHolder" class="form-control" type="text" placeholder="PRENUME NUME"
+                                           th:value="${patient.firstName + ' ' + patient.lastName}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="pay-label d-block">Card</label>
+                                    <div id="card-element"></div>
+                                    <div id="card-errors" class="text-danger small mt-2" role="alert"></div>
+                                </div>
+
+                                <button id="payBtn" type="submit" class="pay-btn" th:disabled="${!stripeReady}">
+                                    <span id="btnContent"><i class="bi bi-arrow-right-circle me-2"></i>Plateste acum</span>
+                                    <span id="btnLoading" class="d-none">
+                                        <span class="spinner-border spinner-border-sm me-2" style="width:1rem;height:1rem;"></span>
+                                        Se proceseaza...
+                                    </span>
+                                </button>
+
+                                <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                                    <span class="sec-badge"><i class="bi bi-shield-fill-check"></i>SSL</span>
+                                    <span class="sec-badge"><i class="bi bi-patch-check-fill"></i>PCI DSS</span>
+                                    <span class="sec-badge"><i class="bi bi-eye-slash-fill"></i>Fara stocare card</span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="content-card mb-3 pay-card">
+                        <div class="content-card-header">
+                            <h5 class="content-card-title mb-0">
+                                <i class="bi bi-receipt me-2 text-primary"></i>Rezumat plata
+                            </h5>
+                        </div>
+                        <div class="content-card-body">
+                            <div class="d-flex align-items-center gap-3 pb-3 mb-3" style="border-bottom:1px solid #f1f5f9">
+                                <div class="stat-icon stat-icon-blue flex-shrink-0">
+                                    <i class="bi bi-person-badge-fill"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="fw-600 text-truncate" th:text="'Dr. ' + ${appointment.doctor.fullName}"></div>
+                                    <div class="text-muted small" th:text="${appointment.doctor.specialty}"></div>
+                                    <div class="text-muted small">
+                                        <i class="bi bi-calendar3 me-1 text-primary"></i>
+                                        <span th:text="${#temporals.format(appointment.appointmentDate, 'dd MMM yyyy, HH:mm')}"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="summary-row">
+                                <span class="text-muted">Taxa rezervare</span>
+                                <span class="fw-600" th:text="'$' + ${bookingFeeCents / 100.0}">$2.00</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="text-muted">Taxe suplimentare</span>
+                                <span class="fw-600 text-success">$0.00</span>
+                            </div>
+
+                            <div class="summary-total d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-muted small mb-1">Total de plata</div>
+                                    <div class="fw-700 fs-4 text-primary" th:text="'$' + ${bookingFeeCents / 100.0}">$2.00</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-muted small mb-1">Programare #</div>
+                                    <div class="fw-700 text-dark" th:text="${appointment.id}">#-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-card mb-3">
+                        <div class="content-card-body py-3">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-info-circle text-primary mt-1 flex-shrink-0"></i>
+                                <div class="small text-muted">
+                                    Dupa confirmare, Stripe trimite serverului un webhook si te redirectioneaza pe pagina de succes.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a th:href="@{/patient/dashboard}" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-arrow-left me-1"></i>Inapoi la dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pay-overlay" id="procOverlay">
+    <div class="overlay-card">
+        <div class="spinner-border text-primary mb-3" role="status" aria-hidden="true"></div>
+        <h5 class="fw-700 mb-2">Procesam plata</h5>
+        <p class="text-muted small mb-0">Nu inchide pagina.</p>
+    </div>
+</div>
+
+<form id="intentForm" th:action="@{/create-payment-intent}" method="post" class="d-none">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+    <input type="hidden" name="appointmentId" th:value="${appointment.id}">
+</form>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/app.js}"></script>
+<script th:inline="javascript">
+
+(function () {
+    var stripeReady =  false;
+    var publishableKey =  '';
+    var appointmentId =  0;
+    var csrfToken =  '';
+    var form = document.getElementById('paymentForm');
+    var couponBtn = document.getElementById('applyCouponBtn');
+    var couponInput = document.getElementById('couponCode');
+    var btn = document.getElementById('payBtn');
+    var btnContent = document.getElementById('btnContent');
+    var btnLoading = document.getElementById('btnLoading');
+    var overlay = document.getElementById('procOverlay');
+    var errorBox = document.getElementById('card-errors');
+    var couponErrors = document.getElementById('coupon-errors');
+    var holder = document.getElementById('cardHolder');
+
+    if (couponBtn) {
+        couponBtn.addEventListener('click', async function () {
+            couponErrors.textContent = '';
+            var couponCode = (couponInput.value || '').trim();
+            if (!couponCode) {
+                couponErrors.textContent = 'Introdu un cod de cupon.';
+                return;
+            }
+
+            couponBtn.disabled = true;
+            overlay.style.display = 'flex';
+
+            try {
+                var response = await fetch('/apply-payment-coupon', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: new URLSearchParams({
+                        appointmentId: String(appointmentId),
+                        couponCode: couponCode
+                    })
+                });
+
+                var data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Cod invalid.');
+                }
+
+                window.location.href = data.redirectUrl || ('/payment-success?appointmentId=' + appointmentId);
+            } catch (err) {
+                couponErrors.textContent = err.message || 'Cod invalid.';
+                overlay.style.display = 'none';
+                couponBtn.disabled = false;
+            }
+        });
+    }
+
+    if (stripeReady && publishableKey) {
+        var stripe = Stripe(publishableKey);
+        var elements = stripe.elements({
+            appearance: {
+                theme: 'stripe'
+            }
+        });
+        var card = elements.create('card', {
+            hidePostalCode: true,
+            style: {
+                base: {
+                    color: '#0f172a',
+                    fontFamily: '"Inter", system-ui, sans-serif',
+                    fontSize: '16px',
+                    '::placeholder': { color: '#94a3b8' }
+                },
+                invalid: {
+                    color: '#dc2626'
+                }
+            }
+        });
+        card.mount('#card-element');
+        card.on('change', function (event) {
+            errorBox.textContent = event.error ? event.error.message : '';
+        });
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            errorBox.textContent = '';
+            btn.disabled = true;
+            btnContent.classList.add('d-none');
+            btnLoading.classList.remove('d-none');
+            overlay.style.display = 'flex';
+
+            try {
+                var response = await fetch('/create-payment-intent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: new URLSearchParams({ appointmentId: String(appointmentId) })
+                });
+
+                var data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Nu s-a putut initia plata.');
+                }
+
+                var result = await stripe.confirmCardPayment(data.clientSecret, {
+                    payment_method: {
+                        card: card,
+                        billing_details: {
+                            name: holder.value || 'Client MediClinic'
+                        }
+                    }
+                });
+
+                if (result.error) {
+                    throw new Error(result.error.message || 'Plata a fost respinsa.');
+                }
+
+                if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+                    window.location.href = '/payment-success?appointmentId=' + appointmentId
+                        + '&payment_intent=' + encodeURIComponent(result.paymentIntent.id);
+                    return;
+                }
+
+                throw new Error('Plata nu a fost confirmata.');
+            } catch (err) {
+                errorBox.textContent = err.message || 'Eroare la plata.';
+                btn.disabled = false;
+                btnContent.classList.remove('d-none');
+                btnLoading.classList.add('d-none');
+                overlay.style.display = 'none';
+            }
+        });
+    }
+})();
+
+</script>
+</body>
+</html>

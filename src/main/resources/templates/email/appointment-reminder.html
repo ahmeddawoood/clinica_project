@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reminder programare - MediClinic</title>
+</head>
+<body style="margin:0;padding:0;background:#f0f4f8;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;padding:40px 0;">
+  <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0"
+           style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+
+      
+      <tr>
+        <td style="background:linear-gradient(135deg,#1976d2,#1565c0);padding:28px 36px;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td>
+                <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:700;">&#x2665; MediClinic</h1>
+                <p style="color:#bbdefb;margin:4px 0 0;font-size:13px;">Platforma ta de sanatate</p>
+              </td>
+              <td align="right">
+                <span style="background:rgba(255,255,255,0.2);color:#fff;padding:6px 14px;
+                             border-radius:20px;font-size:12px;font-weight:600;">
+                  &#x23F0; REMINDER
+                </span>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      
+      <tr>
+        <td style="padding:36px;">
+          <h2 style="color:#1976d2;margin:0 0 8px;font-size:20px;">Programare mâine!</h2>
+          <p style="color:#546e7a;margin:0 0 24px;font-size:14px;line-height:1.6;">
+            Buna ziua, <strong th:text="${patientName}">Pacient</strong>!<br>
+            Va reamintim ca ave?i o programare mâine la clinica noastra.
+          </p>
+
+          
+          <table width="100%" cellpadding="0" cellspacing="0"
+                 style="background:#e3f2fd;border:2px solid #1976d2;border-radius:8px;margin-bottom:24px;">
+            <tr>
+              <td style="padding:20px 24px;">
+                <table width="100%" cellpadding="0" cellspacing="6">
+                  <tr>
+                    <td style="color:#5c6bc0;font-size:12px;font-weight:600;text-transform:uppercase;padding:4px 0 2px;">DOCTOR</td>
+                    <td style="color:#1a237e;font-size:16px;font-weight:700;" th:text="${doctorName}">Dr. Popescu</td>
+                  </tr>
+                  <tr>
+                    <td style="color:#5c6bc0;font-size:12px;font-weight:600;text-transform:uppercase;padding:4px 0 2px;">SPECIALITATE</td>
+                    <td style="color:#283593;font-size:14px;" th:text="${specialty}">Cardiologie</td>
+                  </tr>
+                  <tr>
+                    <td style="color:#5c6bc0;font-size:12px;font-weight:600;text-transform:uppercase;padding:4px 0 2px;">DATA ?I ORA</td>
+                    <td style="color:#1a237e;font-size:16px;font-weight:700;" th:text="${dateTime}">01 ianuarie 2025 la 10:00</td>
+                  </tr>
+                  <tr>
+                    <td style="color:#5c6bc0;font-size:12px;font-weight:600;text-transform:uppercase;padding:4px 0 2px;">NUMAR PROGRAMARE</td>
+                    <td style="color:#283593;font-size:14px;">#<span th:text="${appointmentId}">1</span></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+
+          
+          <table width="100%" cellpadding="0" cellspacing="0"
+                 style="background:#f3e5f5;border-left:4px solid #7b1fa2;border-radius:0 6px 6px 0;margin-bottom:24px;">
+            <tr>
+              <td style="padding:14px 18px;">
+                <p style="margin:0;color:#4a148c;font-size:13px;line-height:1.8;font-weight:600;">
+                  Lista de verificare:
+                </p>
+                <p style="margin:4px 0 0;color:#4a148c;font-size:13px;line-height:1.8;">
+                  &#x2705; Buletin / carte de identitate<br>
+                  &#x2705; Documente medicale anterioare relevante<br>
+                  &#x2705; Lista medicamentelor curente<br>
+                  &#x2705; Sosire cu 10 minute înainte
+                </p>
+              </td>
+            </tr>
+          </table>
+
+          <p style="color:#90a4ae;font-size:12px;margin:0;">
+            Nu pute?i ajunge? Anula?i din timp din contul MediClinic. &bull;
+            <a href="mailto:contact@mediclinic.ro" style="color:#2A9D8F;">contact@mediclinic.ro</a>
+          </p>
+        </td>
+      </tr>
+
+      
+      <tr>
+        <td style="background:#f8f9fa;padding:18px 36px;border-top:1px solid #eceff1;">
+          <p style="color:#b0bec5;font-size:11px;margin:0;text-align:center;">
+            &copy; 2025 MediClinic &bull; Str. Sanata?ii 1, Bucure?ti &bull; Tel: 021-000-0000
+          </p>
+        </td>
+      </tr>
+
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>

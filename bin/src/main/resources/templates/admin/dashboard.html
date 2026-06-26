@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard - Admin | MediClinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .stat-card-action { cursor: pointer; }
+        .stat-card-action:focus-visible {
+            outline: 2px solid #60a5fa;
+            outline-offset: 2px;
+        }
+        .modal-table td, .modal-table th {
+            white-space: nowrap;
+            font-size: .85rem;
+        }
+    </style>
+</head>
+<body>
+<div class="app-wrapper">
+    <div th:replace="~{fragments/admin-nav :: sidebar}"></div>
+    <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100" style="background:rgba(0,0,0,.4);z-index:99;"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/admin-nav :: topbar('Dashboard')}"></div>
+
+        <div class="page-content">
+            <div class="page-header">
+                <h2>Dashboard Administrator</h2>
+                <p class="text-muted small mb-0">Prezentare generala a sistemului clinic</p>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6 col-lg-3">
+                    <button type="button" class="stat-card stat-card-action w-100 text-start border-0" data-bs-toggle="modal" data-bs-target="#patientsModal">
+                        <div class="stat-icon stat-icon-blue"><i class="bi bi-people-fill"></i></div>
+                        <div class="stat-body">
+                            <div class="stat-value" th:text="${totalPatients}">0</div>
+                            <div class="stat-label">Pacienti inregistrati</div>
+                        </div>
+                    </button>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <button type="button" class="stat-card stat-card-action w-100 text-start border-0" data-bs-toggle="modal" data-bs-target="#doctorsModal">
+                        <div class="stat-icon stat-icon-green"><i class="bi bi-person-badge-fill"></i></div>
+                        <div class="stat-body">
+                            <div class="stat-value" th:text="${totalDoctors}">0</div>
+                            <div class="stat-label">Doctori activi</div>
+                        </div>
+                    </button>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <button type="button" class="stat-card stat-card-action w-100 text-start border-0" data-bs-toggle="modal" data-bs-target="#appointmentsModal">
+                        <div class="stat-icon stat-icon-purple"><i class="bi bi-calendar3"></i></div>
+                        <div class="stat-body">
+                            <div class="stat-value" th:text="${totalAppointments}">0</div>
+                            <div class="stat-label">Total programari</div>
+                        </div>
+                    </button>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <button type="button" class="stat-card stat-card-action w-100 text-start border-0" data-bs-toggle="modal" data-bs-target="#paidInvoicesModal">
+                        <div class="stat-icon stat-icon-teal"><i class="bi bi-currency-dollar"></i></div>
+                        <div class="stat-body">
+                            <div class="stat-value" th:text="${totalPaid} + ' RON'">0</div>
+                            <div class="stat-label">Venituri incasate</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-lg-3">
+                    <button type="button" class="stat-card stat-card-action w-100 text-start border-0" data-bs-toggle="modal" data-bs-target="#pendingAppointmentsModal">
+                        <div class="stat-icon stat-icon-yellow"><i class="bi bi-hourglass-split"></i></div>
+                        <div class="stat-body">
+                            <div class="stat-value" th:text="${pendingAppointments}">0</div>
+                            <div class="stat-label">Programari in asteptare</div>
+                        </div>
+                    </button>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <button type="button" class="stat-card stat-card-action w-100 text-start border-0" data-bs-toggle="modal" data-bs-target="#confirmedAppointmentsModal">
+                        <div class="stat-icon stat-icon-green"><i class="bi bi-check-circle-fill"></i></div>
+                        <div class="stat-body">
+                            <div class="stat-value" th:text="${confirmedAppointments}">0</div>
+                            <div class="stat-label">Programari confirmate</div>
+                        </div>
+                    </button>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <button type="button" class="stat-card stat-card-action w-100 text-start border-0" data-bs-toggle="modal" data-bs-target="#pendingInvoicesModal">
+                        <div class="stat-icon stat-icon-red"><i class="bi bi-receipt"></i></div>
+                        <div class="stat-body">
+                            <div class="stat-value" th:text="${totalPending} + ' RON'">0</div>
+                            <div class="stat-label">Facturi neachitate</div>
+                        </div>
+                    </button>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <button type="button" class="stat-card stat-card-action w-100 text-start border-0" data-bs-toggle="modal" data-bs-target="#appointmentsModal">
+                        <div class="stat-icon stat-icon-blue"><i class="bi bi-bar-chart-fill"></i></div>
+                        <div class="stat-body">
+                            <div class="stat-value" th:text="${totalAppointments}">0</div>
+                            <div class="stat-label">Total programari</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-lg-6">
+                    <div class="content-card h-100">
+                        <div class="content-card-header">
+                            <h5 class="content-card-title"><i class="bi bi-pie-chart-fill me-2"></i>Programari dupa status</h5>
+                        </div>
+                        <div class="p-3" style="position:relative; height:260px;">
+                            <canvas id="appointmentsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="content-card h-100">
+                        <div class="content-card-header">
+                            <h5 class="content-card-title"><i class="bi bi-bar-chart-fill me-2"></i>Situatie financiara (RON)</h5>
+                        </div>
+                        <div class="p-3" style="position:relative; height:260px;">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="row g-3 mb-4">
+                <div class="col-lg-8">
+                    <div class="content-card h-100">
+                        <div class="content-card-header d-flex justify-content-between align-items-center">
+                            <h5 class="content-card-title"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Programari - Ultimele 6 Luni</h5>
+                            <a th:href="@{/admin/export/appointments}" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-download me-1"></i>Exporta CSV
+                            </a>
+                        </div>
+                        <div class="p-3" style="position:relative; height:260px;">
+                            <canvas id="monthlyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="content-card h-100">
+                        <div class="content-card-header">
+                            <h5 class="content-card-title"><i class="bi bi-trophy-fill me-2 text-warning"></i>Top 5 Medici</h5>
+                        </div>
+                        <div class="p-3">
+                            <div th:each="d, stat : ${topDoctors}" class="d-flex align-items-center gap-3 mb-3">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white"
+                                     th:style="${'width:36px;height:36px;min-width:36px;font-size:.85rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;background:' + (stat.index == 0 ? '#f59e0b' : (stat.index == 1 ? '#94a3b8' : (stat.index == 2 ? '#b45309' : '#6366f1')))}"
+                                     th:text="${stat.index + 1}">1</div>
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div class="fw-600 text-truncate" style="font-size:.875rem;" th:text="${d.name}">Dr. Popescu</div>
+                                    <div class="text-muted" style="font-size:.75rem;" th:text="${d.specialty}">Cardiologie</div>
+                                    <div class="text-muted" style="font-size:.72rem;">
+                                        <span th:each="s : ${#numbers.sequence(1,5)}">
+                                            <i th:class="${s <= d.averageRating} ? 'bi bi-star-fill text-warning' : 'bi bi-star text-muted'" style="font-size:.65rem;"></i>
+                                        </span>
+                                        <span th:text="'(' + ${d.ratingCount} + ')'"></span>
+                                    </div>
+                                </div>
+                                <div class="badge bg-primary-subtle text-primary rounded-pill px-2" th:text="${d.appointmentCount} + ' consulta?ii'">0</div>
+                            </div>
+                            <div th:if="${#lists.isEmpty(topDoctors)}" class="text-muted small text-center py-3">Nu exista date disponibile.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="row g-3 mb-4">
+                <div class="col-lg-5">
+                    <div class="content-card h-100">
+                        <div class="content-card-header">
+                            <h5 class="content-card-title"><i class="bi bi-cash-coin me-2 text-success"></i>Venituri - Ultimele 6 Luni (RON)</h5>
+                        </div>
+                        <div class="p-3" style="position:relative; height:240px;">
+                            <canvas id="monthlyRevenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="content-card h-100">
+                        <div class="content-card-header">
+                            <h5 class="content-card-title"><i class="bi bi-clock-history me-2 text-warning"></i>Ore aglomerate</h5>
+                        </div>
+                        <div class="p-3" style="position:relative; height:240px;">
+                            <canvas id="busiestHoursChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <div class="content-card h-100 text-center d-flex flex-column justify-content-center p-3">
+                        <div class="text-muted small mb-2">Rata anulari</div>
+                        <div class="display-5 fw-bold text-danger" th:text="${cancellationRate} + '%'">0%</div>
+                        <div class="progress mt-3" style="height:8px; border-radius:4px;">
+                            <div class="progress-bar bg-danger"
+                                 th:style="'width:' + ${cancellationRate} + '%'"
+                                 role="progressbar"></div>
+                        </div>
+                        <div class="text-muted mt-2" style="font-size:.72rem;">din total programari</div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="content-card">
+                <div class="content-card-header">
+                    <h5 class="content-card-title"><i class="bi bi-journal-text me-2 text-primary"></i>Jurnal activitate (audit log)</h5>
+                </div>
+                <div class="p-3">
+                    <div th:if="${#lists.isEmpty(auditLog)}" class="empty-state py-3">
+                        <i class="bi bi-journal-x text-muted"></i>
+                        <p>Nu exista înregistrari în jurnal.</p>
+                    </div>
+                    <div class="activity-feed">
+                        <div th:each="entry : ${auditLog}" class="activity-item">
+                            
+                            <div th:if="${entry.action == 'BOOKING_CREATED'}"      class="activity-icon" style="background:#dbeafe;color:#1d4ed8;"><i class="bi bi-calendar-plus"></i></div>
+                            <div th:if="${entry.action == 'PAYMENT_COMPLETED'}"    class="activity-icon" style="background:#dcfce7;color:#15803d;"><i class="bi bi-credit-card-fill"></i></div>
+                            <div th:if="${entry.action == 'APPOINTMENT_CONFIRMED'}" class="activity-icon" style="background:#dcfce7;color:#16a34a;"><i class="bi bi-check-circle-fill"></i></div>
+                            <div th:if="${entry.action == 'APPOINTMENT_COMPLETED'}" class="activity-icon" style="background:#ede9fe;color:#7c3aed;"><i class="bi bi-patch-check-fill"></i></div>
+                            <div th:if="${entry.action == 'APPOINTMENT_CANCELLED'}" class="activity-icon" style="background:#fee2e2;color:#dc2626;"><i class="bi bi-x-circle-fill"></i></div>
+                            <div th:if="${entry.action == 'AUTO_CANCEL'}"           class="activity-icon" style="background:#fff7ed;color:#c2410c;"><i class="bi bi-clock-history"></i></div>
+                            <div th:if="${entry.action == 'REFUND_PROCESSED'}"      class="activity-icon" style="background:#f3e8ff;color:#7e22ce;"><i class="bi bi-arrow-counterclockwise"></i></div>
+                            <div th:unless="${entry.action == 'BOOKING_CREATED' or entry.action == 'PAYMENT_COMPLETED' or entry.action == 'APPOINTMENT_CONFIRMED' or entry.action == 'APPOINTMENT_COMPLETED' or entry.action == 'APPOINTMENT_CANCELLED' or entry.action == 'AUTO_CANCEL' or entry.action == 'REFUND_PROCESSED'}"
+                                 class="activity-icon" style="background:#f1f5f9;color:#64748b;"><i class="bi bi-info-circle"></i></div>
+
+                            <div class="activity-body">
+                                <div class="activity-title">
+                                    <span class="badge bg-light text-dark me-1" style="font-size:.7rem" th:text="${entry.action}"></span>
+                                    <span class="text-muted small" th:text="${entry.actorEmail}"></span>
+                                </div>
+                                <div class="text-muted small mt-1" th:text="${entry.details}"></div>
+                                <div class="activity-meta mt-1">
+                                    <i class="bi bi-clock me-1"></i>
+                                    <span th:text="${#temporals.format(entry.timestamp, 'dd MMM yyyy, HH:mm:ss')}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="patientsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-people-fill me-2 text-primary"></i>Pacienti inregistrati</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 modal-table">
+                        <thead class="table-light"><tr><th>Nume</th><th>Email</th><th>Telefon</th><th>Varsta</th></tr></thead>
+                        <tbody>
+                        <tr th:each="p : ${patientsList}">
+                            <td th:text="${p.fullName}"></td>
+                            <td th:text="${p.user.email}"></td>
+                            <td th:text="${p.phone}"></td>
+                            <td th:text="${p.age}"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(patientsList)}"><td colspan="4" class="text-center text-muted py-3">Nu exista pacienti.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="doctorsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-person-badge-fill me-2 text-success"></i>Doctori activi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 modal-table">
+                        <thead class="table-light"><tr><th>Nume</th><th>Specializare</th><th>Email</th><th>Telefon</th></tr></thead>
+                        <tbody>
+                        <tr th:each="d : ${doctorsList}">
+                            <td th:text="${d.fullName}"></td>
+                            <td th:text="${d.specialty}"></td>
+                            <td th:text="${d.user.email}"></td>
+                            <td th:text="${d.phone}"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(doctorsList)}"><td colspan="4" class="text-center text-muted py-3">Nu exista doctori.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="appointmentsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-calendar3 me-2 text-primary"></i>Total programari</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 modal-table">
+                        <thead class="table-light"><tr><th>Pacient</th><th>Doctor</th><th>Data</th><th>Status</th></tr></thead>
+                        <tbody>
+                        <tr th:each="a : ${appointmentsList}">
+                            <td th:text="${a.patient.fullName}"></td>
+                            <td th:text="${a.doctor.fullName}"></td>
+                            <td th:text="${#temporals.format(a.appointmentDate, 'dd MMM yyyy, HH:mm')}"></td>
+                            <td><span class="badge bg-light text-dark" th:text="${a.status}"></span></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(appointmentsList)}"><td colspan="4" class="text-center text-muted py-3">Nu exista programari.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="pendingAppointmentsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-hourglass-split me-2 text-warning"></i>Programari in asteptare</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 modal-table">
+                        <thead class="table-light"><tr><th>Pacient</th><th>Doctor</th><th>Data</th></tr></thead>
+                        <tbody>
+                        <tr th:each="a : ${pendingAppointmentsList}">
+                            <td th:text="${a.patient.fullName}"></td>
+                            <td th:text="${a.doctor.fullName}"></td>
+                            <td th:text="${#temporals.format(a.appointmentDate, 'dd MMM yyyy, HH:mm')}"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(pendingAppointmentsList)}"><td colspan="3" class="text-center text-muted py-3">Nu exista programari in asteptare.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmedAppointmentsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-check-circle-fill me-2 text-success"></i>Programari confirmate</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 modal-table">
+                        <thead class="table-light"><tr><th>Pacient</th><th>Doctor</th><th>Data</th></tr></thead>
+                        <tbody>
+                        <tr th:each="a : ${confirmedAppointmentsList}">
+                            <td th:text="${a.patient.fullName}"></td>
+                            <td th:text="${a.doctor.fullName}"></td>
+                            <td th:text="${#temporals.format(a.appointmentDate, 'dd MMM yyyy, HH:mm')}"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(confirmedAppointmentsList)}"><td colspan="3" class="text-center text-muted py-3">Nu exista programari confirmate.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="pendingInvoicesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-receipt me-2 text-danger"></i>Facturi neachitate</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 modal-table">
+                        <thead class="table-light"><tr><th>ID</th><th>Suma</th><th>Emisa la</th><th>Descriere</th></tr></thead>
+                        <tbody>
+                        <tr th:each="inv : ${pendingInvoicesList}">
+                            <td th:text="${inv.id}"></td>
+                            <td th:text="${inv.amount} + ' RON'"></td>
+                            <td th:text="${#temporals.format(inv.issuedAt, 'dd MMM yyyy, HH:mm')}"></td>
+                            <td th:text="${inv.description}"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(pendingInvoicesList)}"><td colspan="4" class="text-center text-muted py-3">Nu exista facturi neachitate.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="paidInvoicesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-currency-dollar me-2 text-success"></i>Facturi platite</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 modal-table">
+                        <thead class="table-light"><tr><th>ID</th><th>Suma</th><th>Platita la</th><th>Descriere</th></tr></thead>
+                        <tbody>
+                        <tr th:each="inv : ${paidInvoicesList}">
+                            <td th:text="${inv.id}"></td>
+                            <td th:text="${inv.amount} + ' RON'"></td>
+                            <td th:text="${inv.paidAt != null ? #temporals.format(inv.paidAt, 'dd MMM yyyy, HH:mm') : '-'}"></td>
+                            <td th:text="${inv.description}"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(paidInvoicesList)}"><td colspan="4" class="text-center text-muted py-3">Nu exista facturi platite.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/app.js}"></script>
+<script th:inline="javascript">
+    new Chart(document.getElementById('appointmentsChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['In asteptare', 'Confirmate', 'Finalizate', 'Anulate'],
+            datasets: [{
+                data: [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                backgroundColor: ['#f59e0b', '#10b981', '#3b82f6', '#ef4444'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Încasate', 'În a?teptare'],
+            datasets: [{
+                label: 'RON',
+                data: [
+                    0,
+                    0
+                ],
+                backgroundColor: ['#10b981', '#f59e0b'],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    new Chart(document.getElementById('monthlyRevenueChart'), {
+        type: 'bar',
+        data: {
+            labels:  [],
+            datasets: [{
+                label: 'Venituri (RON)',
+                data:  [],
+                backgroundColor: 'rgba(34,197,94,0.75)',
+                borderColor: '#16a34a',
+                borderWidth: 1,
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { callback: v => v + ' RON' } } }
+        }
+    });
+
+    new Chart(document.getElementById('busiestHoursChart'), {
+        type: 'line',
+        data: {
+            labels:  [],
+            datasets: [{
+                label: 'Programari',
+                data:  [],
+                fill: true,
+                tension: 0.4,
+                backgroundColor: 'rgba(234,179,8,0.15)',
+                borderColor: '#ca8a04',
+                pointBackgroundColor: '#ca8a04',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { title: { display: true, text: 'Ora din zi' } },
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'line',
+        data: {
+            labels:  [],
+            datasets: [{
+                label: 'Programari',
+                data:  [],
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59,130,246,.12)',
+                borderWidth: 2,
+                pointRadius: 4,
+                pointBackgroundColor: '#3b82f6',
+                tension: 0.35,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+</script>
+</body>
+</html>

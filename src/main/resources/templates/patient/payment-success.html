@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Plată confirmată | MediClinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+<div class="app-wrapper">
+    <div th:replace="~{fragments/patient-nav :: sidebar(${patient})}"></div>
+    <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100"
+         style="background:rgba(0,0,0,.4);z-index:99;"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/patient-nav :: topbar('Plată confirmată')}"></div>
+
+        <div class="page-content">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+
+                    
+                    <div class="content-card text-center mb-4">
+                        <div class="content-card-body py-5">
+                            <div class="stat-icon stat-icon-green mx-auto mb-3"
+                                 style="width:72px;height:72px;font-size:2rem;">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            <h3 class="fw-700 mb-2">Plată confirmată!</h3>
+                            <p class="text-muted mb-0">
+                                Taxa de rezervare a fost procesată cu succes. Programarea ta este înregistrată și în așteptarea confirmării medicului.
+                            </p>
+                        </div>
+                    </div>
+
+                    
+                    <div class="content-card mb-4">
+                        <div class="content-card-header">
+                            <h5 class="content-card-title">
+                                <i class="bi bi-receipt me-2 text-primary"></i>Detalii plată
+                            </h5>
+                            <span class="badge bg-success">ACHITAT</span>
+                        </div>
+                        <div class="content-card-body">
+                            <div class="d-flex justify-content-between mb-2 small">
+                                <span class="text-muted">Programare</span>
+                                <span class="fw-600">#<span th:text="${appointment.id}"></span></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2 small">
+                                <span class="text-muted">Doctor</span>
+                                <span class="fw-600" th:text="'Dr. ' + ${appointment.doctor.fullName}"></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2 small">
+                                <span class="text-muted">Specialitate</span>
+                                <span class="fw-600" th:text="${appointment.doctor.specialty}"></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2 small">
+                                <span class="text-muted">Data</span>
+                                <span class="fw-600" th:text="${#temporals.format(appointment.appointmentDate, 'dd MMM yyyy, HH:mm')}"></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2 small"
+                                 th:with="paidAmount=${appointment.stripeAmountCents != null ? #numbers.formatDecimal(appointment.stripeAmountCents / 100.0, 1, 2) : '2.00'}">
+                                <span class="text-muted">Sumă plătită</span>
+                                <span class="fw-600 text-success" th:text="'$' + paidAmount + ' USD'">$2.00 USD</span>
+                            </div>
+                            <div th:if="${appointment.stripePaymentStatus == 'COUPON'}" class="d-flex justify-content-between mb-2 small">
+                                <span class="text-muted">Tip plată</span>
+                                <span class="fw-600 text-primary">Cupon aplicat</span>
+                            </div>
+                            <div th:if="${appointment.stripePaymentIntentId != null}"
+                                 class="d-flex justify-content-between small">
+                                <span class="text-muted">Referință</span>
+                                <span class="font-monospace text-muted small"
+                                      th:text="${#strings.abbreviate(appointment.stripePaymentIntentId, 24)}"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/patient/dashboard}" class="btn btn-primary">
+                            <i class="bi bi-speedometer2 me-1"></i>Mergi la dashboard
+                        </a>
+                        <a th:href="@{/patient/book}" class="btn btn-outline-primary">
+                            <i class="bi bi-calendar-plus me-1"></i>Programare nouă
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

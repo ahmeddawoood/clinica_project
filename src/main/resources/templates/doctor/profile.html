@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Profil | MediClinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+<div class="app-wrapper">
+    <div th:replace="~{fragments/doctor-nav :: sidebar(${doctor})}"></div>
+    <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100"
+         style="background:rgba(0,0,0,.4);z-index:99;"></div>
+
+    <div class="main-content">
+        <div th:replace="~{fragments/doctor-nav :: topbar('Profilul meu')}"></div>
+
+        <div class="page-content">
+            <div th:if="${success}" class="alert alert-success alert-dismissible alert-auto-dismiss d-flex align-items-center gap-2 mb-3">
+                <i class="bi bi-check-circle-fill"></i><span th:text="${success}"></span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible d-flex align-items-center gap-2 mb-3">
+                <i class="bi bi-exclamation-triangle-fill"></i><span th:text="${error}"></span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="page-header">
+                <h2>Profilul meu</h2>
+                <p class="text-muted small mb-0">Actualizați informațiile personale și profesionale</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="content-card">
+                        <div class="content-card-header">
+                            <h5 class="content-card-title">
+                                <i class="bi bi-person-badge me-2 text-success"></i>Informații profesionale
+                            </h5>
+                        </div>
+                        <div class="content-card-body p-4">
+                            <form th:action="@{/doctor/profile}" th:object="${form}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-600">Prenume <span class="text-danger">*</span></label>
+                                        <input th:field="*{firstName}" type="text" class="form-control"
+                                               th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'">
+                                        <div class="invalid-feedback" th:errors="*{firstName}"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-600">Nume <span class="text-danger">*</span></label>
+                                        <input th:field="*{lastName}" type="text" class="form-control"
+                                               th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'">
+                                        <div class="invalid-feedback" th:errors="*{lastName}"></div>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-600">Telefon</label>
+                                        <input th:field="*{phone}" type="tel" class="form-control"
+                                               placeholder="07xxxxxxxx">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-600">Specializare</label>
+                                        <input th:field="*{specialty}" type="text" class="form-control"
+                                               placeholder="ex: Cardiologie">
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2 mt-4">
+                                    <button type="submit" class="btn btn-success px-4">
+                                        <i class="bi bi-check-lg me-1"></i> Salvează modificările
+                                    </button>
+                                    <a th:href="@{/doctor/dashboard}" class="btn btn-outline-secondary">Anulează</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="col-12">
+                    <div class="content-card">
+                        <div class="content-card-header">
+                            <h5 class="content-card-title">
+                                <i class="bi bi-shield-lock me-2 text-warning"></i>Schimbă parola
+                            </h5>
+                        </div>
+                        <div class="content-card-body p-4">
+                            <div th:if="${pwdSuccess}" class="alert alert-success d-flex align-items-center gap-2 mb-3">
+                                <i class="bi bi-check-circle-fill"></i><span th:text="${pwdSuccess}"></span>
+                            </div>
+                            <div th:if="${pwdError}" class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+                                <i class="bi bi-exclamation-triangle-fill"></i><span th:text="${pwdError}"></span>
+                            </div>
+                            <form th:action="@{/doctor/profile/change-password}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-600">Parola curentă</label>
+                                        <input type="password" name="currentPassword" class="form-control" required placeholder="••••••••">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-600">Parola nouă</label>
+                                        <input type="password" name="newPassword" id="newPwdD" class="form-control" required minlength="6" placeholder="Minim 6 caractere">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-600">Confirmă parola nouă</label>
+                                        <input type="password" name="confirmPassword" id="confirmPwdD" class="form-control" required minlength="6" placeholder="Repetați parola">
+                                        <div id="pwdMatchD" class="form-text text-danger d-none"><i class="bi bi-x-circle me-1"></i>Parolele nu coincid.</div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-warning mt-3">
+                                    <i class="bi bi-key me-1"></i> Schimbă parola
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="col-lg-4">
+                    
+                    <div class="content-card mb-4">
+                        <div class="content-card-header">
+                            <h5 class="content-card-title"><i class="bi bi-info-circle me-2"></i>Contul meu</h5>
+                        </div>
+                        <div class="content-card-body p-4">
+                            <div class="d-flex flex-column align-items-center text-center mb-4">
+                                <div class="avatar" style="width:72px;height:72px;font-size:1.8rem;background:#d1fae5;color:#065f46">
+                                    <span th:text="${doctor.firstName != null ? doctor.firstName.substring(0,1).toUpperCase() : 'D'}"></span>
+                                </div>
+                                <div class="fw-bold mt-3" th:text="${'Dr. ' + doctor.fullName}"></div>
+                                <div class="text-muted small" th:text="${doctor.specialty}"></div>
+                                
+                                <div class="mt-2 d-flex align-items-center gap-1" th:if="${ratingCount > 0}">
+                                    <span th:each="i : ${#numbers.sequence(1,5)}">
+                                        <i th:class="${i <= avgRating ? 'bi bi-star-fill text-warning' : 'bi bi-star text-muted'}"
+                                           style="font-size:.85rem;"></i>
+                                    </span>
+                                    <small class="text-muted ms-1"
+                                           th:text="${#numbers.formatDecimal(avgRating,1,1)} + ' (' + ${ratingCount} + ' recenzii)'"></small>
+                                </div>
+                                <div class="mt-2" th:unless="${ratingCount > 0}">
+                                    <small class="text-muted">Nicio recenzie încă</small>
+                                </div>
+                            </div>
+                            <ul class="list-unstyled mb-0">
+                                <li class="d-flex gap-2 mb-2 small">
+                                    <i class="bi bi-envelope text-muted mt-1 flex-shrink-0"></i>
+                                    <span th:text="${doctor.user.email}"></span>
+                                </li>
+                                <li class="d-flex gap-2 small" th:if="${doctor.phone != null}">
+                                    <i class="bi bi-telephone text-muted mt-1 flex-shrink-0"></i>
+                                    <span th:text="${doctor.phone}"></span>
+                                </li>
+                            </ul>
+                            <div class="alert alert-light border mt-3 small mb-0">
+                                <i class="bi bi-lock me-1 text-muted"></i>
+                                Schimbați parola oricând din secțiunea de mai jos.
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="content-card" th:if="${ratingCount > 0}">
+                        <div class="content-card-header">
+                            <h5 class="content-card-title"><i class="bi bi-star-fill me-2 text-warning"></i>Recenzii recente</h5>
+                        </div>
+                        <div class="content-card-body p-0">
+                            <div th:each="r : ${recentRatings}"
+                                 class="px-4 py-3 border-bottom">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <div class="fw-600 small"
+                                         th:text="${r.patient != null ? r.patient.fullName : 'Pacient'}"></div>
+                                    <div class="d-flex gap-1">
+                                        <span th:each="i : ${#numbers.sequence(1,5)}">
+                                            <i th:class="${i <= r.stars ? 'bi bi-star-fill text-warning' : 'bi bi-star text-muted'}"
+                                               style="font-size:.7rem;"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div th:if="${r.comment}" class="small text-muted fst-italic"
+                                     th:text="'&quot;' + ${r.comment} + '&quot;'"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/app.js}"></script>
+<script>
+(function () {
+    const np = document.getElementById('newPwdD');
+    const cp = document.getElementById('confirmPwdD');
+    const fb = document.getElementById('pwdMatchD');
+    if (!np || !cp) return;
+    function check() { fb.classList.toggle('d-none', !cp.value || np.value === cp.value); }
+    np.addEventListener('input', check);
+    cp.addEventListener('input', check);
+    cp.closest('form').addEventListener('submit', e => { if (np.value !== cp.value) { e.preventDefault(); fb.classList.remove('d-none'); } });
+})();
+</script>
+</body>
+</html>
