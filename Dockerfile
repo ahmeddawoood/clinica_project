@@ -22,10 +22,13 @@ COPY --from=builder /app/target/*.jar app.jar
 # Cloud Run injecteaza PORT, local foloseste 8082
 EXPOSE 8080
 
+ENV LANG=C.UTF-8
+
 # folosesc shell form ca sa expandeze ${PORT}
 ENTRYPOINT exec java \
   -XX:+UseContainerSupport \
   -XX:MaxRAMPercentage=75.0 \
   -Djava.security.egd=file:/dev/./urandom \
+  -Dfile.encoding=UTF-8 \
   -Dserver.port=${PORT:-8082} \
   -jar app.jar

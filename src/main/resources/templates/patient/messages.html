@@ -75,7 +75,7 @@
                             <div class="text-muted small">
                                 <i class="bi bi-person me-1"></i>
                                 <span th:text="${msg.sender.email}"></span>
-                                &nbsp;·&nbsp;
+                                &nbsp;Â·&nbsp;
                                 <i class="bi bi-clock me-1"></i>
                                 <span th:text="${#temporals.format(msg.sentAt, 'dd MMM yyyy, HH:mm')}"></span>
                             </div>
@@ -83,7 +83,7 @@
                         <div class="card-body p-4">
                             <div class="msg-body-box mb-4" th:text="${msg.body}"></div>
                             <a th:href="@{/patient/messages}" class="btn btn-outline-secondary btn-sm">
-                                <i class="bi bi-arrow-left me-1"></i>Înapoi
+                                <i class="bi bi-arrow-left me-1"></i>ÃŽnapoi
                             </a>
                         </div>
                     </div>

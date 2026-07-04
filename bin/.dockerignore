@@ -1,8 +1,0 @@
-target/
-*.log
-*.log.*
-.git/
-.idea/
-*.iml
-*.class
-app-restart*.log

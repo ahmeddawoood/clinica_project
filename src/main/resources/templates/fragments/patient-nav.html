@@ -35,7 +35,7 @@
                   th:text="${unreadNotifCount > 9 ? '9+' : unreadNotifCount}"></span>
         </a>
         <a th:href="@{/patient/prescriptions}" class="sidebar-link">
-            <i class="bi bi-file-medical"></i> Re?ete
+            <i class="bi bi-file-medical"></i> Rețete
         </a>
         <div class="sidebar-section-title mt-3">Cont</div>
         <a th:href="@{/patient/profile}" class="sidebar-link">
@@ -125,7 +125,7 @@
             </ul>
         </div>
 
-        <button id="darkToggle" title="Mod �ntunecat"><i class="bi bi-moon-fill"></i></button>
+        <button id="darkToggle" title="Mod întunecat"><i class="bi bi-moon-fill"></i></button>
         <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2">
             <i class="bi bi-person-circle me-1"></i> Pacient
         </span>
@@ -166,7 +166,7 @@
               <div>
                 <div class="fw-600 small">${cfg.label} - #${msg.appointmentId}</div>
                 <div class="text-muted" style="font-size:.78rem;">${msg.message}</div>
-                <div class="text-muted" style="font-size:.7rem;">${msg.actorName} � ${msg.timestamp}</div>
+                <div class="text-muted" style="font-size:.7rem;">${msg.actorName} · ${msg.timestamp}</div>
               </div>
             </div>
           </a>`;

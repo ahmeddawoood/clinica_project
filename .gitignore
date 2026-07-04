@@ -1,5 +1,6 @@
 HELP.md
 target/
+bin/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -9,7 +10,8 @@ target/
 .classpath
 .factorypath
 .project
-.settings
+.settings/*
+!.settings/org.eclipse.core.resources.prefs
 .springBeans
 .sts4-cache
 
@@ -30,7 +32,9 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
-.vscode/
+.vscode/*
+!.vscode/launch.json
+!.vscode/extensions.json
 
 # Local profile with secrets (do not commit)
 src/main/resources/application-local.properties

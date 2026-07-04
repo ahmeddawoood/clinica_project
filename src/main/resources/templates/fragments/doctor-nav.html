@@ -16,7 +16,7 @@
         </a>
         <div class="sidebar-section-title mt-3">Activitate</div>
         <a th:href="@{/doctor/queue}" class="sidebar-link">
-            <i class="bi bi-people-fill"></i> Coada pacien?i
+            <i class="bi bi-people-fill"></i> Coada pacienți
         </a>
         <a th:href="@{/doctor/schedule}" class="sidebar-link">
             <i class="bi bi-calendar-week"></i> Programul meu
@@ -35,7 +35,7 @@
                   th:text="${unreadNotifCount > 9 ? '9+' : unreadNotifCount}"></span>
         </a>
         <a th:href="@{/doctor/prescriptions}" class="sidebar-link">
-            <i class="bi bi-file-medical"></i> Re?ete
+            <i class="bi bi-file-medical"></i> Rețete
         </a>
         <div class="sidebar-section-title mt-3">Cont</div>
         <a th:href="@{/doctor/profile}" class="sidebar-link">
@@ -96,10 +96,10 @@
         <span th:if="${navBadge != null}" class="position-relative">
             <a th:href="@{/doctor/dashboard}" class="btn btn-sm btn-warning rounded-pill px-3">
                 <i class="bi bi-hourglass-split me-1"></i>
-                <span th:text="${navBadge}"></span> �n a?teptare
+                <span th:text="${navBadge}"></span> în așteptare
             </a>
         </span>
-        <button id="darkToggle" title="Mod �ntunecat"><i class="bi bi-moon-fill"></i></button>
+        <button id="darkToggle" title="Mod întunecat"><i class="bi bi-moon-fill"></i></button>
         <span class="badge rounded-pill px-3 py-2" style="background:#d1fae5;color:#065f46;">
             <i class="bi bi-person-badge me-1"></i> Doctor
         </span>
@@ -131,7 +131,7 @@
               <div>
                 <div class="fw-600 small">Programare noua #${msg.appointmentId}</div>
                 <div class="text-muted" style="font-size:.78rem;">${msg.message}</div>
-                <div class="text-muted" style="font-size:.7rem;">${msg.actorName} � ${msg.timestamp}</div>
+                <div class="text-muted" style="font-size:.7rem;">${msg.actorName} · ${msg.timestamp}</div>
               </div>
             </div>
           </a>`;

@@ -132,7 +132,7 @@
                                 <th>Prioritate</th>
                                 <th>Status</th>
                                 <th>Note</th>
-                                <th>Ac?iuni</th>
+                                <th>Acțiuni</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -154,7 +154,7 @@
                                 </td>
                                 <td>
                                     <span th:if="${appt.status == 'PENDING_PAYMENT'}" class="status-badge badge-pending"><i class="bi bi-credit-card"></i> Plata necesara</span>
-                                    <span th:if="${appt.status == 'PENDING'}"   class="status-badge badge-pending"><i class="bi bi-hourglass-split"></i> �n a?teptare</span>
+                                    <span th:if="${appt.status == 'PENDING'}"   class="status-badge badge-pending"><i class="bi bi-hourglass-split"></i> În așteptare</span>
                                     <span th:if="${appt.status == 'CONFIRMED'}" class="status-badge badge-confirmed"><i class="bi bi-check-circle-fill"></i> Confirmat</span>
                                     <span th:if="${appt.status == 'CANCELLED'}" class="status-badge badge-cancelled"><i class="bi bi-x-circle-fill"></i> Anulat</span>
                                     <span th:if="${appt.status == 'COMPLETED'}" class="status-badge badge-completed"><i class="bi bi-patch-check-fill"></i> Finalizat</span>
@@ -170,7 +170,7 @@
                                         <a th:if="${appt.status == 'PENDING_PAYMENT'}"
                                            th:href="@{/patient/appointments/{id}/pay(id=${appt.id})}"
                                            class="btn btn-sm btn-primary">
-                                            <i class="bi bi-credit-card me-1"></i> Plate?te $2 USD
+                                            <i class="bi bi-credit-card me-1"></i> Platește $2 USD
                                         </a>
                                         
                                         <button th:if="${appt.status == 'PENDING'}"
@@ -204,13 +204,13 @@
                                                 data-bs-target="#rateModal"
                                                 th:data-appt-id="${appt.id}"
                                                 th:data-doctor-name="${appt.doctor.fullName}"
-                                                title="Evalueaza consulta?ia">
+                                                title="Evalueaza consultația">
                                             <i class="bi bi-star"></i> Evalueaza
                                         </button>
                                         <span th:if="${appt.status == 'COMPLETED' and ratedIds.contains(appt.id)}"
                                               class="text-warning small"><i class="bi bi-star-fill"></i> Evaluat</span>
                                         <span th:if="${appt.status == 'CANCELLED'}"
-                                              class="text-muted small">-�</span>
+                                              class="text-muted small">—</span>
                                         <button type="button"
                                                 class="btn-action btn-action-info"
                                                 data-bs-toggle="modal"
@@ -227,7 +227,7 @@
                                 <td colspan="7">
                                     <div class="empty-state">
                                         <i class="bi bi-calendar-x"></i>
-                                        <p>Nu ai nicio programare �nca.<br>
+                                        <p>Nu ai nicio programare înca.<br>
                                             <a th:href="@{/patient/book}" class="text-decoration-none">Creeaza prima ta programare</a>
                                         </p>
                                     </div>
@@ -355,7 +355,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-star-fill text-warning me-2"></i>Evalueaza consulta?ia</h5>
+                <h5 class="modal-title"><i class="bi bi-star-fill text-warning me-2"></i>Evalueaza consultația</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="rateForm" method="post">
@@ -374,9 +374,9 @@
                         <div class="invalid-feedback">Selecteaza o nota.</div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Comentariu <span class="text-muted">(op?ional)</span></label>
+                        <label class="form-label">Comentariu <span class="text-muted">(opțional)</span></label>
                         <textarea name="comment" class="form-control" rows="3"
-                                  placeholder="Descrie experien?a ta..."></textarea>
+                                  placeholder="Descrie experiența ta..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -408,12 +408,12 @@
                         <i class="bi bi-exclamation-triangle me-1"></i>
                         Programarea este deja confirmata. Taxa de rezervare ($2) <strong>nu va fi rambursata automat</strong>.
                     </div>
-                    <label class="form-label">Motivul anularii <span class="text-muted">(op?ional)</span></label>
+                    <label class="form-label">Motivul anularii <span class="text-muted">(opțional)</span></label>
                     <textarea name="cancelReason" class="form-control" rows="3"
                               placeholder="ex: Nu ma pot prezenta la aceasta ora..."></textarea>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">�napoi</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Înapoi</button>
                     <button type="submit" class="btn btn-danger">
                         <i class="bi bi-x-circle me-1"></i> Confirma anularea
                     </button>

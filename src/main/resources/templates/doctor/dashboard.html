@@ -150,7 +150,7 @@
                                           th:text="${appt.priority}"></span>
                                 </td>
                                 <td>
-                                    <span th:if="${appt.status == 'PENDING'}"   class="status-badge badge-pending"><i class="bi bi-hourglass-split"></i> �n a?teptare</span>
+                                    <span th:if="${appt.status == 'PENDING'}"   class="status-badge badge-pending"><i class="bi bi-hourglass-split"></i> În așteptare</span>
                                     <span th:if="${appt.status == 'CONFIRMED'}" class="status-badge badge-confirmed"><i class="bi bi-check-circle-fill"></i> Confirmat</span>
                                 </td>
                                 <td class="text-muted small" th:text="${appt.notes}"></td>
@@ -169,7 +169,7 @@
                         <input type="radio" class="btn-check" name="filter" id="filterAll" checked>
                         <label class="btn btn-outline-secondary" for="filterAll">Toate</label>
                         <input type="radio" class="btn-check" name="filter" id="filterPending">
-                        <label class="btn btn-outline-warning" for="filterPending">�n a?teptare</label>
+                        <label class="btn btn-outline-warning" for="filterPending">În așteptare</label>
                         <input type="radio" class="btn-check" name="filter" id="filterConfirmed">
                         <label class="btn btn-outline-success" for="filterConfirmed">Confirmate</label>
                     </div>
@@ -184,7 +184,7 @@
                                 <th>Status</th>
                                 <th>Taxa rezervare</th>
                                 <th>Note pacient</th>
-                                <th>Ac?iuni</th>
+                                <th>Acțiuni</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -209,7 +209,7 @@
                                 </td>
                                 <td>
                                     <span th:if="${appt.status == 'PENDING_PAYMENT'}" class="status-badge" style="background:#fef9c3;color:#92400e"><i class="bi bi-credit-card"></i> Plata necesara</span>
-                                    <span th:if="${appt.status == 'PENDING'}"   class="status-badge badge-pending"><i class="bi bi-hourglass-split"></i> �n a?teptare</span>
+                                    <span th:if="${appt.status == 'PENDING'}"   class="status-badge badge-pending"><i class="bi bi-hourglass-split"></i> În așteptare</span>
                                     <span th:if="${appt.status == 'CONFIRMED'}" class="status-badge badge-confirmed"><i class="bi bi-check-circle-fill"></i> Confirmat</span>
                                     <span th:if="${appt.status == 'CANCELLED'}" class="status-badge badge-cancelled"><i class="bi bi-x-circle-fill"></i> Anulat</span>
                                     <span th:if="${appt.status == 'COMPLETED'}" class="status-badge badge-completed"><i class="bi bi-patch-check-fill"></i> Finalizat</span>
@@ -290,7 +290,7 @@
 
 <div class="content-card mt-4">
     <div class="content-card-header">
-        <h5 class="content-card-title"><i class="bi bi-bar-chart-line me-2 text-success"></i>Consulta?ii pe luni (ultimele 6 luni)</h5>
+        <h5 class="content-card-title"><i class="bi bi-bar-chart-line me-2 text-success"></i>Consultații pe luni (ultimele 6 luni)</h5>
     </div>
     <div class="p-3" style="position:relative;height:240px;">
         <canvas id="monthlyChart"></canvas>
@@ -507,9 +507,9 @@
                         <i class="bi bi-exclamation-triangle-fill me-1"></i>
                         <strong>Alergii:</strong> <span id="modalAllergiesText"></span>
                     </div>
-                    <label class="form-label">Note medicale <span class="text-muted">(op?ional)</span></label>
+                    <label class="form-label">Note medicale <span class="text-muted">(opțional)</span></label>
                     <textarea name="notes" class="form-control" rows="3"
-                              placeholder="ex: Consulta?ie efectuata, pacient stabil..."></textarea>
+                              placeholder="ex: Consultație efectuata, pacient stabil..."></textarea>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Anuleaza</button>
@@ -547,7 +547,7 @@
                 <div id="timelineContent" class="timeline" style="display:none;"></div>
                 <div id="timelineEmpty" class="text-center text-muted py-4" style="display:none;">
                     <i class="bi bi-clock-history fs-2 d-block mb-2"></i>
-                    Nu exista evenimente �nregistrate.
+                    Nu exista evenimente înregistrate.
                 </div>
             </div>
         </div>

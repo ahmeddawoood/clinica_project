@@ -48,7 +48,7 @@
                         <div class="stat-icon" style="background:#fef9c3;color:#92400e;"><i class="bi bi-hourglass-split"></i></div>
                         <div class="stat-body">
                             <div class="stat-value" th:text="${pendingCount}">0</div>
-                            <div class="stat-label">�n a?teptare</div>
+                            <div class="stat-label">În așteptare</div>
                         </div>
                     </div>
                 </div>
@@ -93,7 +93,7 @@
                 <div class="content-card-body p-0">
                     <div th:if="${#lists.isEmpty(appointments)}" class="text-center py-5 text-muted">
                         <i class="bi bi-calendar-x fs-1 d-block mb-2 opacity-25"></i>
-                        Nu exista programari �nregistrate.
+                        Nu exista programari înregistrate.
                     </div>
                     <div class="table-responsive" th:unless="${#lists.isEmpty(appointments)}">
                         <table class="clinic-table" id="apptTable" data-paginate="20">
@@ -136,7 +136,7 @@
                                     </td>
                                     <td>
                                         <span th:switch="${a.status}">
-                                            <span th:case="'PENDING'"         class="status-badge badge-pending"><i class="bi bi-hourglass-split"></i> A?teptare</span>
+                                            <span th:case="'PENDING'"         class="status-badge badge-pending"><i class="bi bi-hourglass-split"></i> Așteptare</span>
                                             <span th:case="'PENDING_PAYMENT'" class="status-badge" style="background:#fef3c7;color:#92400e;"><i class="bi bi-credit-card"></i> Plata</span>
                                             <span th:case="'CONFIRMED'"       class="status-badge badge-confirmed"><i class="bi bi-check-circle-fill"></i> Confirmat</span>
                                             <span th:case="'COMPLETED'"       class="status-badge badge-completed"><i class="bi bi-patch-check-fill"></i> Finalizat</span>

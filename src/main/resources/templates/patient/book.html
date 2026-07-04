@@ -33,7 +33,7 @@
                     </ol>
                 </nav>
                 <h2>Programare noua</h2>
-                <p class="text-muted small mb-0">Selecteaza doctorul ?i data dorita</p>
+                <p class="text-muted small mb-0">Selecteaza doctorul și data dorita</p>
             </div>
 
             <div th:if="${error}" class="alert alert-danger d-flex align-items-center gap-2 mb-3">
@@ -76,17 +76,17 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-600">Data ?i ora <span class="text-danger">*</span></label>
+                                    <label class="form-label fw-600">Data și ora <span class="text-danger">*</span></label>
                                     <input type="datetime-local" th:field="*{appointmentDate}"
                                            class="form-control" id="appointmentDate" required
                                            th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd') + 'T08:00'}">
-                                    <div class="form-text">Alege o data viitoare �n intervalul 08:00 � 18:00.</div>
+                                    <div class="form-text">Alege o data viitoare în intervalul 08:00–18:00.</div>
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="form-label fw-600">Simptome / Note <small class="text-muted">(op?ional)</small></label>
+                                    <label class="form-label fw-600">Simptome / Note <small class="text-muted">(opțional)</small></label>
                                     <textarea th:field="*{notes}" class="form-control" rows="3"
-                                              placeholder="Descrie pe scurt problema sau motivul consulta?iei..."></textarea>
+                                              placeholder="Descrie pe scurt problema sau motivul consultației..."></textarea>
                                 </div>
 
                                 <div class="d-flex gap-2">
@@ -110,10 +110,10 @@
                             </h5>
                         </div>
                         <div class="content-card-body">
-                            <p class="text-muted small mb-3">Descrie simptomele tale ?i AI-ul va sugera specializarea potrivita.</p>
+                            <p class="text-muted small mb-3">Descrie simptomele tale și AI-ul va sugera specializarea potrivita.</p>
                             <div class="mb-3">
                                 <textarea id="symptomsInput" class="form-control" rows="3"
-                                          placeholder="ex: am dureri �n piept ?i dificulta?i la respirat..."></textarea>
+                                          placeholder="ex: am dureri în piept și dificultăți la respirat..."></textarea>
                             </div>
                             <button id="aiBtn" type="button" class="btn btn-primary w-100" onclick="getAiRecommendation()">
                                 <i class="bi bi-stars me-1"></i> Sugereaza doctor
@@ -123,12 +123,12 @@
                             <div id="emergencyBanner" class="d-none emergency-banner mb-3">
                                 <div class="d-flex align-items-center gap-2 mb-1">
                                     <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
-                                    <strong class="text-danger">ATEN?IE - Simptome de urgen?a detectate!</strong>
+                                    <strong class="text-danger">ATENȚIE - Simptome de urgență detectate!</strong>
                                 </div>
                                 <p id="emergencyReason" class="small mb-2 text-danger fw-600"></p>
                                 <p class="small mb-0 text-muted">
-                                    Daca simptomele sunt severe, <strong>suna?i la 112</strong> sau merge?i
-                                    imediat la camera de garda. Nu a?tepta?i o programare.
+                                    Daca simptomele sunt severe, <strong>sunați la 112</strong> sau mergeți
+                                    imediat la camera de garda. Nu așteptați o programare.
                                 </p>
                             </div>
 
@@ -169,22 +169,22 @@
                     
                     <div class="content-card">
                         <div class="content-card-header">
-                            <h5 class="content-card-title"><i class="bi bi-info-circle me-2 text-primary"></i>Ce trebuie sa ?tii</h5>
+                            <h5 class="content-card-title"><i class="bi bi-info-circle me-2 text-primary"></i>Ce trebuie sa știi</h5>
                         </div>
                         <div class="content-card-body">
                             <ul class="list-unstyled mb-0">
                                 <li class="d-flex gap-3 mb-3 pb-3 border-bottom">
                                     <i class="bi bi-clock-fill text-primary mt-1 flex-shrink-0"></i>
                                     <div>
-                                        <div class="fw-600 small">Confirmare �n termen</div>
-                                        <div class="text-muted small">Doctorul va confirma programarea �n cel mai scurt timp.</div>
+                                        <div class="fw-600 small">Confirmare în termen</div>
+                                        <div class="text-muted small">Doctorul va confirma programarea în cel mai scurt timp.</div>
                                     </div>
                                 </li>
                                 <li class="d-flex gap-3 mb-3 pb-3 border-bottom">
                                     <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
                                     <div>
-                                        <div class="fw-600 small">Po?i anula oric�nd</div>
-                                        <div class="text-muted small">Programarile �n a?teptare pot fi anulate din dashboard.</div>
+                                        <div class="fw-600 small">Poți anula oricând</div>
+                                        <div class="text-muted small">Programarile în așteptare pot fi anulate din dashboard.</div>
                                     </div>
                                 </li>
                                 <li class="d-flex gap-3">
@@ -220,7 +220,7 @@ var lastSpecialty = '';
 function getAiRecommendation() {
     var symptoms = document.getElementById('symptomsInput').value.trim();
     if (!symptoms) {
-        showAiError('Introdu simptomele �nainte de a apasa butonul.');
+        showAiError('Introdu simptomele înainte de a apasa butonul.');
         return;
     }
 
@@ -234,7 +234,7 @@ function getAiRecommendation() {
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (!data.specialty || data.specialty === 'unknown') {
-                showAiError('AI-ul nu a putut identifica o specializare. �ncearca sa descrii mai detaliat simptomele.');
+                showAiError('AI-ul nu a putut identifica o specializare. Încearca sa descrii mai detaliat simptomele.');
                 return;
             }
             var banner = document.getElementById('emergencyBanner');
@@ -268,7 +268,7 @@ function getAiRecommendation() {
             document.getElementById('aiResult').classList.remove('d-none');
         })
         .catch(function() {
-            showAiError('Eroare de conexiune. Verifica ca aplica?ia este pornita ?i �ncearca din nou.');
+            showAiError('Eroare de conexiune. Verifica ca aplicația este pornita și încearca din nou.');
         })
         .finally(function() {
             btn.disabled = false;

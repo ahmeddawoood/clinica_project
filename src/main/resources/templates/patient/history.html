@@ -112,7 +112,7 @@
                         </ol>
                     </nav>
                     <h2 class="mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>Istoric Medical</h2>
-                    <p class="text-muted small mb-0">Toate consulta?iile, re?etele ?i documentele tale medicale</p>
+                    <p class="text-muted small mb-0">Toate consultațiile, rețetele și documentele tale medicale</p>
                 </div>
             </div>
 
@@ -122,7 +122,7 @@
                  style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px 16px;">
                 <i class="bi bi-exclamation-triangle-fill text-warning fs-5 flex-shrink-0"></i>
                 <div>
-                    <span class="fw-bold small">Alergii �nregistrate: </span>
+                    <span class="fw-bold small">Alergii înregistrate: </span>
                     <span class="small" th:text="${patient.allergies}"></span>
                 </div>
             </div>
@@ -134,7 +134,7 @@
                         <div class="stat-icon stat-icon-blue"><i class="bi bi-journal-medical"></i></div>
                         <div class="stat-body">
                             <div class="stat-value" th:text="${totalRecords}">0</div>
-                            <div class="stat-label">Fi?e medicale</div>
+                            <div class="stat-label">Fișe medicale</div>
                         </div>
                     </div>
                 </div>
@@ -143,7 +143,7 @@
                         <div class="stat-icon" style="background:#faf5ff;color:#9333ea;"><i class="bi bi-capsule"></i></div>
                         <div class="stat-body">
                             <div class="stat-value" th:text="${totalPrescriptions}">0</div>
-                            <div class="stat-label">Re?ete medicale</div>
+                            <div class="stat-label">Rețete medicale</div>
                         </div>
                     </div>
                 </div>
@@ -174,14 +174,14 @@
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="records-tab" data-bs-toggle="tab"
                                     data-bs-target="#records-pane" type="button" role="tab">
-                                <i class="bi bi-journal-medical me-1"></i>Fi?e Medicale
+                                <i class="bi bi-journal-medical me-1"></i>Fișe Medicale
                                 <span class="badge bg-primary-subtle text-primary ms-1" th:text="${totalRecords}"></span>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="rx-tab" data-bs-toggle="tab"
                                     data-bs-target="#rx-pane" type="button" role="tab">
-                                <i class="bi bi-capsule me-1"></i>Re?ete
+                                <i class="bi bi-capsule me-1"></i>Rețete
                                 <span class="badge bg-purple-subtle text-purple ms-1"
                                       style="background:#faf5ff;color:#9333ea;"
                                       th:text="${totalPrescriptions}"></span>
@@ -217,7 +217,7 @@
 <div class="tab-pane fade show active" id="records-pane" role="tabpanel">
                             <div th:if="${#lists.isEmpty(records)}" class="empty-state">
                                 <i class="bi bi-journal-x empty-icon"></i>
-                                <p class="text-muted mb-0">Nu exista fi?e medicale �nregistrate.</p>
+                                <p class="text-muted mb-0">Nu exista fișe medicale înregistrate.</p>
                             </div>
                             <div class="row g-3" th:unless="${#lists.isEmpty(records)}">
                                 <div th:each="rec : ${records}" class="col-md-6">
@@ -254,7 +254,7 @@
                                                      style="white-space:pre-wrap;" th:text="${rec.treatment}"></div>
                                             </div>
                                             <div th:if="${rec.notes}" class="col-12">
-                                                <div class="field-label">Observa?ii</div>
+                                                <div class="field-label">Observații</div>
                                                 <div class="field-value small text-muted" th:text="${rec.notes}"></div>
                                             </div>
                                         </div>
@@ -265,7 +265,7 @@
 <div class="tab-pane fade" id="rx-pane" role="tabpanel">
                             <div th:if="${#lists.isEmpty(prescriptions)}" class="empty-state">
                                 <i class="bi bi-capsule empty-icon"></i>
-                                <p class="text-muted mb-0">Nu ai re?ete medicale emise.</p>
+                                <p class="text-muted mb-0">Nu ai rețete medicale emise.</p>
                             </div>
                             <div class="row g-3" th:unless="${#lists.isEmpty(prescriptions)}">
                                 <div th:each="rx : ${prescriptions}" class="col-md-6">
@@ -276,7 +276,7 @@
                                             </div>
                                             <div class="flex-grow-1 overflow-hidden">
                                                 <div class="fw-700 text-dark">
-                                                    Re?eta #<span th:text="${rx.id}"></span>
+                                                    Rețeta #<span th:text="${rx.id}"></span>
                                                 </div>
                                                 <div class="small text-muted">
                                                     <i class="bi bi-person-badge me-1"></i>
@@ -300,7 +300,7 @@
                                                      style="white-space:pre-wrap;" th:text="${rx.medications}"></div>
                                             </div>
                                             <div th:if="${rx.instructions}" class="col-12">
-                                                <div class="field-label">Instruc?iuni</div>
+                                                <div class="field-label">Instrucțiuni</div>
                                                 <div class="field-value small text-muted"
                                                      style="white-space:pre-wrap;" th:text="${rx.instructions}"></div>
                                             </div>
@@ -387,7 +387,7 @@
                                         <tr th:each="inv : ${invoices}">
                                             <td class="fw-600 small text-muted" th:text="${inv.id}"></td>
                                             <td>
-                                                <div class="small fw-600" th:text="${inv.description ?: 'Consulta?ie'}"></div>
+                                                <div class="small fw-600" th:text="${inv.description ?: 'Consultație'}"></div>
                                                 <div class="small text-muted" th:if="${inv.paymentMethod}"
                                                      th:text="${inv.paymentMethod}"></div>
                                             </td>
@@ -416,7 +416,7 @@
 <div class="tab-pane fade" id="timeline-pane" role="tabpanel">
                             <div th:if="${#lists.isEmpty(timeline)}" class="empty-state">
                                 <i class="bi bi-clock-history empty-icon"></i>
-                                <p class="text-muted mb-0">Nu exista evenimente medicale �nregistrate.</p>
+                                <p class="text-muted mb-0">Nu exista evenimente medicale înregistrate.</p>
                             </div>
 
                             <div th:unless="${#lists.isEmpty(timeline)}" class="timeline mt-3 mb-2">
@@ -449,7 +449,7 @@
                                             
                                             <span class="tl-type-badge flex-shrink-0"
                                                   th:style="${ev.type == 'RECORD' ? 'background:#eff6ff;color:#3b82f6;' : (ev.type == 'PRESCRIPTION' ? 'background:#faf5ff;color:#9333ea;' : (ev.type == 'REPORT' ? 'background:#f0fdf4;color:#16a34a;' : 'background:#fffbeb;color:#d97706;'))}"
-                                                  th:text="${ev.type == 'RECORD' ? 'Fi?a' : (ev.type == 'PRESCRIPTION' ? 'Re?eta' : (ev.type == 'REPORT' ? 'Raport' : 'Consulta?ie'))}">
+                                                  th:text="${ev.type == 'RECORD' ? 'Fișa' : (ev.type == 'PRESCRIPTION' ? 'Rețeta' : (ev.type == 'REPORT' ? 'Raport' : 'Consultație'))}">
                                             </span>
                                         </div>
                                         

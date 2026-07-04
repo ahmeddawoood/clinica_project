@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "MediClinic (XAMPP/MySQL)",
+            "request": "launch",
+            "mainClass": "com.example.clinic.ClinicApplication",
+            "projectName": "clinic"
+        },
+        {
+            "type": "java",
+            "name": "MediClinic (dev / H2 in-memory)",
+            "request": "launch",
+            "mainClass": "com.example.clinic.ClinicApplication",
+            "projectName": "clinic",
+            "args": "--spring.profiles.active=dev --spring.config.additional-location=file:src/main/resources/"
+        }
+    ]
+}

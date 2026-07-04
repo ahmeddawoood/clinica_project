@@ -29,7 +29,7 @@
 
             <div class="page-header">
                 <h2>Profilul meu</h2>
-                <p class="text-muted small mb-0">Men?ine?i datele personale actualizate pentru o �ngrijire mai buna</p>
+                <p class="text-muted small mb-0">Mențineți datele personale actualizate pentru o îngrijire mai buna</p>
             </div>
 
             <div class="row g-4">
@@ -37,7 +37,7 @@
                     <div class="content-card">
                         <div class="content-card-header">
                             <h5 class="content-card-title">
-                                <i class="bi bi-person me-2 text-primary"></i>Informa?ii personale
+                                <i class="bi bi-person me-2 text-primary"></i>Informații personale
                             </h5>
                         </div>
                         <div class="content-card-body p-4">
@@ -77,7 +77,7 @@
 
                                 <div class="row g-3 mb-3">
                                     <div class="col-md-6">
-                                        <label class="form-label fw-600">Data na?terii</label>
+                                        <label class="form-label fw-600">Data nașterii</label>
                                         <input th:field="*{dateOfBirth}" type="date" class="form-control"
                                                th:classappend="${#fields.hasErrors('dateOfBirth')} ? 'is-invalid'">
                                         <div class="invalid-feedback" th:errors="*{dateOfBirth}"></div>
@@ -102,13 +102,13 @@
                                     <label class="form-label fw-600">Alergii cunoscute</label>
                                     <input th:field="*{allergies}" type="text" class="form-control"
                                            placeholder="ex: Penicilina, Ibuprofen">
-                                    <div class="form-text">Separa?i cu virgula. Aceste informa?ii sunt vizibile doctorului.</div>
+                                    <div class="form-text">Separați cu virgula. Aceste informații sunt vizibile doctorului.</div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label fw-600">Adresa</label>
                                     <input th:field="*{address}" type="text" class="form-control"
-                                           placeholder="Str. Exemplu 10, Ora?">
+                                           placeholder="Str. Exemplu 10, Oraș">
                                 </div>
 
                                 <div class="d-flex gap-2 mt-4">
@@ -142,7 +142,7 @@
                                 <div class="row g-3">
                                     <div class="col-md-4">
                                         <label class="form-label fw-600">Parola curenta</label>
-                                        <input type="password" name="currentPassword" class="form-control" required placeholder="��������">
+                                        <input type="password" name="currentPassword" class="form-control" required placeholder="••••••••">
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-600">Parola noua</label>
@@ -150,7 +150,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-600">Confirma parola noua</label>
-                                        <input type="password" name="confirmPassword" id="confirmPwdP" class="form-control" required minlength="6" placeholder="Repeta?i parola">
+                                        <input type="password" name="confirmPassword" id="confirmPwdP" class="form-control" required minlength="6" placeholder="Repetați parola">
                                         <div id="pwdMatchP" class="form-text text-danger d-none"><i class="bi bi-x-circle me-1"></i>Parolele nu coincid.</div>
                                     </div>
                                 </div>
@@ -179,7 +179,7 @@
 
                             <ul class="list-unstyled mb-0 small">
                                 <li class="d-flex justify-content-between py-2 border-bottom" th:if="${patient.age != null}">
-                                    <span class="text-muted">V�rsta</span>
+                                    <span class="text-muted">Vârsta</span>
                                     <strong th:text="${patient.age + ' ani'}"></strong>
                                 </li>
                                 <li class="d-flex justify-content-between py-2 border-bottom" th:if="${patient.bloodType != null}">
@@ -194,7 +194,7 @@
 
                             <div class="alert alert-warning border mt-3 small mb-0">
                                 <i class="bi bi-exclamation-triangle me-1"></i>
-                                Informa?iile despre alergii sunt critice. Men?ine?i-le actualizate.
+                                Informațiile despre alergii sunt critice. Mențineți-le actualizate.
                             </div>
                         </div>
                     </div>

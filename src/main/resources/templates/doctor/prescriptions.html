@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Re?ete | MediClinic</title>
+    <title>Rețete | MediClinic</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
@@ -13,10 +13,10 @@
     <div th:replace="~{fragments/doctor-nav :: sidebar(${doctor})}"></div>
     <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100" style="background:rgba(0,0,0,.4);z-index:99;"></div>
     <div class="main-content">
-        <div th:replace="~{fragments/doctor-nav :: topbar('Re?ete medicale')}"></div>
+        <div th:replace="~{fragments/doctor-nav :: topbar('Rețete medicale')}"></div>
         <div class="page-content">
             <div class="page-header">
-                <h2><i class="bi bi-capsule me-2 text-success"></i>Re?ete medicale</h2>
+                <h2><i class="bi bi-capsule me-2 text-success"></i>Rețete medicale</h2>
             </div>
 
             <div th:if="${success}" class="alert alert-success d-flex gap-2 align-items-center mb-3">
@@ -31,7 +31,7 @@
                 <div class="col-lg-4">
                     <div class="content-card">
                         <div class="content-card-header">
-                            <h5 class="content-card-title"><i class="bi bi-pencil-square me-2 text-success"></i>Emite re?eta noua</h5>
+                            <h5 class="content-card-title"><i class="bi bi-pencil-square me-2 text-success"></i>Emite rețeta noua</h5>
                         </div>
                         <div class="content-card-body">
                             <form th:action="@{/doctor/prescriptions/save}" th:object="${form}" method="post">
@@ -44,7 +44,7 @@
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-600 small">Programare (op?ional)</label>
+                                    <label class="form-label fw-600 small">Programare (opțional)</label>
                                     <select th:field="*{appointmentId}" class="form-select form-select-sm">
                                         <option value="">- Nicio programare -</option>
                                         <option th:each="a : ${appointments}"
@@ -60,15 +60,15 @@
                                 <div class="mb-3">
                                     <label class="form-label fw-600 small">Medicamente <span class="text-danger">*</span></label>
                                     <textarea th:field="*{medications}" class="form-control form-control-sm" rows="4"
-                                              placeholder="ex: Metformin 500mg - 2x/zi (diminea?a ?i seara)" required></textarea>
+                                              placeholder="ex: Metformin 500mg - 2x/zi (dimineața și seara)" required></textarea>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-600 small">Instruc?iuni de administrare</label>
+                                    <label class="form-label fw-600 small">Instrucțiuni de administrare</label>
                                     <textarea th:field="*{instructions}" class="form-control form-control-sm" rows="3"
-                                              placeholder="ex: Se ia dupa masa, cu apa. Evita?i alcoolul."></textarea>
+                                              placeholder="ex: Se ia dupa masa, cu apa. Evitați alcoolul."></textarea>
                                 </div>
                                 <button type="submit" class="btn btn-success w-100">
-                                    <i class="bi bi-save me-1"></i>Salveaza re?eta
+                                    <i class="bi bi-save me-1"></i>Salveaza rețeta
                                 </button>
                             </form>
                         </div>
@@ -79,26 +79,26 @@
                 <div class="col-lg-8">
                     <div class="content-card">
                         <div class="content-card-header">
-                            <h5 class="content-card-title"><i class="bi bi-list-ul me-2 text-primary"></i>Re?etele mele emise</h5>
+                            <h5 class="content-card-title"><i class="bi bi-list-ul me-2 text-primary"></i>Rețetele mele emise</h5>
                             <span class="badge bg-secondary" th:text="${#lists.size(prescriptions)}"></span>
                         </div>
                         <div class="content-card-body p-0">
                             <div th:if="${#lists.isEmpty(prescriptions)}" class="text-center text-muted py-5">
                                 <i class="bi bi-capsule fs-1 d-block mb-2 opacity-25"></i>
-                                Nicio re?eta emisa �nca.
+                                Nicio rețeta emisa înca.
                             </div>
                             <div th:each="rx : ${prescriptions}" class="p-3 border-bottom d-flex align-items-start justify-content-between gap-3">
                                 <div class="flex-grow-1">
                                     <div class="fw-600 mb-1">
                                         <i class="bi bi-file-medical text-success me-1"></i>
-                                        Re?eta #<span th:text="${rx.id}"></span>
+                                        Rețeta #<span th:text="${rx.id}"></span>
                                         &nbsp;-&nbsp;
                                         <span th:text="${rx.patient.fullName}"></span>
                                     </div>
                                     <div class="small text-muted mb-1">
                                         <i class="bi bi-calendar3 me-1"></i>
                                         <span th:text="${#temporals.format(rx.issuedAt, 'dd MMM yyyy, HH:mm')}"></span>
-                                        <span th:if="${rx.diagnosis}"> � <span th:text="${rx.diagnosis}"></span></span>
+                                        <span th:if="${rx.diagnosis}"> · <span th:text="${rx.diagnosis}"></span></span>
                                     </div>
                                     <div class="small text-truncate" style="max-width:400px;" th:text="${rx.medications}"></div>
                                 </div>

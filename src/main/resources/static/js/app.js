@@ -36,7 +36,7 @@ document.querySelectorAll('.alert-auto-dismiss').forEach(alert => {
     });
 document.querySelectorAll('form[data-confirm]').forEach(form => {
         form.addEventListener('submit', e => {
-            if (!confirm(form.getAttribute('data-confirm') || 'E?ti sigur?')) {
+            if (!confirm(form.getAttribute('data-confirm') || 'EÈ™ti sigur?')) {
                 e.preventDefault();
             }
         });
@@ -44,7 +44,7 @@ document.querySelectorAll('form[data-confirm]').forEach(form => {
 
     document.querySelectorAll('[data-confirm]:not(form)').forEach(el => {
         el.addEventListener('click', e => {
-            if (!confirm(el.getAttribute('data-confirm') || 'E?ti sigur?')) {
+            if (!confirm(el.getAttribute('data-confirm') || 'EÈ™ti sigur?')) {
                 e.preventDefault();
             }
         });
@@ -91,7 +91,7 @@ const apptDateInput = document.getElementById('appointmentDate');
             const date = new Date(apptDateInput.value);
             const hour = date.getHours();
             if (hour < 8 || hour >= 18) {
-                apptDateInput.setCustomValidity('Programarile se pot face doar între 08:00 ?i 18:00.');
+                apptDateInput.setCustomValidity('Programarile se pot face doar Ã®ntre 08:00 È™i 18:00.');
                 apptDateInput.reportValidity();
             } else {
                 apptDateInput.setCustomValidity('');
@@ -142,7 +142,7 @@ document.querySelectorAll('table[data-paginate]').forEach(table => {
             const from = rows.length === 0 ? 0 : (currentPage - 1) * perPage + 1;
             const to   = Math.min(currentPage * perPage, rows.length);
             ctrl.innerHTML = `
-                <span class="text-muted small">${from}–${to} din ${rows.length} înregistrari</span>
+                <span class="text-muted small">${from}â€“${to} din ${rows.length} Ã®nregistrari</span>
                 <div class="d-flex gap-1">
                     <button class="btn btn-sm btn-outline-secondary" id="pgPrev" ${currentPage === 1 ? 'disabled' : ''}>
                         <i class="bi bi-chevron-left"></i>
@@ -196,7 +196,7 @@ function csrfHeaders() {
         btn.innerHTML = theme === 'dark'
             ? '<i class="bi bi-sun-fill"></i>'
             : '<i class="bi bi-moon-fill"></i>';
-        btn.title = theme === 'dark' ? 'Mod luminos' : 'Mod întunecat';
+        btn.title = theme === 'dark' ? 'Mod luminos' : 'Mod Ã®ntunecat';
     }
 
     document.addEventListener('DOMContentLoaded', () => {

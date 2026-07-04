@@ -278,10 +278,10 @@
 <script th:inline="javascript">
 
 (function () {
-    var stripeReady =  false;
-    var publishableKey =  '';
-    var appointmentId =  0;
-    var csrfToken =  '';
+    var stripeReady = /*[[${stripeReady}]]*/ false;
+    var publishableKey = /*[[${stripePublishableKey}]]*/ '';
+    var appointmentId = /*[[${appointment.id}]]*/ 0;
+    var csrfToken = /*[[${_csrf.token}]]*/ '';
     var form = document.getElementById('paymentForm');
     var couponBtn = document.getElementById('applyCouponBtn');
     var couponInput = document.getElementById('couponCode');

@@ -170,7 +170,7 @@
                                         <span th:text="'(' + ${d.ratingCount} + ')'"></span>
                                     </div>
                                 </div>
-                                <div class="badge bg-primary-subtle text-primary rounded-pill px-2" th:text="${d.appointmentCount} + ' consulta?ii'">0</div>
+                                <div class="badge bg-primary-subtle text-primary rounded-pill px-2" th:text="${d.appointmentCount} + ' consulta»õii'">0</div>
                             </div>
                             <div th:if="${#lists.isEmpty(topDoctors)}" class="text-muted small text-center py-3">Nu exista date disponibile.</div>
                         </div>
@@ -222,7 +222,7 @@
                 <div class="p-3">
                     <div th:if="${#lists.isEmpty(auditLog)}" class="empty-state py-3">
                         <i class="bi bi-journal-x text-muted"></i>
-                        <p>Nu exista Ónregistrari Ón jurnal.</p>
+                        <p>Nu exista √Ænregistrari √Æn jurnal.</p>
                     </div>
                     <div class="activity-feed">
                         <div th:each="entry : ${auditLog}" class="activity-item">
@@ -472,7 +472,7 @@
     new Chart(document.getElementById('revenueChart'), {
         type: 'bar',
         data: {
-            labels: ['Œncasate', 'Œn a?teptare'],
+            labels: ['√éncasate', '√én a»ôteptare'],
             datasets: [{
                 label: 'RON',
                 data: [

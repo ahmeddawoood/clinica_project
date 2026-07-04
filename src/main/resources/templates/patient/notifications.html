@@ -29,7 +29,7 @@
                     <h2 class="mb-0"><i class="bi bi-bell-fill me-2 text-primary"></i>Istoricul notificarilor</h2>
                     <p class="text-muted small mb-0">
                         <span th:if="${#lists.isEmpty(notifications)}">Nu ai notificari.</span>
-                        <span th:unless="${#lists.isEmpty(notifications)}" th:text="${notifications.size() + ' notificari Ón total'}"></span>
+                        <span th:unless="${#lists.isEmpty(notifications)}" th:text="${notifications.size() + ' notificari √Æn total'}"></span>
                     </p>
                 </div>
             </div>
@@ -38,7 +38,7 @@
             <div th:if="${#lists.isEmpty(notifications)}" class="content-card text-center py-5">
                 <i class="bi bi-bell-slash display-4 text-muted mb-3 d-block"></i>
                 <h5 class="text-muted">Nu ai notificari</h5>
-                <p class="text-muted small">Vei fi notificat c‚nd statusul programarilor tale se schimba.</p>
+                <p class="text-muted small">Vei fi notificat c√¢nd statusul programarilor tale se schimba.</p>
                 <a th:href="@{/patient/dashboard}" class="btn btn-primary mt-2">
                     <i class="bi bi-speedometer2 me-1"></i> Mergi la Dashboard
                 </a>
@@ -71,7 +71,7 @@
                                         <span th:switch="${notif.type}">
                                             <span th:case="'CONFIRMED'">Programare confirmata</span>
                                             <span th:case="'CANCELLED'">Programare anulata</span>
-                                            <span th:case="'COMPLETED'">Consulta?ie finalizata</span>
+                                            <span th:case="'COMPLETED'">Consulta»õie finalizata</span>
                                             <span th:case="*">Notificare</span>
                                         </span>
                                         <span th:if="${notif.appointmentId != null}"
