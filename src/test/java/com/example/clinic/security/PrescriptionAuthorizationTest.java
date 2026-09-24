@@ -96,14 +96,14 @@ class PrescriptionAuthorizationTest {
     }
 
     @Test
-    @WithMockUser(username = "patient-a@test.com", roles = "PATIENT")
+    @WithMockUser(username = "security-prescription-patient-a@test.com", roles = "PATIENT")
     void patientCannotDownloadAnotherPatientsPrescription() throws Exception {
         mockMvc.perform(get("/patient/prescriptions/{id}/download", patientBPrescription.getId()))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(username = "patient-b@test.com", roles = "PATIENT")
+    @WithMockUser(username = "security-prescription-patient-b@test.com", roles = "PATIENT")
     void patientCanDownloadOwnPrescription() throws Exception {
         mockMvc.perform(get("/patient/prescriptions/{id}/download", patientBPrescription.getId()))
                 .andExpect(status().isOk());
