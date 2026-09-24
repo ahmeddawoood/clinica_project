@@ -42,6 +42,7 @@ class PrescriptionAuthorizationTest {
 
     private MockMvc mockMvc;
     private Prescription patientBPrescription;
+    private Prescription anotherDoctorsPrescription;
 
     @BeforeAll
     void setUp() {
@@ -49,42 +50,16 @@ class PrescriptionAuthorizationTest {
                 .apply(SecurityMockMvcConfigurers.springSecurity())
                 .build();
 
-        User patientAUser = new User();
-        patientAUser.setEmail("security-prescription-patient-a@test.com");
-        patientAUser.setPassword("test");
-        patientAUser.setRole("PATIENT");
-        patientAUser = userRepository.save(patientAUser);
+        User patientAUser = user("security-prescription-patient-a@test.com", "PATIENT");
+        User patientBUser = user("security-prescription-patient-b@test.com", "PATIENT");
+        User doctorUser = user("security-prescription-doctor@test.com", "DOCTOR");
+        User anotherDoctorUser = user("security-prescription-doctor-b@test.com", "DOCTOR");
 
-        User patientBUser = new User();
-        patientBUser.setEmail("security-prescription-patient-b@test.com");
-        patientBUser.setPassword("test");
-        patientBUser.setRole("PATIENT");
-        patientBUser = userRepository.save(patientBUser);
+        Patient patientA = patient("Patient", "A", patientAUser);
+        Patient patientB = patient("Patient", "B", patientBUser);
 
-        User doctorUser = new User();
-        doctorUser.setEmail("security-prescription-doctor@test.com");
-        doctorUser.setPassword("test");
-        doctorUser.setRole("DOCTOR");
-        doctorUser = userRepository.save(doctorUser);
-
-        Patient patientA = new Patient();
-        patientA.setFirstName("Patient");
-        patientA.setLastName("A");
-        patientA.setUser(patientAUser);
-        patientA = patientRepository.save(patientA);
-
-        Patient patientB = new Patient();
-        patientB.setFirstName("Patient");
-        patientB.setLastName("B");
-        patientB.setUser(patientBUser);
-        patientB = patientRepository.save(patientB);
-
-        Doctor doctor = new Doctor();
-        doctor.setFirstName("Doctor");
-        doctor.setLastName("Test");
-        doctor.setSpecialty("General");
-        doctor.setUser(doctorUser);
-        doctor = doctorRepository.save(doctor);
+        Doctor doctor = doctor("Doctor", "Test", doctorUser);
+        Doctor anotherDoctor = doctor("Doctor", "B", anotherDoctorUser);
 
         patientBPrescription = new Prescription();
         patientBPrescription.setPatient(patientB);
@@ -93,6 +68,39 @@ class PrescriptionAuthorizationTest {
         patientBPrescription.setDiagnosis("Test diagnosis");
         patientBPrescription.setInstructions("Test instructions");
         patientBPrescription = prescriptionRepository.save(patientBPrescription);
+
+        anotherDoctorsPrescription = new Prescription();
+        anotherDoctorsPrescription.setPatient(patientA);
+        anotherDoctorsPrescription.setDoctor(anotherDoctor);
+        anotherDoctorsPrescription.setMedications("Doctor B medication");
+        anotherDoctorsPrescription.setDiagnosis("Doctor B diagnosis");
+        anotherDoctorsPrescription.setInstructions("Doctor B instructions");
+        anotherDoctorsPrescription = prescriptionRepository.save(anotherDoctorsPrescription);
+    }
+
+    private User user(String email, String role) {
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword("test");
+        user.setRole(role);
+        return userRepository.save(user);
+    }
+
+    private Patient patient(String firstName, String lastName, User user) {
+        Patient patient = new Patient();
+        patient.setFirstName(firstName);
+        patient.setLastName(lastName);
+        patient.setUser(user);
+        return patientRepository.save(patient);
+    }
+
+    private Doctor doctor(String firstName, String lastName, User user) {
+        Doctor doctor = new Doctor();
+        doctor.setFirstName(firstName);
+        doctor.setLastName(lastName);
+        doctor.setSpecialty("General");
+        doctor.setUser(user);
+        return doctorRepository.save(doctor);
     }
 
     @Test
@@ -106,6 +114,20 @@ class PrescriptionAuthorizationTest {
     @WithMockUser(username = "security-prescription-patient-b@test.com", roles = "PATIENT")
     void patientCanDownloadOwnPrescription() throws Exception {
         mockMvc.perform(get("/patient/prescriptions/{id}/download", patientBPrescription.getId()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "security-prescription-doctor@test.com", roles = "DOCTOR")
+    void doctorCannotDownloadAnotherDoctorsPrescription() throws Exception {
+        mockMvc.perform(get("/doctor/prescriptions/{id}/download", anotherDoctorsPrescription.getId()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "security-prescription-doctor@test.com", roles = "DOCTOR")
+    void doctorCanDownloadOwnPrescription() throws Exception {
+        mockMvc.perform(get("/doctor/prescriptions/{id}/download", patientBPrescription.getId()))
                 .andExpect(status().isOk());
     }
 }
