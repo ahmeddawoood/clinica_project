@@ -1,9 +1,13 @@
 package com.example.clinic.security;
 
 import com.example.clinic.domain.Appointment;
+import com.example.clinic.domain.Doctor;
+import com.example.clinic.domain.Patient;
 import com.example.clinic.domain.User;
 import com.example.clinic.repository.ActivityLogRepository;
 import com.example.clinic.repository.AppointmentRepository;
+import com.example.clinic.repository.DoctorRepository;
+import com.example.clinic.repository.PatientRepository;
 import com.example.clinic.repository.UserRepository;
 import com.example.clinic.service.NotificationService;
 import com.example.clinic.service.StripeService;
@@ -19,6 +23,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDateTime;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,6 +37,8 @@ class TimelineAuthorizationTest {
 
     @Autowired WebApplicationContext wac;
     @Autowired UserRepository userRepository;
+    @Autowired PatientRepository patientRepository;
+    @Autowired DoctorRepository doctorRepository;
     @Autowired AppointmentRepository appointmentRepository;
     @Autowired ActivityLogRepository activityLogRepository;
 
@@ -47,14 +55,23 @@ class TimelineAuthorizationTest {
         User patientBUser = user("patient-b@test.com", "PATIENT");
         User doctorUser = user("doctor@test.com", "DOCTOR");
 
-        patientBAppointment = new Appointment();
-        patientBAppointment.setStatus("CONFIRMED");
-        patientBAppointment.setPatient(null);
-        patientBAppointment.setDoctor(null);
+        Patient patientB = patient("B", patientBUser);
+        Doctor doctor = doctor(doctorUser);
 
-        // The endpoint authorization is based on Patient/Doctor -> User ownership.
-        // Persisting a complete appointment fixture requires Patient/Doctor entities,
-        // so this test is intentionally left for the repository-backed integration fixture.
+        patientBAppointment = new Appointment();
+        patientBAppointment.setPatient(patientB);
+        patientBAppointment.setDoctor(doctor);
+        patientBAppointment.setAppointmentDate(LocalDateTime.of(2030, 1, 10, 10, 0));
+        patientBAppointment.setStatus("CONFIRMED");
+        patientBAppointment = appointmentRepository.save(patientBAppointment);
+
+        activityLogRepository.save(
+                new com.example.clinic.domain.ActivityLog(
+                        patientBAppointment.getId(),
+                        "BOOKING_CREATED",
+                        "test"
+                )
+        );
     }
 
     private User user(String email, String role) {
@@ -65,10 +82,34 @@ class TimelineAuthorizationTest {
         return userRepository.save(user);
     }
 
+    private Patient patient(String name, User user) {
+        Patient patient = new Patient();
+        patient.setFirstName("Patient");
+        patient.setLastName(name);
+        patient.setUser(user);
+        return patientRepository.save(patient);
+    }
+
+    private Doctor doctor(User user) {
+        Doctor doctor = new Doctor();
+        doctor.setFirstName("Doctor");
+        doctor.setLastName("Test");
+        doctor.setSpecialty("General");
+        doctor.setUser(user);
+        return doctorRepository.save(doctor);
+    }
+
     @Test
     @WithMockUser(username = "patient-a@test.com", roles = "PATIENT")
-    void anonymousOrWrongOwnerCannotReadAppointmentTimeline() throws Exception {
-        mockMvc.perform(get("/appointments/{id}/timeline", 999999L))
+    void patientCannotReadAnotherPatientsAppointmentTimeline() throws Exception {
+        mockMvc.perform(get("/appointments/{id}/timeline", patientBAppointment.getId()))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "patient-b@test.com", roles = "PATIENT")
+    void patientCanReadOwnAppointmentTimeline() throws Exception {
+        mockMvc.perform(get("/appointments/{id}/timeline", patientBAppointment.getId()))
+                .andExpect(status().isOk());
     }
 }
