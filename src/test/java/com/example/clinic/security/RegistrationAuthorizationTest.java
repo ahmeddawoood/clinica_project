@@ -51,7 +51,6 @@ class RegistrationAuthorizationTest {
                         .param("role", "ADMIN"))
                 .andExpect(status().is3xxRedirection());
 
-        User user = userRepository.findByEmail(email).orElseThrow();
-        assertThat(user.getRole()).isEqualTo("PATIENT");
+        assertThat(userRepository.findByEmail(email)).isEmpty();
     }
 }
