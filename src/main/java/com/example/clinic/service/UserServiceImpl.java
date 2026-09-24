@@ -43,6 +43,13 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void register(RegisterRequest request) {
+        String requestedRole = request.getRole();
+        if (!"PATIENT".equals(requestedRole) && !"DOCTOR".equals(requestedRole)) {
+            log.warn("Registration rejected: unsupported role - email={}, role={}",
+                    request.getEmail(), requestedRole);
+            throw new IllegalArgumentException("Rolul selectat nu este permis pentru înregistrare.");
+        }
+
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             log.warn("Registration failed: email already in use - {}", request.getEmail());
             throw new IllegalArgumentException("Email-ul este deja folosit");
@@ -51,9 +58,9 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole());
+        user.setRole(requestedRole);
         userRepository.save(user);
-        log.info("New user registered: email={} role={}", request.getEmail(), request.getRole());
+        log.info("New user registered: email={} role={}", request.getEmail(), requestedRole);
 
         if ("PATIENT".equals(request.getRole())) {
             Patient patient = new Patient();
