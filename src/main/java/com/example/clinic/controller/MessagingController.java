@@ -3,6 +3,7 @@ package com.example.clinic.controller;
 import com.example.clinic.domain.Message;
 import com.example.clinic.domain.User;
 import com.example.clinic.exception.ClinicException;
+import com.example.clinic.exception.ResourceAccessDeniedException;
 import com.example.clinic.repository.DoctorRepository;
 import com.example.clinic.repository.MessageRepository;
 import com.example.clinic.repository.UserRepository;
@@ -49,6 +50,15 @@ public class MessagingController {
         User user = getUser(principal);
         Message msg = messageRepository.findByIdWithSenderReceiver(id)
                 .orElseThrow(() -> new ClinicException("Mesajul nu există"));
+        if (!msg.getReceiver().getId().equals(user.getId())
+                && !msg.getSender().getId().equals(user.getId())) {
+            throw new ResourceAccessDeniedException("Nu aveți acces la acest mesaj.");
+        }
+
+        if (!msg.getReceiver().getId().equals(user.getId())
+                && !msg.getSender().getId().equals(user.getId())) {
+            throw new ResourceAccessDeniedException("Nu aveți acces la acest mesaj.");
+        }
         if (msg.getReceiver().getId().equals(user.getId()) && !msg.isRead()) {
             msg.setRead(true);
             messageRepository.save(msg);
@@ -113,6 +123,11 @@ public class MessagingController {
         User sender  = getUser(principal);
         Message parent = messageRepository.findById(parentId)
                 .orElseThrow(() -> new ClinicException("Mesajul original nu există"));
+
+        if (!parent.getReceiver().getId().equals(sender.getId())) {
+            throw new ResourceAccessDeniedException("Nu aveți acces la acest mesaj.");
+        }
+
         Message reply = new Message();
         reply.setSender(sender);
         reply.setReceiver(parent.getSender());
