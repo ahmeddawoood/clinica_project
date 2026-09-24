@@ -155,10 +155,10 @@ class AppointmentRepositoryTest {
 
     @Test
     void findByStatusAndAppointmentDateBetween_confirmedTomorrow_returned() {
-        LocalDateTime isolatedDate = LocalDateTime.of(2099, 1, 10, 10, 0);
+        LocalDateTime isolatedDate = LocalDateTime.of(2098, 1, 10, 10, 0);
         persist("CONFIRMED", isolatedDate, null);
 
-        LocalDateTime windowStart = LocalDateTime.of(2099, 1, 10, 0, 0);
+        LocalDateTime windowStart = LocalDateTime.of(2098, 1, 10, 0, 0);
         LocalDateTime windowEnd = windowStart.plusDays(1);
         List<Appointment> upcoming = appointmentRepository
                 .findByStatusAndAppointmentDateBetween("CONFIRMED", windowStart, windowEnd);
@@ -168,10 +168,10 @@ class AppointmentRepositoryTest {
 
     @Test
     void findByStatusAndAppointmentDateBetween_cancelledTomorrow_notReturned() {
-        LocalDateTime isolatedDate = LocalDateTime.of(2099, 1, 11, 10, 0);
+        LocalDateTime isolatedDate = LocalDateTime.of(2098, 1, 11, 10, 0);
         persist("CANCELLED", isolatedDate, null);
 
-        LocalDateTime windowStart = LocalDateTime.of(2099, 1, 11, 0, 0);
+        LocalDateTime windowStart = LocalDateTime.of(2098, 1, 11, 0, 0);
         LocalDateTime windowEnd = windowStart.plusDays(1);
         List<Appointment> upcoming = appointmentRepository
                 .findByStatusAndAppointmentDateBetween("CONFIRMED", windowStart, windowEnd);
