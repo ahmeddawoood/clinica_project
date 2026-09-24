@@ -10,7 +10,8 @@ import com.example.clinic.repository.PrescriptionRepository;
 import com.example.clinic.repository.UserRepository;
 import com.example.clinic.service.NotificationService;
 import com.example.clinic.service.StripeService;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PrescriptionAuthorizationTest {
 
     @MockitoBean NotificationService notificationService;
@@ -41,26 +43,26 @@ class PrescriptionAuthorizationTest {
     private MockMvc mockMvc;
     private Prescription patientBPrescription;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac)
                 .apply(SecurityMockMvcConfigurers.springSecurity())
                 .build();
 
         User patientAUser = new User();
-        patientAUser.setEmail("patient-a@test.com");
+        patientAUser.setEmail("security-prescription-patient-a@test.com");
         patientAUser.setPassword("test");
         patientAUser.setRole("PATIENT");
         patientAUser = userRepository.save(patientAUser);
 
         User patientBUser = new User();
-        patientBUser.setEmail("patient-b@test.com");
+        patientBUser.setEmail("security-prescription-patient-b@test.com");
         patientBUser.setPassword("test");
         patientBUser.setRole("PATIENT");
         patientBUser = userRepository.save(patientBUser);
 
         User doctorUser = new User();
-        doctorUser.setEmail("doctor@test.com");
+        doctorUser.setEmail("security-prescription-doctor@test.com");
         doctorUser.setPassword("test");
         doctorUser.setRole("DOCTOR");
         doctorUser = userRepository.save(doctorUser);
@@ -94,14 +96,14 @@ class PrescriptionAuthorizationTest {
     }
 
     @Test
-    @WithMockUser(username = "patient-a@test.com", roles = "PATIENT")
+    @WithMockUser(username = "security-prescription-patient-a@test.com", roles = "PATIENT")
     void patientCannotDownloadAnotherPatientsPrescription() throws Exception {
         mockMvc.perform(get("/patient/prescriptions/{id}/download", patientBPrescription.getId()))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(username = "patient-b@test.com", roles = "PATIENT")
+    @WithMockUser(username = "security-prescription-patient-b@test.com", roles = "PATIENT")
     void patientCanDownloadOwnPrescription() throws Exception {
         mockMvc.perform(get("/patient/prescriptions/{id}/download", patientBPrescription.getId()))
                 .andExpect(status().isOk());
