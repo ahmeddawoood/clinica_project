@@ -55,10 +55,6 @@ public class MessagingController {
             throw new ResourceAccessDeniedException("Nu aveți acces la acest mesaj.");
         }
 
-        if (!msg.getReceiver().getId().equals(user.getId())
-                && !msg.getSender().getId().equals(user.getId())) {
-            throw new ResourceAccessDeniedException("Nu aveți acces la acest mesaj.");
-        }
         if (msg.getReceiver().getId().equals(user.getId()) && !msg.isRead()) {
             msg.setRead(true);
             messageRepository.save(msg);
@@ -106,6 +102,10 @@ public class MessagingController {
         User user = getUser(principal);
         Message msg = messageRepository.findByIdWithSenderReceiver(id)
                 .orElseThrow(() -> new ClinicException("Mesajul nu există"));
+        if (!msg.getReceiver().getId().equals(user.getId())
+                && !msg.getSender().getId().equals(user.getId())) {
+            throw new ResourceAccessDeniedException("Nu aveți acces la acest mesaj.");
+        }
         if (msg.getReceiver().getId().equals(user.getId()) && !msg.isRead()) {
             msg.setRead(true);
             messageRepository.save(msg);
