@@ -1,6 +1,11 @@
 package com.example.clinic.controller;
 
 import com.example.clinic.domain.ActivityLog;
+import com.example.clinic.domain.Appointment;
+import com.example.clinic.domain.User;
+import com.example.clinic.exception.ResourceAccessDeniedException;
+import com.example.clinic.repository.AppointmentRepository;
+import com.example.clinic.repository.UserRepository;
 import com.example.clinic.service.ActivityLogService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -11,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -26,9 +32,15 @@ public class TimelineController {
             DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm", Locale.of("ro", "RO"));
 
     private final ActivityLogService activityLogService;
+    private final AppointmentRepository appointmentRepository;
+    private final UserRepository userRepository;
 
-    public TimelineController(ActivityLogService activityLogService) {
+    public TimelineController(ActivityLogService activityLogService,
+                               AppointmentRepository appointmentRepository,
+                               UserRepository userRepository) {
         this.activityLogService = activityLogService;
+        this.appointmentRepository = appointmentRepository;
+        this.userRepository = userRepository;
     }
 
     @GetMapping
@@ -54,7 +66,24 @@ public class TimelineController {
     })
     public ResponseEntity<List<Map<String, Object>>> getTimeline(
             @Parameter(description = "ID-ul programării", example = "1", required = true)
-            @PathVariable Long id) {
+            @PathVariable Long id, Principal principal) {
+        User user = userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new ResourceAccessDeniedException("Nu aveți acces la această programare."));
+
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceAccessDeniedException("Nu aveți acces la această programare."));
+
+        boolean patientOwner = appointment.getPatient() != null
+                && appointment.getPatient().getUser() != null
+                && user.getId().equals(appointment.getPatient().getUser().getId());
+
+        boolean doctorOwner = appointment.getDoctor() != null
+                && appointment.getDoctor().getUser() != null
+                && user.getId().equals(appointment.getDoctor().getUser().getId());
+
+        if (!patientOwner && !doctorOwner) {
+            throw new ResourceAccessDeniedException("Nu aveți acces la această programare.");
+        }
         List<ActivityLog> logs = activityLogService.getTimeline(id);
         List<Map<String, Object>> result = logs.stream()
                 .map(entry -> Map.<String, Object>of(
