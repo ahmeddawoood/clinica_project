@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ public class DataLoader implements CommandLineRunner {
 
     private final UserService userService;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
     private final DoctorScheduleRepository scheduleRepository;
@@ -33,7 +35,7 @@ public class DataLoader implements CommandLineRunner {
     private final RatingRepository ratingRepository;
     private final MessageRepository messageRepository;
 
-    public DataLoader(UserService userService, UserRepository userRepository,
+    public DataLoader(UserService userService, UserRepository userRepository, PasswordEncoder passwordEncoder,
                       DoctorRepository doctorRepository, PatientRepository patientRepository,
                       DoctorScheduleRepository scheduleRepository,
                       AppointmentRepository appointmentRepository,
@@ -44,6 +46,7 @@ public class DataLoader implements CommandLineRunner {
                       MessageRepository messageRepository) {
         this.userService = userService;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
         this.doctorRepository = doctorRepository;
         this.patientRepository = patientRepository;
         this.scheduleRepository = scheduleRepository;
@@ -197,7 +200,7 @@ public class DataLoader implements CommandLineRunner {
         if (doctorRepository.count() > 0) return;
 
         log.info("Loading initial dataset...");
-        createUser("admin@clinic.com", "admin123", "ADMIN", "Admin", "System", null, null);
+        createAdminUser("admin@clinic.com", "admin123");
         List<Doctor> doctors = new ArrayList<>();
         doctors.add(createDoctor("doctor1@clinic.com", "doctor123", "Alexandru", "Popescu",  "Medicina Generala", "0721111001"));
         doctors.add(createDoctor("doctor2@clinic.com", "doctor123", "Maria",     "Ionescu",  "Cardiologie",       "0721111002"));
@@ -425,6 +428,16 @@ public class DataLoader implements CommandLineRunner {
         return s.replace("ă","a").replace("â","a").replace("î","i")
                 .replace("ș","s").replace("ț","t").replace("Ă","A").replace("Â","A")
                 .replace("Î","I").replace("Ș","S").replace("Ț","T");
+    }
+
+    private void createAdminUser(String email, String password) {
+        if (userRepository.findByEmail(email).isPresent()) return;
+
+        User admin = new User();
+        admin.setEmail(email);
+        admin.setPassword(passwordEncoder.encode(password));
+        admin.setRole("ADMIN");
+        userRepository.save(admin);
     }
 
     private void createUser(String email, String password, String role,
