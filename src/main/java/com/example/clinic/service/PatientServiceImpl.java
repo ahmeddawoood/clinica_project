@@ -94,7 +94,7 @@ public class PatientServiceImpl implements PatientService {
     @Transactional
     public Long bookAppointment(AppointmentForm form, String email) {
         Patient patient = getPatientByEmail(email);
-        Doctor doctor = doctorRepository.findById(form.getDoctorId())
+        Doctor doctor = doctorRepository.findByIdForUpdate(form.getDoctorId())
                 .orElseThrow(() -> new com.example.clinic.exception.DoctorNotFoundException(
                         "id=" + form.getDoctorId()));
 

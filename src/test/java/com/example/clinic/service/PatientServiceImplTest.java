@@ -91,7 +91,7 @@ class PatientServiceImplTest {
     }
 
     private void stubDoctorLookup() {
-        when(doctorRepository.findById(DOCTOR_ID)).thenReturn(Optional.of(doctor));
+        when(doctorRepository.findByIdForUpdate(DOCTOR_ID)).thenReturn(Optional.of(doctor));
     }
 
     private void stubNoConflicts() {
