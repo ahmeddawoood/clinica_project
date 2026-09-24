@@ -43,6 +43,10 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void register(RegisterRequest request) {
+        if (!"PATIENT".equals(request.getRole()) && !"DOCTOR".equals(request.getRole())) {
+            throw new IllegalArgumentException("Rolul nu poate fi creat prin inregistrarea publica.");
+        }
+
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             log.warn("Registration failed: email already in use - {}", request.getEmail());
             throw new IllegalArgumentException("Email-ul este deja folosit");
