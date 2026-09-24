@@ -20,4 +20,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws").withSockJS();
     }
+
+    private final WebSocketAuthorizationInterceptor authorizationInterceptor;
+
+    public WebSocketConfig(WebSocketAuthorizationInterceptor authorizationInterceptor) {
+        this.authorizationInterceptor = authorizationInterceptor;
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(authorizationInterceptor);
+    }
 }
