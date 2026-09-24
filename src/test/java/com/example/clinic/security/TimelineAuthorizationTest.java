@@ -11,8 +11,9 @@ import com.example.clinic.repository.PatientRepository;
 import com.example.clinic.repository.UserRepository;
 import com.example.clinic.service.NotificationService;
 import com.example.clinic.service.StripeService;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -30,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TimelineAuthorizationTest {
 
     @MockitoBean NotificationService notificationService;
@@ -45,15 +47,14 @@ class TimelineAuthorizationTest {
     private MockMvc mockMvc;
     private Appointment patientBAppointment;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac)
                 .apply(SecurityMockMvcConfigurers.springSecurity())
                 .build();
 
-        User patientAUser = user("patient-a@test.com", "PATIENT");
-        User patientBUser = user("patient-b@test.com", "PATIENT");
-        User doctorUser = user("doctor@test.com", "DOCTOR");
+        User patientBUser = user("timeline-patient-b@test.com", "PATIENT");
+        User doctorUser = user("timeline-doctor@test.com", "DOCTOR");
 
         Patient patientB = patient("B", patientBUser);
         Doctor doctor = doctor(doctorUser);
@@ -61,7 +62,7 @@ class TimelineAuthorizationTest {
         patientBAppointment = new Appointment();
         patientBAppointment.setPatient(patientB);
         patientBAppointment.setDoctor(doctor);
-        patientBAppointment.setAppointmentDate(LocalDateTime.of(2030, 1, 10, 10, 0));
+        patientBAppointment.setAppointmentDate(LocalDateTime.of(2040, 1, 10, 10, 0));
         patientBAppointment.setStatus("CONFIRMED");
         patientBAppointment = appointmentRepository.save(patientBAppointment);
 
@@ -100,14 +101,14 @@ class TimelineAuthorizationTest {
     }
 
     @Test
-    @WithMockUser(username = "patient-a@test.com", roles = "PATIENT")
+    @WithMockUser(username = "timeline-patient-a@test.com", roles = "PATIENT")
     void patientCannotReadAnotherPatientsAppointmentTimeline() throws Exception {
         mockMvc.perform(get("/appointments/{id}/timeline", patientBAppointment.getId()))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(username = "patient-b@test.com", roles = "PATIENT")
+    @WithMockUser(username = "timeline-patient-b@test.com", roles = "PATIENT")
     void patientCanReadOwnAppointmentTimeline() throws Exception {
         mockMvc.perform(get("/appointments/{id}/timeline", patientBAppointment.getId()))
                 .andExpect(status().isOk());
