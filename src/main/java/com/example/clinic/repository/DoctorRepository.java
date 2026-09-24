@@ -3,6 +3,8 @@ package com.example.clinic.repository;
 import com.example.clinic.domain.Doctor;
 import com.example.clinic.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -10,6 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DoctorRepository extends JpaRepository<Doctor, Long> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT d FROM Doctor d WHERE d.id = :id")
+    Optional<Doctor> findByIdForUpdate(@Param("id") Long id);
     Optional<Doctor> findByUser(User user);
     List<Doctor> findBySpecialtyIgnoreCase(String specialty);
 
