@@ -8,6 +8,7 @@ import com.example.clinic.dto.PrescriptionForm;
 import com.example.clinic.exception.ClinicException;
 import com.example.clinic.exception.DoctorNotFoundException;
 import com.example.clinic.exception.PatientNotFoundException;
+import com.example.clinic.exception.ResourceAccessDeniedException;
 import com.example.clinic.repository.AppointmentRepository;
 import com.example.clinic.repository.DoctorRepository;
 import com.example.clinic.repository.PatientRepository;
@@ -34,10 +35,10 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private final UserRepository userRepository;
 
     public PrescriptionServiceImpl(PrescriptionRepository prescriptionRepository,
-                                    PatientRepository patientRepository,
-                                    DoctorRepository doctorRepository,
-                                    AppointmentRepository appointmentRepository,
-                                    UserRepository userRepository) {
+                                   PatientRepository patientRepository,
+                                   DoctorRepository doctorRepository,
+                                   AppointmentRepository appointmentRepository,
+                                   UserRepository userRepository) {
         this.prescriptionRepository = prescriptionRepository;
         this.patientRepository = patientRepository;
         this.doctorRepository = doctorRepository;
@@ -97,8 +98,47 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional(readOnly = true)
-    public byte[] generatePdf(Long prescriptionId) {
+    public byte[] generatePatientPdf(Long prescriptionId, String patientEmail) {
+        var user = userRepository.findByEmail(patientEmail)
+                .orElseThrow(() -> new ResourceAccessDeniedException("Nu aveți acces la această rețetă."));
+
+        Patient patient = patientRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceAccessDeniedException("Nu aveți acces la această rețetă."));
+
         Prescription rx = getPrescriptionById(prescriptionId);
+
+        if (rx.getPatient() == null || !patient.getId().equals(rx.getPatient().getId())) {
+            throw new ResourceAccessDeniedException("Nu aveți acces la această rețetă.");
+        }
+
+        return generatePdf(rx);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] generateDoctorPdf(Long prescriptionId, String doctorEmail) {
+        var user = userRepository.findByEmail(doctorEmail)
+                .orElseThrow(() -> new ResourceAccessDeniedException("Nu aveți acces la această rețetă."));
+
+        Doctor doctor = doctorRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceAccessDeniedException("Nu aveți acces la această rețetă."));
+
+        Prescription rx = getPrescriptionById(prescriptionId);
+
+        if (rx.getDoctor() == null || !doctor.getId().equals(rx.getDoctor().getId())) {
+            throw new ResourceAccessDeniedException("Nu aveți acces la această rețetă.");
+        }
+
+        return generatePdf(rx);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] generatePdf(Long prescriptionId) {
+        return generatePdf(getPrescriptionById(prescriptionId));
+    }
+
+    private byte[] generatePdf(Prescription rx) {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.of("ro", "RO"));
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
