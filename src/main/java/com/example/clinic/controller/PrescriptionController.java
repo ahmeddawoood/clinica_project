@@ -52,8 +52,8 @@ public class PrescriptionController {
     }
 
     @GetMapping("/patient/prescriptions/{id}/download")
-    public ResponseEntity<byte[]> patientDownload(@PathVariable Long id) {
-        byte[] pdf = prescriptionService.generatePdf(id);
+    public ResponseEntity<byte[]> patientDownload(@PathVariable Long id, Principal principal) {
+        byte[] pdf = prescriptionService.generatePatientPdf(id, principal.getName());
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"reteta-" + id + ".pdf\"")
@@ -76,7 +76,7 @@ public class PrescriptionController {
 
     @PostMapping("/doctor/prescriptions/save")
     public String doctorSave(@ModelAttribute PrescriptionForm form,
-                              Principal principal, RedirectAttributes ra) {
+                             Principal principal, RedirectAttributes ra) {
         if (form.getMedications() == null || form.getMedications().isBlank()) {
             ra.addFlashAttribute("error", "Medicamentele sunt obligatorii.");
             return "redirect:/doctor/prescriptions";
@@ -87,8 +87,8 @@ public class PrescriptionController {
     }
 
     @GetMapping("/doctor/prescriptions/{id}/download")
-    public ResponseEntity<byte[]> doctorDownload(@PathVariable Long id) {
-        byte[] pdf = prescriptionService.generatePdf(id);
+    public ResponseEntity<byte[]> doctorDownload(@PathVariable Long id, Principal principal) {
+        byte[] pdf = prescriptionService.generateDoctorPdf(id, principal.getName());
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"reteta-" + id + ".pdf\"")

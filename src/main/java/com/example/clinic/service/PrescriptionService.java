@@ -11,4 +11,6 @@ public interface PrescriptionService {
     Prescription getPrescriptionById(Long id);
     void writePrescription(PrescriptionForm form, String doctorEmail);
     byte[] generatePdf(Long prescriptionId);
+    byte[] generatePatientPdf(Long prescriptionId, String patientEmail);
+    byte[] generateDoctorPdf(Long prescriptionId, String doctorEmail);
 }
