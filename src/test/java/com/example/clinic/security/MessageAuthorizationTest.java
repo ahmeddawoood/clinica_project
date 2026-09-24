@@ -70,14 +70,14 @@ class MessageAuthorizationTest {
     }
 
     @Test
-    @WithMockUser(username = "patient-a@test.com", roles = "PATIENT")
+    @WithMockUser(username = "timeline-message-patient-a@test.com", roles = "PATIENT")
     void patientCannotReadMessageBetweenOtherUsers() throws Exception {
         mockMvc.perform(get("/patient/messages/{id}", patientBMessageToDoctor.getId()))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(username = "patient-b@test.com", roles = "PATIENT")
+    @WithMockUser(username = "timeline-message-patient-b@test.com", roles = "PATIENT")
     void messageReceiverCanReadOwnMessage() throws Exception {
         mockMvc.perform(get("/patient/messages/{id}", patientAMessageToPatientB.getId()))
                 .andExpect(status().isOk());
