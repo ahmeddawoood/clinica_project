@@ -67,6 +67,7 @@ class AppointmentBookingConcurrencyTest {
         doctor.setSpecialty("General");
         doctor.setUser(doctorUser);
         doctor = doctorRepository.save(doctor);
+        final Doctor finalDoctor = doctor;
 
         List<String> patientEmails = new ArrayList<>();
         for (int i = 0; i < 12; i++) {
@@ -85,7 +86,7 @@ class AppointmentBookingConcurrencyTest {
             List<Callable<Long>> calls = patientEmails.stream()
                     .map(email -> (Callable<Long>) () -> {
                         AppointmentForm form = new AppointmentForm();
-                        form.setDoctorId(doctor.getId());
+                        form.setDoctorId(finalDoctor.getId());
                         form.setAppointmentDate(slot);
                         form.setNotes("concurrency test");
                         return patientService.bookAppointment(form, email);
