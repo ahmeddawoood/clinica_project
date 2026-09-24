@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .requestMatchers("/", "/register", "/login", "/forgot-password", "/reset-password", "/403", "/error", "/stripe/webhook").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/ws/**").permitAll()
+                .requestMatchers("/ws/**").authenticated()
                 .requestMatchers("/api/doctors/**", "/api/stats", "/api/specialties").permitAll()
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 .requestMatchers("/patient/**").hasRole("PATIENT")
