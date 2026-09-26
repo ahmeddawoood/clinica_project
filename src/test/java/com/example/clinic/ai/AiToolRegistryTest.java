@@ -16,7 +16,9 @@ class AiToolRegistryTest {
     private final MyAppointmentsTool appointmentsTool = mock(MyAppointmentsTool.class);
     private final MyPrescriptionsTool prescriptionsTool = mock(MyPrescriptionsTool.class);
     private final MyMedicalHistoryTool medicalHistoryTool = mock(MyMedicalHistoryTool.class);
-    private final AiToolRegistry registry = new AiToolRegistry(appointmentsTool, prescriptionsTool, medicalHistoryTool);
+    private final DoctorInformationTool doctorInformationTool = mock(DoctorInformationTool.class);
+    private final AiToolRegistry registry = new AiToolRegistry(
+            appointmentsTool, prescriptionsTool, medicalHistoryTool, doctorInformationTool);
 
     @AfterEach
     void clearSecurityContext() {
@@ -31,7 +33,11 @@ class AiToolRegistryTest {
                         "N/A",
                         List.of(new SimpleGrantedAuthority("ROLE_PATIENT"))));
 
-        assertEquals(List.of(appointmentsTool, prescriptionsTool, medicalHistoryTool), registry.toolsForCurrentUser());
+        assertEquals(List.of(
+                appointmentsTool,
+                prescriptionsTool,
+                medicalHistoryTool,
+                doctorInformationTool), registry.toolsForCurrentUser());
     }
 
     @Test
