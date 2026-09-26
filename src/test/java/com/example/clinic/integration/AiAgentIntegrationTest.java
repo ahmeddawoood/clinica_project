@@ -15,7 +15,6 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -49,10 +48,10 @@ class AiAgentIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"message\":\"integration-ok\"}"));
 
-        ArgumentCaptor<List<Object>> toolsCaptor = forClass(List.class);
+        ArgumentCaptor<List> toolsCaptor = ArgumentCaptor.forClass(List.class);
         verify(aiProvider).chat(anyString(), anyString(), toolsCaptor.capture());
 
-        List<Object> tools = toolsCaptor.getValue();
+        List<?> tools = toolsCaptor.getValue();
         assertThat(tools).hasSize(4);
         assertThat(tools)
                 .extracting(tool -> tool.getClass().getSimpleName())
