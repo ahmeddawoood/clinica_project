@@ -1,7 +1,8 @@
 ﻿version: "3.9"
 # Mod de folosire:
-#   cp .env.example .env   (apoi completezi valorile)
-#   docker-compose up --build
+#   cp .env.example .env
+#   docker compose up --build
+#   docker exec clinic-ollama ollama pull qwen3:1.7b
 
 services:
   db:
@@ -16,7 +17,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     ports:
-      - "3307:3306"          # 3307 pe host ca sa nu intre in conflict cu MySQL-ul local
+      - "3307:3306"
     volumes:
       - clinic-db-data:/var/lib/mysql
     healthcheck:
@@ -25,6 +26,22 @@ services:
       timeout: 5s
       retries: 10
       start_period: 30s
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: clinic-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - clinic-ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
   app:
     build:
       context: .
@@ -35,12 +52,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      ollama:
+        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/clinic?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci
       SPRING_DATASOURCE_USERNAME: clinic_user
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SERVER_PORT: 8082
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:1.7b}
+      OLLAMA_ENABLED: ${OLLAMA_ENABLED:-true}
     ports:
       - "8082:8082"
     healthcheck:
@@ -49,6 +71,7 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
+
   phpmyadmin:
     image: phpmyadmin:latest
     container_name: clinic-phpmyadmin
@@ -65,4 +88,6 @@ services:
 
 volumes:
   clinic-db-data:
+    driver: local
+  clinic-ollama-data:
     driver: local
