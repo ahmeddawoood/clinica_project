@@ -14,7 +14,9 @@ import static org.mockito.Mockito.mock;
 class AiToolRegistryTest {
 
     private final MyAppointmentsTool appointmentsTool = mock(MyAppointmentsTool.class);
-    private final AiToolRegistry registry = new AiToolRegistry(appointmentsTool);
+    private final MyPrescriptionsTool prescriptionsTool = mock(MyPrescriptionsTool.class);
+    private final MyMedicalHistoryTool medicalHistoryTool = mock(MyMedicalHistoryTool.class);
+    private final AiToolRegistry registry = new AiToolRegistry(appointmentsTool, prescriptionsTool, medicalHistoryTool);
 
     @AfterEach
     void clearSecurityContext() {
@@ -22,14 +24,14 @@ class AiToolRegistryTest {
     }
 
     @Test
-    void exposesToolsOnlyToAuthenticatedPatients() {
+    void exposesPatientToolsOnlyToAuthenticatedPatients() {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(
                         "patient@example.com",
                         "N/A",
                         List.of(new SimpleGrantedAuthority("ROLE_PATIENT"))));
 
-        assertEquals(List.of(appointmentsTool), registry.toolsForCurrentUser());
+        assertEquals(List.of(appointmentsTool, prescriptionsTool, medicalHistoryTool), registry.toolsForCurrentUser());
     }
 
     @Test
