@@ -171,8 +171,12 @@ public class StripeServiceImpl implements StripeService {
                 .setPaymentIntent(paymentIntentId)
                 .build();
 
-        Refund refund = Refund.create(params);
-        log.info("Stripe refund issued: refundId={} pi={} status={}",
+        RequestOptions requestOptions = RequestOptions.builder()
+                .setIdempotencyKey("refund:" + paymentIntentId)
+                .build();
+
+        Refund refund = Refund.create(params, requestOptions);
+        log.info("Stripe refund requested: refundId={} pi={} status={}",
                 refund.getId(), paymentIntentId, refund.getStatus());
     }
 
