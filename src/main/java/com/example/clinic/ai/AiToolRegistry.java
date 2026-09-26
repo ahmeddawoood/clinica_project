@@ -10,9 +10,15 @@ import java.util.List;
 public class AiToolRegistry {
 
     private final MyAppointmentsTool myAppointmentsTool;
+    private final MyPrescriptionsTool myPrescriptionsTool;
+    private final MyMedicalHistoryTool myMedicalHistoryTool;
 
-    public AiToolRegistry(MyAppointmentsTool myAppointmentsTool) {
+    public AiToolRegistry(MyAppointmentsTool myAppointmentsTool,
+                          MyPrescriptionsTool myPrescriptionsTool,
+                          MyMedicalHistoryTool myMedicalHistoryTool) {
         this.myAppointmentsTool = myAppointmentsTool;
+        this.myPrescriptionsTool = myPrescriptionsTool;
+        this.myMedicalHistoryTool = myMedicalHistoryTool;
     }
 
     public List<Object> toolsForCurrentUser() {
@@ -28,6 +34,6 @@ public class AiToolRegistry {
             throw new IllegalStateException("AI assistant is not available for this user");
         }
 
-        return List.of(myAppointmentsTool);
+        return List.of(myAppointmentsTool, myPrescriptionsTool, myMedicalHistoryTool);
     }
 }
