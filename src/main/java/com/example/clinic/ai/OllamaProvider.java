@@ -29,10 +29,4 @@ public class OllamaProvider implements AiProvider {
             throw new AiProviderException("AI provider is currently unavailable", ex);
         }
     }
-
-    public static class AiProviderException extends RuntimeException {
-        public AiProviderException(String message, Throwable cause) {
-            super(message, cause);
-        }
-    }
 }
