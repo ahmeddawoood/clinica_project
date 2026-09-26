@@ -12,13 +12,16 @@ public class AiToolRegistry {
     private final MyAppointmentsTool myAppointmentsTool;
     private final MyPrescriptionsTool myPrescriptionsTool;
     private final MyMedicalHistoryTool myMedicalHistoryTool;
+    private final DoctorInformationTool doctorInformationTool;
 
     public AiToolRegistry(MyAppointmentsTool myAppointmentsTool,
                           MyPrescriptionsTool myPrescriptionsTool,
-                          MyMedicalHistoryTool myMedicalHistoryTool) {
+                          MyMedicalHistoryTool myMedicalHistoryTool,
+                          DoctorInformationTool doctorInformationTool) {
         this.myAppointmentsTool = myAppointmentsTool;
         this.myPrescriptionsTool = myPrescriptionsTool;
         this.myMedicalHistoryTool = myMedicalHistoryTool;
+        this.doctorInformationTool = doctorInformationTool;
     }
 
     public List<Object> toolsForCurrentUser() {
@@ -34,6 +37,10 @@ public class AiToolRegistry {
             throw new IllegalStateException("AI assistant is not available for this user");
         }
 
-        return List.of(myAppointmentsTool, myPrescriptionsTool, myMedicalHistoryTool);
+        return List.of(
+                myAppointmentsTool,
+                myPrescriptionsTool,
+                myMedicalHistoryTool,
+                doctorInformationTool);
     }
 }
