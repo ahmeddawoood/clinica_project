@@ -11,6 +11,6 @@ public class DisabledAiProvider implements AiProvider {
 
     @Override
     public String chat(String systemPrompt, String userMessage, List<Object> tools) {
-        throw new OllamaProvider.AiProviderException("AI provider is disabled", null);
+        throw new AiProviderException("AI provider is disabled");
     }
 }
