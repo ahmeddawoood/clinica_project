@@ -17,4 +17,17 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-      - run: ./mvnw test
+      - name: Run Maven tests
+        id: maven-test
+        continue-on-error: true
+        run: ./mvnw test
+      - name: Print Maven test reports on failure
+        if: steps.maven-test.outcome == 'failure'
+        run: |
+          echo '===== Surefire reports ====='
+          find target/surefire-reports -type f -maxdepth 2 -print -exec sh -c 'echo "===== $1 ====="; cat "$1"' _ {} \; 2>/dev/null || true
+          echo '===== Failsafe reports ====='
+          find target/failsafe-reports -type f -maxdepth 2 -print -exec sh -c 'echo "===== $1 ====="; cat "$1"' _ {} \; 2>/dev/null || true
+      - name: Fail if Maven tests failed
+        if: steps.maven-test.outcome == 'failure'
+        run: exit 1
