@@ -1,20 +1,16 @@
 package com.example.clinic.ai;
 
-import com.example.clinic.domain.Appointment;
 import com.example.clinic.service.PatientService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.SecurityMockMvcConfigurers;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 
@@ -24,6 +20,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -45,8 +42,7 @@ class AiAgentSecurityIntegrationTest {
     void setUp() {
         when(aiProvider.chat(anyString(), anyString(), any()))
                 .thenAnswer(invocation -> {
-                    @SuppressWarnings("unchecked")
-                    List<Object> tools = invocation.getArgument(2);
+                    List<?> tools = invocation.getArgument(2);
                     Object appointmentsTool = tools.stream()
                             .filter(MyAppointmentsTool.class::isInstance)
                             .findFirst()
@@ -63,21 +59,20 @@ class AiAgentSecurityIntegrationTest {
                 .thenReturn(List.of());
 
         mockMvc.perform(post("/api/ai/chat")
-                        .with(SecurityMockMvcTestSupport.csrf())
+                        .with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content("{\"message\":\"Show my appointments\"}"))
                 .andExpect(status().isOk());
 
         verify(patientService).getAppointments("patient-b@test.com");
         verify(patientService, never()).getAppointments("patient-a@test.com");
-        verify(patientService, never()).getAppointments(anyString());
     }
 
     @Test
     @WithMockUser(username = "doctor@test.com", roles = "DOCTOR")
     void doctorCannotAccessPatientAiAgent() throws Exception {
         mockMvc.perform(post("/api/ai/chat")
-                        .with(SecurityMockMvcTestSupport.csrf())
+                        .with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content("{\"message\":\"Show my appointments\"}"))
                 .andExpect(status().isForbidden());
@@ -89,17 +84,11 @@ class AiAgentSecurityIntegrationTest {
     @WithAnonymousUser
     void anonymousUserCannotAccessPatientAiAgent() throws Exception {
         mockMvc.perform(post("/api/ai/chat")
-                        .with(SecurityMockMvcTestSupport.csrf())
+                        .with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content("{\"message\":\"Show my appointments\"}"))
                 .andExpect(status().is3xxRedirection());
 
         verify(patientService, never()).getAppointments(anyString());
-    }
-
-    private static final class SecurityMockMvcTestSupport {
-        private static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.CsrfRequestPostProcessor csrf() {
-            return SecurityMockMvcRequestPostProcessors.csrf();
-        }
     }
 }
