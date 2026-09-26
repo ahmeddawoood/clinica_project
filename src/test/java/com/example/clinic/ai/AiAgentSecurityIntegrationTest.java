@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -74,7 +75,8 @@ class AiAgentSecurityIntegrationTest {
                         .with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content("{\"message\":\"Show my appointments\"}"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/403"));
 
         verify(patientService, never()).getAppointments(anyString());
     }
@@ -86,7 +88,8 @@ class AiAgentSecurityIntegrationTest {
                         .with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content("{\"message\":\"Show my appointments\"}"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
 
         verify(patientService, never()).getAppointments(anyString());
     }
