@@ -42,7 +42,7 @@ class MyAppointmentsToolTest {
 
     @Test
     void usesAuthenticatedIdentityAndDoesNotAcceptAnArbitraryPatientId() {
-        var authentication = new UsernamePasswordAuthenticationToken("patient@example.com", "N/A");
+        var authentication = new UsernamePasswordAuthenticationToken("patient@example.com", "N/A", List.of());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         when(patientService.getAppointments("patient@example.com")).thenReturn(List.of(appointment));
 
