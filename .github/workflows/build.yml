@@ -20,14 +20,35 @@ jobs:
       - name: Run Maven tests
         id: maven-test
         continue-on-error: true
-        run: ./mvnw test
-      - name: Print Maven test reports on failure
+        run: |
+          set +e
+          ./mvnw test 2>&1 | tee maven-test.log
+          echo "MAVEN_EXIT_CODE=${PIPESTATUS[0]}" | tee maven-exit-code.txt
+          exit ${PIPESTATUS[0]}
+      - name: Collect Maven diagnostics
         if: steps.maven-test.outcome == 'failure'
         run: |
-          echo '===== Surefire reports ====='
-          find target/surefire-reports -type f -maxdepth 2 -print -exec sh -c 'echo "===== $1 ====="; cat "$1"' _ {} \; 2>/dev/null || true
-          echo '===== Failsafe reports ====='
-          find target/failsafe-reports -type f -maxdepth 2 -print -exec sh -c 'echo "===== $1 ====="; cat "$1"' _ {} \; 2>/dev/null || true
+          {
+            echo '===== Maven output ====='
+            cat maven-test.log || true
+            echo '===== Surefire reports ====='
+            find target/surefire-reports -type f -print -exec sh -c 'echo "===== $1 ====="; cat "$1"' _ {} \; 2>/dev/null || true
+            echo '===== Failsafe reports ====='
+            find target/failsafe-reports -type f -print -exec sh -c 'echo "===== $1 ====="; cat "$1"' _ {} \; 2>/dev/null || true
+          } > maven-diagnostics.txt
+          cat maven-diagnostics.txt
+      - name: Upload Maven diagnostics
+        if: steps.maven-test.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: maven-diagnostics
+          path: |
+            maven-diagnostics.txt
+            maven-test.log
+            maven-exit-code.txt
+            target/surefire-reports/**
+            target/failsafe-reports/**
+          if-no-files-found: ignore
       - name: Fail if Maven tests failed
         if: steps.maven-test.outcome == 'failure'
         run: exit 1
