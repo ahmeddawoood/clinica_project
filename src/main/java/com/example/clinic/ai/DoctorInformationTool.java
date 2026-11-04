@@ -6,6 +6,7 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Locale;
 
 @Component
 public class DoctorInformationTool {
@@ -22,10 +23,10 @@ public class DoctorInformationTool {
             return List.of();
         }
 
-        String normalized = specialty.trim().toLowerCase();
+        String normalized = specialty.trim().toLowerCase(Locale.ROOT);
         return doctorService.getAllDoctors().stream()
                 .filter(doctor -> doctor.getSpecialty() != null
-                        && doctor.getSpecialty().toLowerCase().contains(normalized))
+                        && doctor.getSpecialty().toLowerCase(Locale.ROOT).contains(normalized))
                 .map(DoctorSummary::from)
                 .toList();
     }

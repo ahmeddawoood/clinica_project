@@ -9,7 +9,6 @@ services:
     image: mysql:8.4
     container_name: clinic-db
     restart: unless-stopped
-    env_file: .env
     environment:
       MYSQL_DATABASE: clinic
       MYSQL_USER: clinic_user
@@ -17,7 +16,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     ports:
-      - "3307:3306"
+      - "127.0.0.1:3307:3306"
     volumes:
       - clinic-db-data:/var/lib/mysql
     healthcheck:
@@ -32,7 +31,7 @@ services:
     container_name: clinic-ollama
     restart: unless-stopped
     ports:
-      - "11434:11434"
+      - "127.0.0.1:11434:11434"
     volumes:
       - clinic-ollama-data:/root/.ollama
     healthcheck:
@@ -84,7 +83,7 @@ services:
       PMA_USER: root
       PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
     ports:
-      - "8081:80"
+      - "127.0.0.1:8081:80"
 
 volumes:
   clinic-db-data:

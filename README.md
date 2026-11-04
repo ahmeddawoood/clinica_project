@@ -53,11 +53,11 @@ mvnw.cmd clean package -DskipTests
 java -jar target\clinic-1.0.0.jar
 ```
 
-La prima pornire pe o bază goală, Flyway aplică migrarea V1, apoi Hibernate validează schema (`ddl-auto=validate`). Aplicația populează baza cu date demo. Pentru o bază existentă, urmează [procedura de adoptare](docs/database-migrations.md) înainte de pornire.
+La prima pornire pe o bază goală, Flyway aplică migrarea V1, apoi Hibernate validează schema (`ddl-auto=validate`). Datele demo sunt create numai dacă setezi `DEMO_DATA_ENABLED=true` pe o bază locală de demonstrație. Pentru o bază existentă, urmează [procedura de adoptare](docs/database-migrations.md) înainte de pornire.
 
 Aplicația pornește pe **http://localhost:8082**.
 
-## Conturi demo (create automat la prima pornire)
+## Conturi demo (numai cu DEMO_DATA_ENABLED=true)
 
 | Rol      | Email                | Parolă      |
 |----------|-----------------------|-------------|
@@ -97,3 +97,7 @@ secretul returnat în `STRIPE_WEBHOOK_SECRET`.
 MySQL folosește Flyway și validare Hibernate în toate configurațiile MySQL.
 Vezi [migrarea bazelor existente](docs/database-migrations.md) și
 [ordinea de integrare a PR-urilor AI](docs/ai-integration-plan.md).
+
+Demo data is disabled by default. Enable `DEMO_DATA_ENABLED=true` only on a disposable local database. Turning it off does not delete demo accounts already created; review existing accounts before deployment.
+
+Docker publishes MySQL, Ollama, and phpMyAdmin only on localhost. The application remains on port 8082. The public health endpoint exposes status only.
