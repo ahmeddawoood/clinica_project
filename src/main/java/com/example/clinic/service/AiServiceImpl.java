@@ -69,17 +69,17 @@ public class AiServiceImpl implements AiService {
             String aiRawSpecialty = callAi(cleanSymptoms);
             String mapped = mapAiToDbSpecialty(aiRawSpecialty);
             if (mapped != null) {
-                log.info("AI mapped specialty: symptoms='{}' ai='{}' -> db='{}'", cleanSymptoms, aiRawSpecialty, mapped);
+                log.info("AI specialty mapping completed");
                 return mapped;
             }
 
-            log.warn("AI mapping failed. ai='{}' symptoms='{}'. Falling back to keyword rules.", aiRawSpecialty, cleanSymptoms);
+            log.warn("AI specialty mapping failed, using keyword fallback");
         } else {
             log.warn("DeepSeek API key not configured, using keyword fallback only");
         }
 
         String fallback = mapByKeywords(cleanSymptoms);
-        log.info("Keyword fallback: symptoms='{}' -> db='{}'", cleanSymptoms, fallback);
+        log.info("Keyword specialty fallback completed");
         return fallback;
     }
 
@@ -102,7 +102,7 @@ public class AiServiceImpl implements AiService {
                 "seizure", "convulsions", "convulsii", "epileptic")) {
             String specialty = pickSpecialtyCritical(n);
             String reason = buildReason(n);
-            log.warn("CRITICAL emergency detected: symptoms='{}' specialty='{}'", symptoms, specialty);
+            log.warn("Symptom analysis classified as CRITICAL");
             return new SymptomAnalysisResult("CRITICAL", true, specialty, reason);
         }
         if (containsAny(n,
@@ -118,7 +118,7 @@ public class AiServiceImpl implements AiService {
                 "severe dizziness", "ameteli severe", "vertigo sever")) {
             String specialty = pickSpecialtyHigh(n);
             String reason = buildReason(n);
-            log.warn("HIGH urgency detected: symptoms='{}' specialty='{}'", symptoms, specialty);
+            log.warn("Symptom analysis classified as HIGH");
             return new SymptomAnalysisResult("HIGH", true, specialty, reason);
         }
         if (containsAny(n,
@@ -201,16 +201,16 @@ public class AiServiceImpl implements AiService {
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            log.info("DeepSeek raw response: {}", response.body());
+            log.debug("DeepSeek response received: status={}", response.statusCode());
 
             if (response.statusCode() != 200) {
-                log.error("DeepSeek API error: status={} body={}", response.statusCode(), response.body());
+                log.error("DeepSeek API error: status={}", response.statusCode());
                 return null;
             }
 
             return extractContent(response.body());
         } catch (Exception e) {
-            log.error("DeepSeek API call failed: {}", e.getMessage());
+            log.error("DeepSeek API call failed: type={}", e.getClass().getSimpleName());
             return null;
         }
     }
@@ -231,10 +231,10 @@ public class AiServiceImpl implements AiService {
         try {
             String content = extractLastJsonStringValue(json, "\"content\":");
             String normalized = normalize(content);
-            log.info("DeepSeek extracted content: raw='{}' normalized='{}'", content, normalized);
+            log.debug("DeepSeek response parsing completed");
             return normalized;
         } catch (Exception e) {
-            log.error("Failed to parse DeepSeek response: {}", e.getMessage());
+            log.error("Failed to parse DeepSeek response: type={}", e.getClass().getSimpleName());
             return null;
         }
     }
