@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     services:
+      mailpit:
+        image: axllent/mailpit:v1.33.0
+        ports: ['1025:1025', '8025:8025']
       mysql:
         image: mysql:8.4
         env:
@@ -31,7 +34,13 @@ jobs:
       OLLAMA_ENABLED: 'true'
       OLLAMA_MODEL: qwen3:1.7b
       PAYMENT_COUPON_CODE: smoke-coupon
-      MAIL_ENABLED: 'false'
+      MAIL_ENABLED: 'true'
+      MAIL_HOST: localhost
+      MAIL_PORT: '1025'
+      APP_BASE_URL: http://127.0.0.1:8082
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: 'false'
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: 'false'
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED: 'false'
       SMS_ENABLED: 'false'
     steps:
       - uses: actions/checkout@v4
@@ -79,6 +88,8 @@ jobs:
         run: python scripts/e2e/browser_smoke.py
       - name: Booking payment and messaging checks
         run: python scripts/e2e/business_flows.py
+      - name: SMTP delivery and password reset checks
+        run: python scripts/e2e/email_flows.py
       - name: Verify database survives application restart
         if: always() && steps.app.outcome == 'success'
         run: |
