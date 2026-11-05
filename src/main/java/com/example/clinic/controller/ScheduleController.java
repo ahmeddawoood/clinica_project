@@ -131,14 +131,11 @@ public class ScheduleController {
         LocalDateTime dayStart = localDate.atStartOfDay();
         LocalDateTime dayEnd   = localDate.plusDays(1).atStartOfDay();
         Set<Integer> bookedHours = new HashSet<>();
-        for (Appointment a : appointmentRepository.findByDoctorAndStatus(doctor, "CONFIRMED")) {
-            if (!a.getAppointmentDate().isBefore(dayStart) && a.getAppointmentDate().isBefore(dayEnd)) {
-                bookedHours.add(a.getAppointmentDate().getHour());
-            }
-        }
-        for (Appointment a : appointmentRepository.findByDoctorAndStatus(doctor, "PENDING")) {
-            if (!a.getAppointmentDate().isBefore(dayStart) && a.getAppointmentDate().isBefore(dayEnd)) {
-                bookedHours.add(a.getAppointmentDate().getHour());
+        for (String status : List.of("CONFIRMED", "PENDING", "PENDING_PAYMENT")) {
+            for (Appointment a : appointmentRepository.findByDoctorAndStatus(doctor, status)) {
+                if (!a.getAppointmentDate().isBefore(dayStart) && a.getAppointmentDate().isBefore(dayEnd)) {
+                    bookedHours.add(a.getAppointmentDate().getHour());
+                }
             }
         }
 

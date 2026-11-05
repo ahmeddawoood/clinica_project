@@ -1,0 +1,112 @@
+name: runtime-smoke
+on:
+  pull_request:
+    paths:
+      - 'scripts/e2e/**'
+      - '.github/workflows/runtime-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-mysql-ollama:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      mailpit:
+        image: axllent/mailpit:v1.33.0
+        ports: ['1025:1025', '8025:8025']
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: clinic_smoke
+          MYSQL_USER: clinic
+          MYSQL_PASSWORD: smoke-fixture
+          MYSQL_ROOT_PASSWORD: root-fixture
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -proot-fixture"
+          --health-interval=10s --health-timeout=5s --health-retries=12
+    env:
+      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/clinic_smoke?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: clinic
+      SPRING_DATASOURCE_PASSWORD: smoke-fixture
+      DEMO_DATA_ENABLED: 'true'
+      OLLAMA_ENABLED: 'true'
+      OLLAMA_MODEL: qwen3:1.7b
+      PAYMENT_COUPON_CODE: smoke-coupon
+      MAIL_ENABLED: 'true'
+      MAIL_HOST: localhost
+      MAIL_PORT: '1025'
+      APP_BASE_URL: http://127.0.0.1:8082
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: 'false'
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: 'false'
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED: 'false'
+      SMS_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser
+        run: |
+          pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Start real local model
+        run: |
+          docker run -d --name smoke-ollama -p 127.0.0.1:11434:11434 ollama/ollama:0.40.14
+          for i in $(seq 1 30); do curl -fsS http://localhost:11434/api/tags && break; sleep 2; done
+          docker exec smoke-ollama ollama pull qwen3:1.7b
+          docker exec smoke-ollama ollama list
+      - name: Build and start application
+        id: app
+        run: |
+          ./mvnw --batch-mode package -DskipTests
+          mkdir -p e2e-results
+          nohup java -jar target/clinic-1.0.0.jar > e2e-results/application.log 2>&1 &
+          echo $! > /tmp/clinic-smoke.pid
+          for i in $(seq 1 90); do
+            if curl -fsS http://localhost:8082/actuator/health; then break; fi
+            sleep 2
+          done
+          curl -fsS http://localhost:8082/actuator/health
+          # The server can report UP before the demo CommandLineRunner completes.
+          for i in $(seq 1 90); do
+            if mysql -h127.0.0.1 -uclinic -psmoke-fixture clinic_smoke -N -e "SELECT count(*) FROM app_user WHERE email='mihai@email.com'" | grep -q '^1$'; then break; fi
+            sleep 2
+          done
+          for i in $(seq 1 90); do
+            if grep -q "Initial dataset loaded:" e2e-results/application.log; then break; fi
+            sleep 2
+          done
+          grep -q "Initial dataset loaded:" e2e-results/application.log
+      - name: Browser and live AI checks
+        run: python scripts/e2e/browser_smoke.py
+      - name: Booking payment and messaging checks
+        run: python scripts/e2e/business_flows.py
+      - name: SMTP delivery and password reset checks
+        run: python scripts/e2e/email_flows.py
+      - name: Verify database survives application restart
+        if: always() && steps.app.outcome == 'success'
+        run: |
+          mysql -h127.0.0.1 -uclinic -psmoke-fixture clinic_smoke -N -e "SELECT count(*) FROM app_user; SELECT count(*) FROM appointment; SELECT count(*) FROM medical_record; SELECT count(*) FROM flyway_schema_history WHERE success=1;" > /tmp/counts-before
+          kill "$(cat /tmp/clinic-smoke.pid)"
+          sleep 5
+          nohup java -jar target/clinic-1.0.0.jar > e2e-results/restart.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:8082/actuator/health; then break; fi
+            sleep 2
+          done
+          curl -fsS http://localhost:8082/actuator/health
+          mysql -h127.0.0.1 -uclinic -psmoke-fixture clinic_smoke -N -e "SELECT count(*) FROM app_user; SELECT count(*) FROM appointment; SELECT count(*) FROM medical_record; SELECT count(*) FROM flyway_schema_history WHERE success=1;" > /tmp/counts-after
+          diff /tmp/counts-before /tmp/counts-after
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: runtime-smoke-evidence
+          path: e2e-results/
+          retention-days: 7
