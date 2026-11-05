@@ -92,6 +92,11 @@ public class PaymentController {
                                         RedirectAttributes ra) {
         Appointment appointment = loadOwnedAppointment(appointmentId, principal.getName());
 
+        if (isClosed(appointment)) {
+            ra.addFlashAttribute("error", "Această programare este închisă și nu mai poate fi plătită.");
+            return "redirect:/patient/dashboard";
+        }
+
         if (!stripeService.isEnabled()) {
             if (demoFallbackEnabled) {
                 log.warn("Stripe disabled. Completing appointment {} in local demo fallback mode.", appointmentId);
@@ -167,6 +172,11 @@ public class PaymentController {
                                                                    Principal principal) {
         Appointment appointment = loadOwnedAppointment(appointmentId, principal.getName());
 
+        if (isClosed(appointment)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Această programare este închisă și nu mai poate fi plătită."));
+        }
+
         if (!stripeService.isEnabled()) {
             Map<String, Object> payload = new LinkedHashMap<>();
             payload.put("error", "Stripe nu este configurat.");
@@ -215,6 +225,11 @@ public class PaymentController {
                                                                   @RequestParam("couponCode") String couponCode,
                                                                   Principal principal) {
         Appointment appointment = loadOwnedAppointment(appointmentId, principal.getName());
+
+        if (isClosed(appointment)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Această programare este închisă și nu mai poate fi plătită."));
+        }
 
         if (appointment.isBookingFeePaid()) {
             Map<String, Object> payload = new LinkedHashMap<>();
@@ -425,6 +440,10 @@ public class PaymentController {
         ra.addFlashAttribute("info",
                 "Plată finalizată în modul demo local. Adăugați chei Stripe reale pentru plăți live.");
         return "redirect:/payment-success?appointmentId=" + appointment.getId();
+    }
+
+    private static boolean isClosed(Appointment appointment) {
+        return "CANCELLED".equals(appointment.getStatus()) || "COMPLETED".equals(appointment.getStatus());
     }
 
     private Appointment loadOwnedAppointment(Long appointmentId, String email) {

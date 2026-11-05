@@ -93,8 +93,8 @@ with sync_playwright() as pw:
         r=post(patient,'/patient/messages/send',{'receiverId':uid,'subject':subject,'body':'Test request only'},headers)
         require(r.status==302,'Send failed')
         doctor_page.goto(BASE + '/doctor/messages')
-        link=doctor_page.locator('a[href^="/doctor/messages/"]').filter(has_text=subject).first
-        href=link.get_attribute('href')
+        link=doctor_page.locator('[data-href^="/doctor/messages/"]').filter(has_text=subject).first
+        href=link.get_attribute('data-href')
         require(href is not None,'Doctor inbox missing message')
         mid=int(href.rsplit('/',1)[1])
         require(other.request.get(BASE + f'/patient/messages/{mid}').status==403,'Unrelated patient read private message')
@@ -102,7 +102,7 @@ with sync_playwright() as pw:
         r=post(doctor,'/doctor/messages/reply',{'parentId':str(mid),'body':'E2E fixture reply'},doctor_headers)
         require(r.status==302,'Reply failed')
         page.goto(BASE + '/patient/messages')
-        reply=page.locator('a[href^="/patient/messages/"]').filter(has_text='Re: '+subject).first
+        reply=page.locator('[data-href^="/patient/messages/"]').filter(has_text='Re: '+subject).first
         reply.click()
         require('E2E fixture reply' in page.locator('body').inner_text(),'Reply not delivered')
     check('internal message delivery reply and third-party denial',messages)
