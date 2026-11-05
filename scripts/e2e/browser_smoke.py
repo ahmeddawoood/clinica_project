@@ -52,6 +52,13 @@ with sync_playwright() as p:
             response = page.goto(BASE + '/' + role + '/dashboard')
             require(response.status == 200, f'HTTP {response.status}')
             page.screenshot(path=str(OUT / f'{role}-mobile.png'), full_page=True)
+            dimensions = page.evaluate('({width: innerWidth, scroll: document.documentElement.scrollWidth})')
+            require(dimensions['scroll'] <= dimensions['width'] + 1,
+                    f'Mobile horizontal overflow: {dimensions}')
+            page.locator('#sidebarToggle').click()
+            page.wait_for_timeout(250)
+            require(page.locator('.sidebar').evaluate('(el) => el.getBoundingClientRect().left') >= -1,
+                    'Mobile navigation did not open')
         check(role + ' mobile dashboard', mobile)
         if role == 'patient':
             def save_profile():
