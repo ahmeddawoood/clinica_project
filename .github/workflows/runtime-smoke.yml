@@ -9,7 +9,7 @@ permissions:
   contents: read
 jobs:
   browser-mysql-ollama:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     services:
       mysql:
@@ -53,6 +53,7 @@ jobs:
           docker exec smoke-ollama ollama pull qwen3:1.7b
           docker exec smoke-ollama ollama list
       - name: Build and start application
+        id: app
         run: |
           ./mvnw --batch-mode package -DskipTests
           mkdir -p e2e-results
@@ -68,11 +69,15 @@ jobs:
             if mysql -h127.0.0.1 -uclinic -psmoke-fixture clinic_smoke -N -e "SELECT count(*) FROM app_user WHERE email='mihai@email.com'" | grep -q '^1$'; then break; fi
             sleep 2
           done
-          sleep 10
+          for i in $(seq 1 90); do
+            if grep -q "Initial dataset loaded:" e2e-results/application.log; then break; fi
+            sleep 2
+          done
+          grep -q "Initial dataset loaded:" e2e-results/application.log
       - name: Browser and live AI checks
         run: python scripts/e2e/browser_smoke.py
       - name: Verify database survives application restart
-        if: always()
+        if: always() && steps.app.outcome == 'success'
         run: |
           mysql -h127.0.0.1 -uclinic -psmoke-fixture clinic_smoke -N -e "SELECT count(*) FROM app_user; SELECT count(*) FROM appointment; SELECT count(*) FROM medical_record; SELECT count(*) FROM flyway_schema_history WHERE success=1;" > /tmp/counts-before
           kill "$(cat /tmp/clinic-smoke.pid)"
