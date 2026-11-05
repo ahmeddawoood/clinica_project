@@ -30,6 +30,7 @@ jobs:
       DEMO_DATA_ENABLED: 'true'
       OLLAMA_ENABLED: 'true'
       OLLAMA_MODEL: qwen3:1.7b
+      PAYMENT_COUPON_CODE: smoke-coupon
       MAIL_ENABLED: 'false'
       SMS_ENABLED: 'false'
     steps:
@@ -76,6 +77,8 @@ jobs:
           grep -q "Initial dataset loaded:" e2e-results/application.log
       - name: Browser and live AI checks
         run: python scripts/e2e/browser_smoke.py
+      - name: Booking payment and messaging checks
+        run: python scripts/e2e/business_flows.py
       - name: Verify database survives application restart
         if: always() && steps.app.outcome == 'success'
         run: |
