@@ -71,7 +71,7 @@ class StripeWebhookContractTest {
         configured();
         ReflectionTestUtils.setField(controller,"bookingFeeCents",200L);
         var appointment=new Appointment();
-        appointment.setId(1L);
+        ReflectionTestUtils.setField(appointment,"id",1L);
         appointment.setPatient(new Patient());
         appointment.setStatus("PENDING_PAYMENT");
         when(appointments.findById(1L)).thenReturn(Optional.of(appointment));
