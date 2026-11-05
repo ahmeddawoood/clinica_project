@@ -57,13 +57,13 @@ class AiAgentHttpContractTest {
 
     @Test
     @WithMockUser(roles = "PATIENT")
-    void acceptsMessageAtLimitWithFourAuthorizedTools() throws Exception {
+    void acceptsMessageAtLimitWithFiveAuthorizedTools() throws Exception {
         when(provider.chat(anyString(), anyString(), any())).thenReturn("ok");
         mvc.perform(post("/api/ai/chat").with(csrf()).contentType(APPLICATION_JSON)
                         .content("{\"message\":\"" + "x".repeat(4000) + "\"}"))
                 .andExpect(status().isOk()).andExpect(content().json("{\"message\":\"ok\"}"));
         verify(provider).chat(eq(AiGuardrails.SYSTEM_PROMPT), eq("x".repeat(4000)),
-                argThat(tools -> tools.size() == 4));
+                argThat(tools -> tools.size() == 5));
     }
 
     @ParameterizedTest
@@ -113,5 +113,19 @@ class AiAgentHttpContractTest {
                         .content("{\"message\":\"hello\"}"))
                 .andExpect(status().isForbidden());
         verifyNoInteractions(provider);
+    }
+    @Test
+    void publicHealthDoesNotExposeInfrastructureDetails() throws Exception {
+        mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/actuator/health"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"))
+                .andExpect(jsonPath("$.components").doesNotExist())
+                .andExpect(jsonPath("$.details").doesNotExist());
+    }
+
+    @Test
+    void demoAccountSeederIsDisabledByDefault() {
+        org.junit.jupiter.api.Assertions.assertTrue(
+                context.getBeansOfType(com.example.clinic.config.DataLoader.class).isEmpty());
     }
 }

@@ -69,9 +69,9 @@ public class OllamaAiService implements AiService {
                 return mapped;
             }
 
-            log.warn("Ollama returned an unmapped specialty: {}", response);
+            log.warn("Ollama returned an unmapped specialty");
         } catch (Exception ex) {
-            log.warn("Ollama request failed, using existing fallback: {}", ex.getMessage());
+            log.warn("Ollama request failed, using existing fallback: type={}", ex.getClass().getSimpleName());
         }
 
         return fallback.recommendSpecialty(symptoms, availableSpecialties);
