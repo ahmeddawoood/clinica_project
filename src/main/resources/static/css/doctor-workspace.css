@@ -1,6 +1,6 @@
 .doctor-workspace { background:#f5f6f3; }
 .doctor-workspace .sidebar-doctor { background:#193c38; }
-.doctor-workspace .page-content { max-width:1400px;margin:auto;padding:32px; }
+.doctor-workspace .page-content { width:100%;max-width:1400px;min-width:0;margin:auto;padding:32px; }
 .doctor-workspace .page-header h2 { color:#193c38;font-size:2rem;letter-spacing:-.035em; }
 .workspace-eyebrow { color:#5b7069;font-size:.72rem;letter-spacing:.12em;font-weight:700; }
 .doctor-actions { display:flex;gap:12px;flex-wrap:wrap;margin:24px 0; }
