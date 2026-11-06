@@ -253,7 +253,7 @@ public class PatientController {
         try {
             Long appointmentId = patientService.bookAppointment(form, principal.getName());
             return "redirect:/patient/appointments/" + appointmentId + "/pay";
-        } catch (IllegalStateException e) {
+        } catch (ClinicException | IllegalStateException e) {
             ra.addFlashAttribute("error", e.getMessage());
             return "redirect:/patient/book";
         }

@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'scripts/e2e/**'
+      - 'src/main/**'
+      - 'src/test/**'
       - '.github/workflows/runtime-smoke.yml'
   workflow_dispatch:
 permissions:
@@ -86,6 +88,8 @@ jobs:
           grep -q "Initial dataset loaded:" e2e-results/application.log
       - name: Browser and live AI checks
         run: python scripts/e2e/browser_smoke.py
+      - name: Booking interface and failure states
+        run: python scripts/e2e/booking_ui.py
       - name: Booking payment and messaging checks
         run: python scripts/e2e/business_flows.py
       - name: SMTP delivery and password reset checks

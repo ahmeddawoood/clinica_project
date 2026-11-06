@@ -24,8 +24,19 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     java.util.Optional<Appointment> findByStripePaymentIntentId(String stripePaymentIntentId);
 
     @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor = :doctor " +
-           "AND a.appointmentDate = :date AND a.status != 'CANCELLED'")
-    long countConflicts(@Param("doctor") Doctor doctor, @Param("date") LocalDateTime date);
+           "AND a.appointmentDate >= :start AND a.appointmentDate < :end AND a.status != 'CANCELLED'")
+    long countConflictsInRange(@Param("doctor") Doctor doctor, @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
+
+    default long countConflicts(Doctor doctor, LocalDateTime date) {
+        LocalDateTime start = date.withMinute(0).withSecond(0).withNano(0);
+        return countConflictsInRange(doctor, start, start.plusHours(1));
+    }
+
+    @Query("SELECT a FROM Appointment a WHERE a.doctor = :doctor AND a.appointmentDate >= :start " +
+            "AND a.appointmentDate < :end AND a.status != 'CANCELLED'")
+    List<Appointment> findBlockingInRange(@Param("doctor") Doctor doctor,
+            @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
     @Query("SELECT a FROM Appointment a ORDER BY a.appointmentDate DESC")
     List<Appointment> findAllOrderByDateDesc();
