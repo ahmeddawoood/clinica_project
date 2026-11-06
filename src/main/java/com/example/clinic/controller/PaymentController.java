@@ -1,6 +1,7 @@
 package com.example.clinic.controller;
 
 import com.example.clinic.domain.Appointment;
+import com.example.clinic.domain.AppointmentLifecycle;
 import com.example.clinic.domain.Invoice;
 import com.example.clinic.exception.AppointmentNotFoundException;
 import com.example.clinic.repository.AppointmentRepository;
@@ -292,10 +293,12 @@ public class PaymentController {
 
         model.addAttribute("appointment", appointment);
         model.addAttribute("patient", patientService.getPatientByEmail(principal.getName()));
-        return "patient/payment-success";
+        return "PAID_REVIEW_REQUIRED".equals(appointment.getStripePaymentStatus())
+                ? "patient/payment-review" : "patient/payment-success";
     }
 
     @GetMapping("/payment-cancel")
+    @Transactional
     public String paymentCancel(@RequestParam("appointmentId") Long appointmentId,
                                 Principal principal,
                                 Model model) {
@@ -306,13 +309,16 @@ public class PaymentController {
     }
 
     private void markPaidIfNeeded(Appointment appointment, Session session) {
+        if (session.getMetadata() == null || !String.valueOf(appointment.getId()).equals(
+                session.getMetadata().get("appointmentId"))) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.CONFLICT,
+                    "Payment does not belong to this appointment");
+        }
         if (appointment.isBookingFeePaid()) {
             return;
         }
 
-        appointment.setBookingFeePaid(true);
-        appointment.setStatus("PENDING");
-        appointment.setStripePaymentStatus("PAID");
+        AppointmentLifecycle.recordSuccessfulPayment(appointment);
         appointment.setStripePaymentIntentId(session.getPaymentIntent());
         appointment.setStripeSessionId(session.getId());
         appointment.setStripeAmountCents(session.getAmountTotal());
@@ -325,7 +331,7 @@ public class PaymentController {
                 "stripe_checkout",
                 session.getPaymentIntent(),
                 session.getId());
-        notificationService.notifyPaymentSuccess(appointment);
+        if (!AppointmentLifecycle.isClosed(appointment)) notificationService.notifyPaymentSuccess(appointment);
         auditLogService.log("payment-success-page", "PAYMENT_COMPLETED",
                 "Payment confirmed for appointment #" + appointment.getId());
         activityLogService.saveLog(appointment.getId(), "PAYMENT_COMPLETED",
@@ -333,13 +339,16 @@ public class PaymentController {
     }
 
     private void markPaidIfNeeded(Appointment appointment, PaymentIntent paymentIntent) {
+        if (paymentIntent.getMetadata() == null || !String.valueOf(appointment.getId()).equals(
+                paymentIntent.getMetadata().get("appointmentId"))) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.CONFLICT,
+                    "Payment does not belong to this appointment");
+        }
         if (appointment.isBookingFeePaid()) {
             return;
         }
 
-        appointment.setBookingFeePaid(true);
-        appointment.setStatus("PENDING");
-        appointment.setStripePaymentStatus("PAID");
+        AppointmentLifecycle.recordSuccessfulPayment(appointment);
         appointment.setStripePaymentIntentId(paymentIntent.getId());
         appointment.setStripeAmountCents(paymentIntent.getAmount());
         appointment.setStripeCurrency(paymentIntent.getCurrency());
@@ -351,7 +360,7 @@ public class PaymentController {
                 "stripe_payment_intent",
                 paymentIntent.getId(),
                 appointment.getStripeSessionId());
-        notificationService.notifyPaymentSuccess(appointment);
+        if (!AppointmentLifecycle.isClosed(appointment)) notificationService.notifyPaymentSuccess(appointment);
         auditLogService.log("payment-success-page", "PAYMENT_COMPLETED",
                 "Payment confirmed for appointment #" + appointment.getId());
         activityLogService.saveLog(appointment.getId(), "PAYMENT_COMPLETED",
@@ -374,7 +383,7 @@ public class PaymentController {
                 "coupon:" + couponCode,
                 null,
                 null);
-        notificationService.notifyPaymentSuccess(appointment);
+        if (!AppointmentLifecycle.isClosed(appointment)) notificationService.notifyPaymentSuccess(appointment);
         auditLogService.log("coupon-code", "PAYMENT_COMPLETED_COUPON",
                 "Coupon applied for appointment #" + appointment.getId() + " | Code: " + couponCode);
         activityLogService.saveLog(appointment.getId(), "PAYMENT_COMPLETED_COUPON",
@@ -416,9 +425,7 @@ public class PaymentController {
         String demoPi = "local_demo_pi_" + UUID.randomUUID().toString().replace("-", "");
         String demoSession = "local_demo_cs_" + UUID.randomUUID().toString().replace("-", "");
 
-        appointment.setBookingFeePaid(true);
-        appointment.setStatus("PENDING");
-        appointment.setStripePaymentStatus("PAID");
+        AppointmentLifecycle.recordSuccessfulPayment(appointment);
         appointment.setStripePaymentIntentId(demoPi);
         appointment.setStripeSessionId(demoSession);
         appointment.setStripeAmountCents(bookingFeeCents);
@@ -431,7 +438,7 @@ public class PaymentController {
                 "demo",
                 demoPi,
                 demoSession);
-        notificationService.notifyPaymentSuccess(appointment);
+        if (!AppointmentLifecycle.isClosed(appointment)) notificationService.notifyPaymentSuccess(appointment);
         auditLogService.log(actorEmail, "PAYMENT_COMPLETED_DEMO",
                 "Local demo payment completed for appointment #" + appointment.getId());
         activityLogService.saveLog(appointment.getId(), "PAYMENT_COMPLETED_DEMO",
@@ -443,11 +450,11 @@ public class PaymentController {
     }
 
     private static boolean isClosed(Appointment appointment) {
-        return "CANCELLED".equals(appointment.getStatus()) || "COMPLETED".equals(appointment.getStatus());
+        return AppointmentLifecycle.isClosed(appointment);
     }
 
     private Appointment loadOwnedAppointment(Long appointmentId, String email) {
-        Appointment appointment = appointmentRepository.findById(appointmentId)
+        Appointment appointment = appointmentRepository.findByIdForUpdate(appointmentId)
                 .orElseThrow(() -> new AppointmentNotFoundException(appointmentId));
 
         String ownerEmail = appointment.getPatient().getUser().getEmail();

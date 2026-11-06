@@ -36,7 +36,7 @@ class ClosedAppointmentPaymentTest {
         var appointment = new Appointment();
         appointment.setPatient(patient);
         appointment.setStatus(status);
-        when(appointments.findById(1L)).thenReturn(Optional.of(appointment));
+        when(appointments.findByIdForUpdate(1L)).thenReturn(Optional.of(appointment));
 
         assertThat(controller.applyPaymentCoupon(1L, "test-coupon", user::getEmail).getStatusCode().value()).isEqualTo(409);
         assertThat(controller.createPaymentIntent(1L, user::getEmail).getStatusCode().value()).isEqualTo(409);

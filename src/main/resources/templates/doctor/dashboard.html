@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
+    <link th:href="@{/css/doctor-workspace.css}" rel="stylesheet">
     <style>
         .stat-card-action { cursor: pointer; }
         .stat-card-action:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
@@ -18,7 +19,7 @@
         .today-card { border-left:4px solid #10b981; }
     </style>
 </head>
-<body>
+<body class="doctor-workspace">
 <div class="app-wrapper">
     <div th:replace="~{fragments/doctor-nav :: sidebar(${doctor})}"></div>
     <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100" style="background:rgba(0,0,0,.4);z-index:99;"></div>
@@ -27,7 +28,7 @@
         <div th:replace="~{fragments/doctor-nav :: topbar('Dashboard')}"></div>
 
         <div class="page-content">
-            
+
             <div th:if="${success}" class="alert alert-success alert-dismissible alert-auto-dismiss d-flex align-items-center gap-2 mb-3">
                 <i class="bi bi-check-circle-fill"></i><span th:text="${success}"></span>
                 <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
@@ -41,17 +42,74 @@
                 <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
             </div>
 
-            
+
             <div class="page-header d-flex justify-content-between align-items-center">
                 <div>
-                    <h2>Bun venit, Dr. <span th:text="${doctor.lastName}">Doctor</span>!</h2>
+                    <p class="workspace-eyebrow">MEDICLINIC / CABINET</p><h2>Ziua ta în clinică</h2><p class="text-muted">Dr. <span th:text="${doctor.fullName}"></span></p>
                     <p class="text-muted mb-0 small">
                         <i class="bi bi-award me-1"></i>
                         <span th:text="${doctor.specialty}">Specializare</span>
                     </p>
                 </div>
             </div>
-            
+
+            <nav class="doctor-actions" aria-label="Acțiuni de lucru"><button type="button" class="btn btn-primary" onclick="document.getElementById('filterPending').click(); document.getElementById('appointmentsTable').scrollIntoView({block:'start'});">Solicitări de confirmat <span th:text="${pendingCount}"></span></button><a th:href="@{/doctor/schedule}" class="btn btn-outline-secondary">Programul meu de lucru</a><a th:href="@{/doctor/calendar}" class="btn btn-outline-secondary">Deschide calendarul</a></nav>
+            <div class="content-card today-card mb-4" th:if="${not #lists.isEmpty(todayAppointments)}">
+                <div class="content-card-header">
+                    <h5 class="content-card-title">
+                        <i class="bi bi-calendar-day me-2 text-success"></i>
+                        Programări astăzi
+                        <span class="badge rounded-pill ms-2" style="background:#d1fae5;color:#065f46"
+                              th:text="${#lists.size(todayAppointments)}"></span>
+                    </h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="clinic-table">
+                        <thead>
+                            <tr>
+                                <th>Pacient</th>
+                                <th>Ora</th>
+                                <th>Prioritate</th>
+                                <th>Status</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="appt : ${todayAppointments}">
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar">
+                                            <span th:text="${appt.patient.firstName != null ? appt.patient.firstName.substring(0,1).toUpperCase() : 'P'}"></span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-600" th:text="${appt.patient.fullName}"></div>
+                                            <div class="text-muted-sm" th:text="${appt.patient.phone}"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="fw-600" th:text="${#temporals.format(appt.appointmentDate, 'HH:mm')}"></td>
+                                <td>
+                                    <span class="priority-badge"
+                                          th:classappend="'priority-' + ${appt.priority}"
+                                          th:text="${appt.priority}"></span>
+                                </td>
+                                <td>
+                                    <span th:if="${appt.status == 'PENDING_PAYMENT'}" class="status-badge badge-pending">În așteptarea plății</span>
+                                    <span th:if="${appt.status == 'COMPLETED'}" class="status-badge badge-completed">Finalizată</span>
+                                    <span th:if="${appt.status == 'CANCELLED'}" class="status-badge badge-cancelled">Anulată</span>
+                                    <span th:if="${appt.status == 'PENDING'}"   class="status-badge badge-pending"><i class="bi bi-hourglass-split"></i> În așteptare</span>
+                                    <span th:if="${appt.status == 'CONFIRMED'}" class="status-badge badge-confirmed"><i class="bi bi-check-circle-fill"></i> Confirmat</span>
+                                </td>
+                                <td class="text-muted small" th:text="${appt.notes}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            <div class="today-empty" th:if="${#lists.isEmpty(todayAppointments)}"><h3>Nicio programare pentru astăzi</h3><p>Poți verifica solicitările în așteptare sau actualiza programul de lucru.</p></div>
+            <details class="doctor-metrics"><summary>Statistici și activitate · toate perioadele</summary>
             <div class="row g-3 mb-4">
                 <div class="col-sm-6 col-lg-4">
                     <button type="button" class="stat-card stat-card-action w-100 text-start border-0" data-bs-toggle="modal" data-bs-target="#doctorTotalAppointmentsModal">
@@ -109,62 +167,12 @@
                 </div>
             </div>
 
-            
-            <div class="content-card today-card mb-4" th:if="${not #lists.isEmpty(todayAppointments)}">
-                <div class="content-card-header">
-                    <h5 class="content-card-title">
-                        <i class="bi bi-calendar-day me-2 text-success"></i>
-                        Programari azi
-                        <span class="badge rounded-pill ms-2" style="background:#d1fae5;color:#065f46"
-                              th:text="${#lists.size(todayAppointments)}"></span>
-                    </h5>
-                </div>
-                <div class="table-responsive">
-                    <table class="clinic-table">
-                        <thead>
-                            <tr>
-                                <th>Pacient</th>
-                                <th>Ora</th>
-                                <th>Prioritate</th>
-                                <th>Status</th>
-                                <th>Note</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="appt : ${todayAppointments}">
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="avatar">
-                                            <span th:text="${appt.patient.firstName != null ? appt.patient.firstName.substring(0,1).toUpperCase() : 'P'}"></span>
-                                        </div>
-                                        <div>
-                                            <div class="fw-600" th:text="${appt.patient.fullName}"></div>
-                                            <div class="text-muted-sm" th:text="${appt.patient.phone}"></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="fw-600" th:text="${#temporals.format(appt.appointmentDate, 'HH:mm')}"></td>
-                                <td>
-                                    <span class="priority-badge"
-                                          th:classappend="'priority-' + ${appt.priority}"
-                                          th:text="${appt.priority}"></span>
-                                </td>
-                                <td>
-                                    <span th:if="${appt.status == 'PENDING'}"   class="status-badge badge-pending"><i class="bi bi-hourglass-split"></i> În așteptare</span>
-                                    <span th:if="${appt.status == 'CONFIRMED'}" class="status-badge badge-confirmed"><i class="bi bi-check-circle-fill"></i> Confirmat</span>
-                                </td>
-                                <td class="text-muted small" th:text="${appt.notes}"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
-            
+            </details>
             <div class="content-card">
                 <div class="content-card-header">
                     <h5 class="content-card-title"><i class="bi bi-calendar-week me-2 text-success"></i>Programarile mele</h5>
-                    
+
                     <div class="btn-group btn-group-sm" role="group">
                         <input type="radio" class="btn-check" name="filter" id="filterAll" checked>
                         <label class="btn btn-outline-secondary" for="filterAll">Toate</label>
@@ -325,8 +333,8 @@
     </div>
 </div>
 
-        
-            
+
+
             <div class="modal fade" id="doctorTotalAppointmentsModal" tabindex="-1">
                 <div class="modal-dialog modal-xl modal-dialog-scrollable">
                     <div class="modal-content">
@@ -534,7 +542,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="timelineBody">
-                
+
                 <div id="timelineSkeleton">
                     <div class="d-flex gap-2 mb-3" th:each="i : ${#numbers.sequence(1,3)}">
                         <div class="skeleton rounded-circle flex-shrink-0" style="width:14px;height:14px;margin-top:4px;"></div>

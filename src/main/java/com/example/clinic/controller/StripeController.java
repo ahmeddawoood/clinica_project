@@ -1,6 +1,7 @@
 package com.example.clinic.controller;
 
 import com.example.clinic.domain.Appointment;
+import com.example.clinic.domain.AppointmentLifecycle;
 import com.example.clinic.domain.Invoice;
 import com.example.clinic.repository.AppointmentRepository;
 import com.example.clinic.repository.InvoiceRepository;
@@ -135,7 +136,7 @@ public class StripeController {
                 return;
             }
             Long appointmentId = Long.parseLong(appointmentIdStr);
-            appointmentRepository.findById(appointmentId).ifPresent(appointment -> {
+            appointmentRepository.findByIdForUpdate(appointmentId).ifPresent(appointment -> {
                 if (appointment.getStripeSessionId() == null) {
                     appointment.setStripeSessionId(session.getId());
                     appointmentRepository.save(appointment);
@@ -158,7 +159,7 @@ public class StripeController {
             }
 
             Long appointmentId = Long.parseLong(appointmentIdText);
-            appointmentRepository.findById(appointmentId).ifPresent(appointment -> {
+            appointmentRepository.findByIdForUpdate(appointmentId).ifPresent(appointment -> {
                 if (appointment.isBookingFeePaid()) {
                     log.info("Appointment {} already paid. Duplicate succeeded event ignored.", appointmentId);
                     return;
@@ -173,7 +174,7 @@ public class StripeController {
 
                 activityLogService.saveLog(appointment.getId(), "PAYMENT_COMPLETED",
                         "Payment confirmed by Stripe webhook");
-                notificationService.notifyPaymentSuccess(appointment);
+                if (!AppointmentLifecycle.isClosed(appointment)) notificationService.notifyPaymentSuccess(appointment);
 
                 log.info("payment_intent.succeeded applied for appointment {} (pi={})",
                         appointment.getId(), paymentIntent.getId());
@@ -193,7 +194,7 @@ public class StripeController {
             }
 
             Long appointmentId = Long.parseLong(appointmentIdText);
-            appointmentRepository.findById(appointmentId).ifPresent(appointment -> {
+            appointmentRepository.findByIdForUpdate(appointmentId).ifPresent(appointment -> {
                 if (appointment.isBookingFeePaid()) {
                     log.info("Failed event ignored because appointment {} is already paid", appointmentId);
                     return;
@@ -265,9 +266,7 @@ public class StripeController {
     }
 
     private void markAppointmentAsPaid(Appointment appointment, PaymentIntent paymentIntent) {
-        appointment.setBookingFeePaid(true);
-        appointment.setStatus("PENDING");
-        appointment.setStripePaymentStatus("PAID");
+        AppointmentLifecycle.recordSuccessfulPayment(appointment);
         appointment.setStripePaymentIntentId(paymentIntent.getId());
         appointment.setStripeAmountCents(paymentIntent.getAmount());
         appointment.setStripeCurrency(paymentIntent.getCurrency());

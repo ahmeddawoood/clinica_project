@@ -92,6 +92,8 @@ jobs:
         run: python scripts/e2e/booking_ui.py
       - name: Booking payment and messaging checks
         run: python scripts/e2e/business_flows.py
+      - name: Concurrent payment and cancellation
+        run: python scripts/e2e/payment_race.py
       - name: SMTP delivery and password reset checks
         run: python scripts/e2e/email_flows.py
       - name: Verify database survives application restart

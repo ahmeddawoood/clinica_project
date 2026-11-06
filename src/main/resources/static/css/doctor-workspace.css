@@ -1,0 +1,16 @@
+.doctor-workspace { background:#f5f6f3; }
+.doctor-workspace .sidebar-doctor { background:#193c38; }
+.doctor-workspace .page-content { max-width:1400px;margin:auto;padding:32px; }
+.doctor-workspace .page-header h2 { color:#193c38;font-size:2rem;letter-spacing:-.035em; }
+.workspace-eyebrow { color:#5b7069;font-size:.72rem;letter-spacing:.12em;font-weight:700; }
+.doctor-actions { display:flex;gap:12px;flex-wrap:wrap;margin:24px 0; }
+.doctor-actions .btn-primary { background:#17665b;border-color:#17665b; }
+.doctor-actions .btn { padding:11px 16px;border-radius:6px; }
+.doctor-actions span { padding-left:8px;font-variant-numeric:tabular-nums; }
+.doctor-workspace .content-card { border:1px solid #dce3de;box-shadow:none;border-radius:10px; }
+.doctor-metrics { border:1px solid #dce3de;background:#fff;border-radius:10px;margin:24px 0;padding:18px; }
+.doctor-metrics summary { color:#304d41;font-size:.9rem;cursor:pointer; }
+.doctor-metrics[open] summary { margin-bottom:22px; }
+.today-empty { border:1px dashed #bccfc2;border-radius:10px;padding:28px;background:#edf2ed; }
+.today-empty h3 { font-size:1.1rem;color:#193c38; }.today-empty p { color:#5b7069;margin-bottom:0; }
+@media(max-width:600px) { .doctor-workspace .page-content { padding:20px 16px; }.doctor-actions { flex-direction:column; }.doctor-actions .btn { text-align:left; } }
