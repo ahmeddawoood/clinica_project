@@ -17,4 +17,5 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-      - run: ./mvnw test
+      - name: Run Maven tests
+        run: ./mvnw test
