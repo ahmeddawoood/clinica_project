@@ -101,3 +101,8 @@ Vezi [migrarea bazelor existente](docs/database-migrations.md) și
 Demo data is disabled by default. Enable `DEMO_DATA_ENABLED=true` only on a disposable local database. Turning it off does not delete demo accounts already created; review existing accounts before deployment.
 
 Docker publishes MySQL, Ollama, and phpMyAdmin only on localhost. The application remains on port 8082. The public health endpoint exposes status only.
+
+## Operational readiness
+
+For first-administrator provisioning, secret configuration, backup/restore tools,
+and provider acceptance tests, see [Operational readiness](docs/operational-readiness.md).

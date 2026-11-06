@@ -47,3 +47,24 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - run: ./mvnw --batch-mode -Dtest=MySqlMigrationTest test
+      - name: Verify backup and restore on disposable MySQL
+        env:
+          MYSQL_SERVICE_CONTAINER: ${{ job.services.mysql.id }}
+        run: |
+          docker exec "$MYSQL_SERVICE_CONTAINER" bash -c '
+            if ! command -v gzip >/dev/null || ! command -v diff >/dev/null; then
+              microdnf install -y gzip diffutils
+            fi
+          '
+          docker cp scripts/ops "$MYSQL_SERVICE_CONTAINER:/tmp/clinic-ops"
+          docker exec "$MYSQL_SERVICE_CONTAINER" bash -c '
+            umask 077
+            printf "[client]\nuser=root\npassword=root-fixture\nhost=127.0.0.1\n" > /tmp/backup-client.cnf
+            /tmp/clinic-ops/verify-backup.sh /tmp/backup-client.cnf
+          '
+      - name: Validate application and repeat migration on restored database
+        env:
+          MIGRATION_DB_URL: jdbc:mysql://localhost:3306/clinic_restore_test?allowPublicKeyRetrieval=true&useSSL=false
+          MIGRATION_DB_USER: root
+          MIGRATION_DB_PASSWORD: root-fixture
+        run: ./mvnw --batch-mode -Dtest=MySqlMigrationTest test
