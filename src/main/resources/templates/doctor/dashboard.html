@@ -569,10 +569,10 @@
 new Chart(document.getElementById('monthlyChart'), {
     type: 'bar',
     data: {
-        labels:  [],
+        labels: /*[[${monthlyLabels}]]*/ [],
         datasets: [{
             label: 'Programari',
-            data:   [],
+            data: /*[[${monthlyData}]]*/ [],
             backgroundColor: '#10b981',
             borderRadius: 6
         }]
