@@ -17,8 +17,9 @@ class AiToolRegistryTest {
     private final MyPrescriptionsTool prescriptionsTool = mock(MyPrescriptionsTool.class);
     private final MyMedicalHistoryTool medicalHistoryTool = mock(MyMedicalHistoryTool.class);
     private final DoctorInformationTool doctorInformationTool = mock(DoctorInformationTool.class);
+    private final AvailableDoctorsTool availableDoctorsTool = mock(AvailableDoctorsTool.class);
     private final AiToolRegistry registry = new AiToolRegistry(
-            appointmentsTool, prescriptionsTool, medicalHistoryTool, doctorInformationTool);
+            appointmentsTool, prescriptionsTool, medicalHistoryTool, doctorInformationTool, availableDoctorsTool);
 
     @AfterEach
     void clearSecurityContext() {
@@ -37,7 +38,8 @@ class AiToolRegistryTest {
                 appointmentsTool,
                 prescriptionsTool,
                 medicalHistoryTool,
-                doctorInformationTool), registry.toolsForCurrentUser());
+                doctorInformationTool,
+                availableDoctorsTool), registry.toolsForCurrentUser());
     }
 
     @Test

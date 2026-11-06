@@ -13,15 +13,18 @@ public class AiToolRegistry {
     private final MyPrescriptionsTool myPrescriptionsTool;
     private final MyMedicalHistoryTool myMedicalHistoryTool;
     private final DoctorInformationTool doctorInformationTool;
+    private final AvailableDoctorsTool availableDoctorsTool;
 
     public AiToolRegistry(MyAppointmentsTool myAppointmentsTool,
                           MyPrescriptionsTool myPrescriptionsTool,
                           MyMedicalHistoryTool myMedicalHistoryTool,
-                          DoctorInformationTool doctorInformationTool) {
+                          DoctorInformationTool doctorInformationTool,
+                          AvailableDoctorsTool availableDoctorsTool) {
         this.myAppointmentsTool = myAppointmentsTool;
         this.myPrescriptionsTool = myPrescriptionsTool;
         this.myMedicalHistoryTool = myMedicalHistoryTool;
         this.doctorInformationTool = doctorInformationTool;
+        this.availableDoctorsTool = availableDoctorsTool;
     }
 
     public List<Object> toolsForCurrentUser() {
@@ -41,6 +44,7 @@ public class AiToolRegistry {
                 myAppointmentsTool,
                 myPrescriptionsTool,
                 myMedicalHistoryTool,
-                doctorInformationTool);
+                doctorInformationTool,
+                availableDoctorsTool);
     }
 }
