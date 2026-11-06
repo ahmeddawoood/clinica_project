@@ -10,6 +10,7 @@
         el('summaryDate').textContent = date.value ? new Intl.DateTimeFormat('ro-RO', {dateStyle:'long'}).format(new Date(date.value + 'T12:00')) : 'Nu ai selectat încă';
         el('summaryTime').textContent = timestamp.value ? timestamp.value.slice(11,16) : 'Alege un interval';
         el('bookingSubmit').disabled = !timestamp.value;
+        el('submitStatus').textContent = timestamp.value ? 'Verifică detaliile, apoi continuă la plată.' : 'Selectează medicul, data și ora pentru a continua.';
     }
     async function loadSlots() {
         const current = ++requestNumber;
