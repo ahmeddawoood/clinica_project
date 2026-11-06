@@ -18,3 +18,8 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - run: ./mvnw test
+      - name: Print Maven test reports
+        if: always()
+        run: |
+          echo '--- Surefire reports ---'
+          find target/surefire-reports -maxdepth 1 -type f -print -exec sh -c 'echo "--- $1 ---"; cat "$1"' _ {} \; 2>/dev/null || true
