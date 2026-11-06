@@ -20,7 +20,11 @@ Any non-cancelled legacy appointment in that hour blocks the slot. Queries for t
 picker are limited to the selected day. No database migration changes historical
 appointment timestamps.
 
-The write transaction locks the doctor row before checking conflicts and saving.
+The write transaction uses READ_COMMITTED and locks the doctor row before checking
+conflicts and saving. A real two-patient race reproduced duplicate bookings with
+MySQL REPEATABLE_READ: patient lookup established a snapshot before the competing
+booking committed. READ_COMMITTED lets the conflict query observe the committed
+winner after waiting for the doctor lock.
 The picker is advisory; a concurrent winner can invalidate a displayed slot. The
 losing request receives a recoverable error and must select again. The booking UI
 clears old selections on date/doctor changes and ignores outdated network replies.

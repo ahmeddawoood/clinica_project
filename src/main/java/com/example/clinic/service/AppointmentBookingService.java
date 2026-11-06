@@ -74,7 +74,9 @@ public class AppointmentBookingService {
                 .orElseThrow(() -> new PatientNotFoundException(email));
     }
 
-    @Transactional
+    // Read the committed winner after acquiring the doctor lock. REPEATABLE_READ
+    // can retain a snapshot established by the earlier patient lookup.
+    @Transactional(isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     public Long bookAppointment(AppointmentForm form, String email) {
         Patient patient = getPatientByEmail(email);
         Doctor doctor = doctorRepository.findByIdForUpdate(form.getDoctorId())
