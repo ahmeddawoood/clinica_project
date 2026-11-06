@@ -54,6 +54,31 @@ with sync_playwright() as pw:
         m = re.search(r'/appointments/(\d+)/pay', r.headers.get('location',''))
         require(m is not None, 'Missing payment redirect')
         return int(m.group(1))
+    def concurrent_booking():
+        import concurrent.futures, threading, urllib.request, urllib.parse, urllib.error
+        barrier=threading.Barrier(2)
+        class NoRedirect(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, req, fp, code, msg, headers, newurl): return None
+        def submit(args):
+            cookies, csrf_headers=args
+            body=urllib.parse.urlencode({'doctorId':str(doctor_id),'appointmentDate':f'{day}T{slots[-1]}','notes':'Synthetic race check'}).encode()
+            h={**csrf_headers,'Cookie':cookies,'Content-Type':'application/x-www-form-urlencoded'}
+            req=urllib.request.Request(BASE+'/patient/book',data=body,headers=h)
+            barrier.wait(timeout=10)
+            try:
+                r=urllib.request.build_opener(NoRedirect()).open(req,timeout=90)
+                return r.status, r.headers.get('Location','')
+            except urllib.error.HTTPError as e:
+                return e.code, e.headers.get('Location','')
+        args=[('; '.join(c['name']+'='+c['value'] for c in ctx.cookies()),h)
+              for ctx,h in [(patient,headers),(other,other_headers)]]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+            responses=list(pool.map(submit,args))
+        wins=[location for status,location in responses if status==302 and re.search(r'/appointments/\d+/pay',location)]
+        require(len(wins)==1, 'Concurrent requests must create exactly one booking: '+str(responses))
+        require(all(status==302 for status,_ in responses),'Conflict must return a recoverable redirect')
+        require(slots[-1] not in patient.request.get(BASE+f'/api/slots/{doctor_id}/{day}').json(),'Race winner must reserve slot')
+    check('simultaneous patients cannot reserve the same slot', concurrent_booking)
     aid = book(slots[0])
     check('new booking awaits payment', lambda: require(appointment(aid)['status'] == 'PENDING_PAYMENT','Wrong initial state'))
     check('pending payment reserves advertised slot', lambda: require(slots[0] not in patient.request.get(BASE + f'/api/slots/{doctor_id}/{day}').json(), 'Reserved slot is still advertised'))

@@ -29,7 +29,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class PatientServiceImplTest {
+class AppointmentBookingServiceTest {
 
     @Mock PatientRepository patientRepository;
     @Mock UserRepository userRepository;
@@ -43,7 +43,8 @@ class PatientServiceImplTest {
     @Mock WebSocketNotificationService wsNotifications;
     @Mock MetricsService metricsService;
 
-    @InjectMocks PatientServiceImpl service;
+    AppointmentBookingService service;
+    @Mock com.example.clinic.repository.DoctorScheduleRepository schedules;
 
     private static final String PATIENT_EMAIL = "patient@example.com";
     private static final Long DOCTOR_ID = 10L;
@@ -55,6 +56,10 @@ class PatientServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        service = new AppointmentBookingService(patientRepository, userRepository, appointmentRepository,
+                doctorRepository, auditLogService, notificationService, activityLogService, aiService,
+                stripeService, wsNotifications, metricsService,
+                new AppointmentAvailabilityService(schedules, appointmentRepository));
         patientUser = new User();
         patientUser.setEmail(PATIENT_EMAIL);
         patientUser.setRole("PATIENT");
@@ -113,7 +118,7 @@ class PatientServiceImplTest {
         saved.setStatus("PENDING_PAYMENT");
         when(appointmentRepository.save(any())).thenReturn(saved);
 
-        LocalDateTime future10am = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0);
+        LocalDateTime future10am = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0).withSecond(0).withNano(0);
         service.bookAppointment(validForm(future10am), PATIENT_EMAIL);
 
         verify(appointmentRepository).save(argThat(a ->
@@ -167,7 +172,7 @@ class PatientServiceImplTest {
         stubPatientLookup();
         stubDoctorLookup();
 
-        LocalDateTime evening = LocalDateTime.now().plusDays(1).withHour(18).withMinute(0);
+        LocalDateTime evening = LocalDateTime.now().plusDays(1).withHour(18).withMinute(0).withSecond(0).withNano(0);
         AppointmentForm form = validForm(evening);
 
         assertThatThrownBy(() -> service.bookAppointment(form, PATIENT_EMAIL))
@@ -181,7 +186,7 @@ class PatientServiceImplTest {
         stubDoctorLookup();
         when(appointmentRepository.countConflicts(any(), any())).thenReturn(1L);
 
-        LocalDateTime future10am = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0);
+        LocalDateTime future10am = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0).withSecond(0).withNano(0);
 
         assertThatThrownBy(() -> service.bookAppointment(validForm(future10am), PATIENT_EMAIL))
                 .isInstanceOf(DuplicateBookingException.class);
@@ -201,7 +206,7 @@ class PatientServiceImplTest {
         saved.setStatus("PENDING_PAYMENT");
         when(appointmentRepository.save(any())).thenReturn(saved);
 
-        LocalDateTime future10am = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0);
+        LocalDateTime future10am = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0).withSecond(0).withNano(0);
         service.bookAppointment(validForm(future10am), PATIENT_EMAIL);
 
         verify(appointmentRepository).save(argThat(a -> "CRITICAL".equals(a.getPriority())));
