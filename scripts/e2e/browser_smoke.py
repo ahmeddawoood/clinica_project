@@ -44,6 +44,9 @@ with sync_playwright() as p:
                 require(response.status == 200, f'HTTP {response.status}')
                 require('/login' not in page.url and '/error' not in page.url, 'Unexpected redirect')
                 require(len(page.locator('body').inner_text()) > 100, 'Empty page')
+                if role == 'doctor' and path == 'dashboard':
+                    require(page.evaluate("Chart.getChart('monthlyChart').data.labels.length === 6"), 'Missing monthly chart labels')
+                    require(page.evaluate("Chart.getChart('monthlyChart').data.datasets[0].data.some(n => n > 0)"), 'Monthly chart has no fixture appointments')
                 page.screenshot(path=str(OUT / f'{role}-{path}.png'), full_page=True)
                 require(not errors, 'Browser errors: ' + '; '.join(errors))
             check(role + ' ' + path, visit)

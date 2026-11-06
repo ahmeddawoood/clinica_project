@@ -12,6 +12,11 @@ import java.util.List;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT a FROM Appointment a WHERE a.id = :id")
+    java.util.Optional<Appointment> findByIdForUpdate(@Param("id") Long id);
+
+
     List<Appointment> findByPatient(Patient patient);
     List<Appointment> findByDoctor(Doctor doctor);
     List<Appointment> findByPatientOrderByAppointmentDateDesc(Patient patient);
@@ -19,8 +24,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByStatus(String status);
     List<Appointment> findByDoctorAndStatus(Doctor doctor, String status);
     long countByStatus(String status);
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     List<Appointment> findByStatusAndCreatedAtBefore(String status, LocalDateTime cutoff);
     List<Appointment> findByStatusAndAppointmentDateBetween(String status, LocalDateTime start, LocalDateTime end);
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     java.util.Optional<Appointment> findByStripePaymentIntentId(String stripePaymentIntentId);
 
     @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor = :doctor " +

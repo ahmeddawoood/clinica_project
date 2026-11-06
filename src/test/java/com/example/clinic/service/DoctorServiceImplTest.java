@@ -93,7 +93,7 @@ class DoctorServiceImplTest {
 
     @Test
     void confirmAppointment_happyPath_setsStatusAndNotifies() {
-        when(appointmentRepository.findById(1L)).thenReturn(Optional.of(pendingPaidAppt));
+        when(appointmentRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(pendingPaidAppt));
         when(appointmentRepository.save(any())).thenReturn(pendingPaidAppt);
 
         service.confirmAppointment(1L);
@@ -106,7 +106,7 @@ class DoctorServiceImplTest {
 
     @Test
     void confirmAppointment_alreadyConfirmed_isIdempotent() {
-        when(appointmentRepository.findById(2L)).thenReturn(Optional.of(confirmedAppt));
+        when(appointmentRepository.findByIdForUpdate(2L)).thenReturn(Optional.of(confirmedAppt));
 
         service.confirmAppointment(2L);
 
@@ -116,7 +116,7 @@ class DoctorServiceImplTest {
 
     @Test
     void confirmAppointment_notFound_throwsAppointmentNotFoundException() {
-        when(appointmentRepository.findById(99L)).thenReturn(Optional.empty());
+        when(appointmentRepository.findByIdForUpdate(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.confirmAppointment(99L))
                 .isInstanceOf(AppointmentNotFoundException.class);
@@ -124,7 +124,7 @@ class DoctorServiceImplTest {
 
     @Test
     void confirmAppointment_notPendingStatus_throwsIllegalState() {
-        when(appointmentRepository.findById(3L)).thenReturn(Optional.of(cancelledAppt));
+        when(appointmentRepository.findByIdForUpdate(3L)).thenReturn(Optional.of(cancelledAppt));
 
         assertThatThrownBy(() -> service.confirmAppointment(3L))
                 .isInstanceOf(ClinicException.class)
@@ -134,7 +134,7 @@ class DoctorServiceImplTest {
     @Test
     void confirmAppointment_feeNotPaid_throwsIllegalState() {
         pendingPaidAppt.setBookingFeePaid(false);
-        when(appointmentRepository.findById(1L)).thenReturn(Optional.of(pendingPaidAppt));
+        when(appointmentRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(pendingPaidAppt));
 
         assertThatThrownBy(() -> service.confirmAppointment(1L))
                 .isInstanceOf(ClinicException.class)
@@ -143,7 +143,7 @@ class DoctorServiceImplTest {
 
     @Test
     void cancelAppointment_happyPath_setsStatusAndNotifies() {
-        when(appointmentRepository.findById(1L)).thenReturn(Optional.of(pendingPaidAppt));
+        when(appointmentRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(pendingPaidAppt));
         when(appointmentRepository.save(any())).thenReturn(pendingPaidAppt);
 
         service.cancelAppointment(1L);
@@ -155,7 +155,7 @@ class DoctorServiceImplTest {
 
     @Test
     void cancelAppointment_alreadyCancelled_isIdempotent() {
-        when(appointmentRepository.findById(3L)).thenReturn(Optional.of(cancelledAppt));
+        when(appointmentRepository.findByIdForUpdate(3L)).thenReturn(Optional.of(cancelledAppt));
 
         service.cancelAppointment(3L);
 
@@ -164,7 +164,7 @@ class DoctorServiceImplTest {
 
     @Test
     void cancelAppointment_completed_throwsIllegalState() {
-        when(appointmentRepository.findById(4L)).thenReturn(Optional.of(completedAppt));
+        when(appointmentRepository.findByIdForUpdate(4L)).thenReturn(Optional.of(completedAppt));
 
         assertThatThrownBy(() -> service.cancelAppointment(4L))
                 .isInstanceOf(ClinicException.class)
@@ -173,7 +173,7 @@ class DoctorServiceImplTest {
 
     @Test
     void completeAppointment_happyPath_setsStatusAndNotes() {
-        when(appointmentRepository.findById(2L)).thenReturn(Optional.of(confirmedAppt));
+        when(appointmentRepository.findByIdForUpdate(2L)).thenReturn(Optional.of(confirmedAppt));
         when(appointmentRepository.save(any())).thenReturn(confirmedAppt);
 
         service.completeAppointment(2L, "Follow-up in 2 weeks");
@@ -186,7 +186,7 @@ class DoctorServiceImplTest {
 
     @Test
     void completeAppointment_alreadyCompleted_isIdempotent() {
-        when(appointmentRepository.findById(4L)).thenReturn(Optional.of(completedAppt));
+        when(appointmentRepository.findByIdForUpdate(4L)).thenReturn(Optional.of(completedAppt));
 
         service.completeAppointment(4L, null);
 
@@ -196,7 +196,7 @@ class DoctorServiceImplTest {
 
     @Test
     void completeAppointment_notConfirmed_throwsIllegalState() {
-        when(appointmentRepository.findById(1L)).thenReturn(Optional.of(pendingPaidAppt));
+        when(appointmentRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(pendingPaidAppt));
 
         assertThatThrownBy(() -> service.completeAppointment(1L, null))
                 .isInstanceOf(ClinicException.class)
@@ -206,7 +206,7 @@ class DoctorServiceImplTest {
     @Test
     void completeAppointment_nullNotes_doesNotOverwriteExistingNotes() {
         confirmedAppt.setNotes("Original notes");
-        when(appointmentRepository.findById(2L)).thenReturn(Optional.of(confirmedAppt));
+        when(appointmentRepository.findByIdForUpdate(2L)).thenReturn(Optional.of(confirmedAppt));
         when(appointmentRepository.save(any())).thenReturn(confirmedAppt);
 
         service.completeAppointment(2L, null);

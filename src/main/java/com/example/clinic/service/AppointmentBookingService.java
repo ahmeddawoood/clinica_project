@@ -124,7 +124,7 @@ public class AppointmentBookingService {
 
     @Transactional
     public void cancelAppointment(Long appointmentId, String reason) {
-        Appointment appointment = appointmentRepository.findById(appointmentId)
+        Appointment appointment = appointmentRepository.findByIdForUpdate(appointmentId)
                 .orElseThrow(() -> new AppointmentNotFoundException(appointmentId));
         if ("CANCELLED".equals(appointment.getStatus())) return;
         if ("COMPLETED".equals(appointment.getStatus())) {

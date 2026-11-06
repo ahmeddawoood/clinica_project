@@ -81,7 +81,7 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     @Transactional
     public void confirmAppointment(Long appointmentId) {
-        Appointment appt = appointmentRepository.findById(appointmentId)
+        Appointment appt = appointmentRepository.findByIdForUpdate(appointmentId)
                 .orElseThrow(() -> new AppointmentNotFoundException(appointmentId));
         if ("CONFIRMED".equals(appt.getStatus())) {
             log.info("Appointment {} already confirmed - skipping", appointmentId);
@@ -114,7 +114,7 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     @Transactional
     public void cancelAppointment(Long appointmentId) {
-        Appointment appt = appointmentRepository.findById(appointmentId)
+        Appointment appt = appointmentRepository.findByIdForUpdate(appointmentId)
                 .orElseThrow(() -> new AppointmentNotFoundException(appointmentId));
         if ("CANCELLED".equals(appt.getStatus())) {
             log.info("Appointment {} already cancelled - skipping", appointmentId);
@@ -142,7 +142,7 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     @Transactional
     public void completeAppointment(Long appointmentId, String notes) {
-        Appointment appt = appointmentRepository.findById(appointmentId)
+        Appointment appt = appointmentRepository.findByIdForUpdate(appointmentId)
                 .orElseThrow(() -> new AppointmentNotFoundException(appointmentId));
         if ("COMPLETED".equals(appt.getStatus())) {
             log.info("Appointment {} already completed - skipping", appointmentId);

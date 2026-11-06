@@ -215,7 +215,7 @@ class AppointmentBookingServiceTest {
     @Test
     void cancelAppointment_happyPath_setsStatusAndNotifies() {
         Appointment appt = pendingPaidAppt();
-        when(appointmentRepository.findById(5L)).thenReturn(Optional.of(appt));
+        when(appointmentRepository.findByIdForUpdate(5L)).thenReturn(Optional.of(appt));
         when(appointmentRepository.save(any())).thenReturn(appt);
 
         service.cancelAppointment(5L, "Conflict de orar");
@@ -229,7 +229,7 @@ class AppointmentBookingServiceTest {
     void cancelAppointment_alreadyCancelled_isIdempotent() {
         Appointment appt = new Appointment();
         appt.setStatus("CANCELLED");
-        when(appointmentRepository.findById(6L)).thenReturn(Optional.of(appt));
+        when(appointmentRepository.findByIdForUpdate(6L)).thenReturn(Optional.of(appt));
 
         service.cancelAppointment(6L, null);
 
@@ -240,7 +240,7 @@ class AppointmentBookingServiceTest {
     void cancelAppointment_completed_throwsClinicException() {
         Appointment appt = new Appointment();
         appt.setStatus("COMPLETED");
-        when(appointmentRepository.findById(7L)).thenReturn(Optional.of(appt));
+        when(appointmentRepository.findByIdForUpdate(7L)).thenReturn(Optional.of(appt));
 
         assertThatThrownBy(() -> service.cancelAppointment(7L, null))
                 .isInstanceOf(ClinicException.class)
@@ -249,7 +249,7 @@ class AppointmentBookingServiceTest {
 
     @Test
     void cancelAppointment_notFound_throwsAppointmentNotFoundException() {
-        when(appointmentRepository.findById(99L)).thenReturn(Optional.empty());
+        when(appointmentRepository.findByIdForUpdate(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.cancelAppointment(99L, null))
                 .isInstanceOf(AppointmentNotFoundException.class);
@@ -260,7 +260,7 @@ class AppointmentBookingServiceTest {
         Appointment appt = pendingPaidAppt();
         appt.setStripePaymentIntentId("pi_test_123");
         appt.setBookingFeeRefunded(false);
-        when(appointmentRepository.findById(5L)).thenReturn(Optional.of(appt));
+        when(appointmentRepository.findByIdForUpdate(5L)).thenReturn(Optional.of(appt));
         when(appointmentRepository.save(any())).thenReturn(appt);
         when(stripeService.isEnabled()).thenReturn(true);
 
@@ -276,7 +276,7 @@ class AppointmentBookingServiceTest {
         appt.setBookingFeePaid(false);
         appt.setDoctor(doctor);
         appt.setPatient(patient);
-        when(appointmentRepository.findById(5L)).thenReturn(Optional.of(appt));
+        when(appointmentRepository.findByIdForUpdate(5L)).thenReturn(Optional.of(appt));
         when(appointmentRepository.save(any())).thenReturn(appt);
 
         service.cancelAppointment(5L, null);
@@ -289,7 +289,7 @@ class AppointmentBookingServiceTest {
         Appointment appt = pendingPaidAppt();
         appt.setStripePaymentIntentId("pi_test_123");
         appt.setBookingFeeRefunded(true);
-        when(appointmentRepository.findById(5L)).thenReturn(Optional.of(appt));
+        when(appointmentRepository.findByIdForUpdate(5L)).thenReturn(Optional.of(appt));
         when(appointmentRepository.save(any())).thenReturn(appt);
 
         service.cancelAppointment(5L, null);

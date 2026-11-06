@@ -74,7 +74,7 @@ class StripeWebhookContractTest {
         ReflectionTestUtils.setField(appointment,"id",1L);
         appointment.setPatient(new Patient());
         appointment.setStatus("PENDING_PAYMENT");
-        when(appointments.findById(1L)).thenReturn(Optional.of(appointment));
+        when(appointments.findByIdForUpdate(1L)).thenReturn(Optional.of(appointment));
         when(invoices.findByAppointmentOrderByIssuedAtDesc(appointment)).thenReturn(List.of());
         String body=payload("payment_intent.succeeded");
         String signed=signature(body,Instant.now().getEpochSecond());
@@ -88,5 +88,21 @@ class StripeWebhookContractTest {
         verify(invoices,times(1)).save(any());
         verify(notifications,times(1)).notifyPaymentSuccess(appointment);
         verify(appointments,times(1)).save(appointment);
+    }
+    @Test
+    void lateSignedPaymentKeepsCancellationAndRecordsReviewOnce() throws Exception {
+        configured();
+        var appointment=new Appointment();
+        ReflectionTestUtils.setField(appointment,"id",1L);
+        appointment.setPatient(new Patient());appointment.setStatus("CANCELLED");
+        when(appointments.findByIdForUpdate(1L)).thenReturn(Optional.of(appointment));
+        String body=payload("payment_intent.succeeded");
+        String signed=signature(body,Instant.now().getEpochSecond());
+        controller.webhook(body,signed);controller.webhook(body,signed);
+        assertThat(appointment.getStatus()).isEqualTo("CANCELLED");
+        assertThat(appointment.getStripePaymentStatus()).isEqualTo("PAID_REVIEW_REQUIRED");
+        assertThat(appointment.isBookingFeePaid()).isTrue();
+        verify(invoices,times(1)).save(any());
+        verifyNoInteractions(notifications);
     }
 }
