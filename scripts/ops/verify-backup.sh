@@ -41,5 +41,12 @@ for database in "$source_db" "$target_db"; do
   mysqldump --defaults-extra-file="$config" --no-data --skip-comments \
     --no-tablespaces --set-gtid-purged=OFF "$database" > "$work/$database.sql"
 done
-diff -u "$work/$source_db.sql" "$work/$target_db.sql"
+# MySQL may spell an implicit character set explicitly after restoring a dump.
+# Normalize only when the collation itself identifies the exact same charset.
+# Different charsets/collations and all constraints remain visible to diff.
+for database in "$source_db" "$target_db"; do
+  sed -E 's/ CHARACTER SET ([a-zA-Z0-9]+) COLLATE \1_/ COLLATE \1_/g' \
+    "$work/$database.sql" > "$work/$database.canonical.sql"
+done
+diff -u "$work/$source_db.canonical.sql" "$work/$target_db.canonical.sql"
 echo 'PASS: restore preserves all table checksums, schema and Flyway history; overwrite guards pass.'
