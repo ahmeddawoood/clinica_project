@@ -46,3 +46,10 @@ src/main/resources/application-local.properties
 .m2/
 .claude/
 *.log
+
+# Local operational secrets and database backups
+.env.*
+!.env.example
+*.cnf
+*.sql.gz
+backups/
