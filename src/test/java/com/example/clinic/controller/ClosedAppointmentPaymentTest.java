@@ -47,4 +47,26 @@ class ClosedAppointmentPaymentTest {
         verify(appointments, never()).save(any());
         verifyNoInteractions(invoices, patients, stripe, notifications, audit, activity);
     }
+    @org.junit.jupiter.api.Test
+    void successfulPaymentForAnotherAppointmentCannotBeReused() throws Exception {
+        var appointments=mock(AppointmentRepository.class);
+        var invoices=mock(InvoiceRepository.class);
+        var stripe=mock(StripeService.class);
+        var notifications=mock(NotificationService.class);
+        var controller=new PaymentController(appointments,invoices,mock(PatientService.class),stripe,
+                notifications,mock(AuditLogService.class),mock(ActivityLogService.class));
+        var user=new User();user.setEmail("owner@example.test");
+        var patient=new Patient();patient.setUser(user);
+        var appointment=new Appointment();appointment.setPatient(patient);appointment.setStatus("PENDING_PAYMENT");
+        ReflectionTestUtils.setField(appointment,"id",1L);
+        when(appointments.findByIdForUpdate(1L)).thenReturn(Optional.of(appointment));
+        var intent=new com.stripe.model.PaymentIntent();intent.setId("pi_other");intent.setStatus("succeeded");
+        intent.setMetadata(java.util.Map.of("appointmentId","999"));
+        when(stripe.retrievePaymentIntent("pi_other")).thenReturn(intent);
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> controller.paymentSuccess(1L,null,"pi_other",
+                user::getEmail,new org.springframework.ui.ExtendedModelMap()))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class);
+        assertThat(appointment.isBookingFeePaid()).isFalse();
+        verify(appointments,never()).save(any());verifyNoInteractions(invoices,notifications);
+    }
 }
