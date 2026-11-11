@@ -31,6 +31,7 @@ import java.util.*;
 public class ScheduleController {
 
     private final DoctorService doctorService;
+    private final com.example.clinic.service.AppointmentAvailabilityService availability;
     private final DoctorRepository doctorRepository;
     private final DoctorScheduleRepository scheduleRepository;
     private final AppointmentRepository appointmentRepository;
@@ -38,8 +39,9 @@ public class ScheduleController {
     public ScheduleController(DoctorService doctorService,
                                DoctorRepository doctorRepository,
                                DoctorScheduleRepository scheduleRepository,
-                               AppointmentRepository appointmentRepository) {
+                               AppointmentRepository appointmentRepository, com.example.clinic.service.AppointmentAvailabilityService availability) {
         this.doctorService = doctorService;
+        this.availability = availability;
         this.doctorRepository = doctorRepository;
         this.scheduleRepository = scheduleRepository;
         this.appointmentRepository = appointmentRepository;
@@ -118,37 +120,7 @@ public class ScheduleController {
         try { localDate = LocalDate.parse(date); }
         catch (Exception e) { return ResponseEntity.badRequest().build(); }
 
-        int dow = localDate.getDayOfWeek().getValue(); 
-        Optional<DoctorSchedule> scheduleOpt = scheduleRepository.findByDoctorAndDayOfWeek(doctor, dow);
-
-        int startH = 8, endH = 18;
-        if (scheduleOpt.isPresent()) {
-            DoctorSchedule s = scheduleOpt.get();
-            if (!s.isAvailable()) return ResponseEntity.ok(List.of());
-            startH = s.getStartHour();
-            endH   = s.getEndHour();
-        }
-        LocalDateTime dayStart = localDate.atStartOfDay();
-        LocalDateTime dayEnd   = localDate.plusDays(1).atStartOfDay();
-        Set<Integer> bookedHours = new HashSet<>();
-        for (Appointment a : appointmentRepository.findByDoctorAndStatus(doctor, "CONFIRMED")) {
-            if (!a.getAppointmentDate().isBefore(dayStart) && a.getAppointmentDate().isBefore(dayEnd)) {
-                bookedHours.add(a.getAppointmentDate().getHour());
-            }
-        }
-        for (Appointment a : appointmentRepository.findByDoctorAndStatus(doctor, "PENDING")) {
-            if (!a.getAppointmentDate().isBefore(dayStart) && a.getAppointmentDate().isBefore(dayEnd)) {
-                bookedHours.add(a.getAppointmentDate().getHour());
-            }
-        }
-
-        List<String> slots = new ArrayList<>();
-        for (int h = startH; h < endH; h++) {
-            if (!bookedHours.contains(h)) {
-                slots.add(String.format("%02d:00", h));
-            }
-        }
-        return ResponseEntity.ok(slots);
+        return ResponseEntity.ok(availability.availableSlots(doctor, localDate));
     }
 
     private Map<Integer, String> dayNames() {

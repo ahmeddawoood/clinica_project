@@ -5,7 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -22,15 +24,15 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("test")
-@AutoConfigureMockMvc
 class AiAgentSecurityIntegrationTest {
 
     @Autowired
+    WebApplicationContext context;
+
     MockMvc mockMvc;
 
     @MockitoBean
@@ -41,6 +43,9 @@ class AiAgentSecurityIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(context)
+                .apply(SecurityMockMvcConfigurers.springSecurity())
+                .build();
         when(aiProvider.chat(anyString(), anyString(), any()))
                 .thenAnswer(invocation -> {
                     List<?> tools = invocation.getArgument(2);
@@ -75,10 +80,10 @@ class AiAgentSecurityIntegrationTest {
                         .with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content("{\"message\":\"Show my appointments\"}"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/403"));
+                .andExpect(status().isForbidden());
 
         verify(patientService, never()).getAppointments(anyString());
+        verify(aiProvider, never()).chat(anyString(), anyString(), any());
     }
 
     @Test
@@ -88,9 +93,21 @@ class AiAgentSecurityIntegrationTest {
                         .with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content("{\"message\":\"Show my appointments\"}"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/login"));
+                .andExpect(status().is3xxRedirection());
 
         verify(patientService, never()).getAppointments(anyString());
+        verify(aiProvider, never()).chat(anyString(), anyString(), any());
     }
+    @Test
+    @WithMockUser(username = "patient@test.com", roles = "PATIENT")
+    void patientRequestWithoutCsrfCannotInvokeProvider() throws Exception {
+        mockMvc.perform(post("/api/ai/chat")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"message\":\"Show my appointments\"}"))
+                .andExpect(status().isForbidden());
+
+        verify(aiProvider, never()).chat(anyString(), anyString(), any());
+        verify(patientService, never()).getAppointments(anyString());
+    }
+
 }

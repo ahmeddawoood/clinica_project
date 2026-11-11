@@ -23,9 +23,13 @@ public class MediClinicAiAgent {
             throw new IllegalArgumentException("Message is too long");
         }
 
-        return aiProvider.chat(
+        String response = aiProvider.chat(
                 AiGuardrails.SYSTEM_PROMPT,
                 normalizedMessage,
                 toolRegistry.toolsForCurrentUser());
+        if (response == null || response.isBlank()) {
+            throw new AiProviderException("AI provider returned an empty response");
+        }
+        return response;
     }
 }

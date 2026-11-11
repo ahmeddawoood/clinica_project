@@ -37,7 +37,7 @@
                     <p class="text-muted small mb-0" th:text="'Total: ' + ${totalCount} + ' programari'"></p>
                 </div>
                 <a th:href="@{/admin/export/appointments}" class="btn btn-outline-secondary btn-sm">
-                    <i class="bi bi-download me-1"></i>Exporta CSV
+                    <i class="bi bi-download me-1"></i>Exportă toate în CSV
                 </a>
             </div>
 
@@ -85,18 +85,40 @@
             <div class="content-card">
                 <div class="content-card-header">
                     <h5 class="content-card-title"><i class="bi bi-table me-2"></i>Lista programarilor</h5>
-                    <div class="d-flex gap-2 align-items-center flex-wrap">
-                        <input type="text" class="form-control form-control-sm" placeholder="Cauta pacient, doctor..."
-                               data-search-table="apptTable" style="width:220px;">
-                    </div>
+                    <form method="get" th:action="@{/admin/appointments}" class="d-flex gap-2 align-items-end flex-wrap">
+                        <div>
+                            <label for="appointment-search" class="form-label small">Pacient sau doctor</label>
+                            <input id="appointment-search" name="q" type="search" maxlength="100"
+                                   th:value="${q}" class="form-control form-control-sm">
+                        </div>
+                        <div>
+                            <label for="appointment-status" class="form-label small">Status</label>
+                            <select id="appointment-status" name="status" class="form-select form-select-sm">
+                                <option value="">Toate</option>
+                                <option th:each="s : ${ {'PENDING_PAYMENT','PENDING','CONFIRMED','COMPLETED','CANCELLED'} }"
+                                        th:value="${s}" th:text="${s}" th:selected="${s == status}"></option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary btn-sm" type="submit">Caută</button>
+                        <a th:href="@{/admin/appointments}" class="btn btn-outline-secondary btn-sm">Resetează</a>
+                    </form>
                 </div>
+                <nav class="d-flex justify-content-between align-items-center flex-wrap gap-2 p-3" aria-label="Pagini programări">
+                    <span class="small text-muted" th:text="${appointmentPage.totalElements} + ' rezultate · Pagina ' + ${appointmentPage.number + 1} + ' / ' + ${T(java.lang.Math).max(1, appointmentPage.totalPages)}"></span>
+                    <div class="d-flex gap-2">
+                        <a th:if="${appointmentPage.hasPrevious()}" class="btn btn-outline-secondary btn-sm"
+                           th:href="@{/admin/appointments(page=${appointmentPage.number - 1},q=${q},status=${status})}">Anterior</a>
+                        <a th:if="${appointmentPage.hasNext()}" class="btn btn-outline-secondary btn-sm"
+                           th:href="@{/admin/appointments(page=${appointmentPage.number + 1},q=${q},status=${status})}">Următor</a>
+                    </div>
+                </nav>
                 <div class="content-card-body p-0">
                     <div th:if="${#lists.isEmpty(appointments)}" class="text-center py-5 text-muted">
                         <i class="bi bi-calendar-x fs-1 d-block mb-2 opacity-25"></i>
-                        Nu exista programari înregistrate.
+                        Nicio programare nu corespunde filtrelor.
                     </div>
                     <div class="table-responsive" th:unless="${#lists.isEmpty(appointments)}">
-                        <table class="clinic-table" id="apptTable" data-paginate="20">
+                        <table class="clinic-table" id="apptTable">
                             <thead>
                                 <tr>
                                     <th>#</th>

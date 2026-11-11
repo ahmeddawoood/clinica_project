@@ -53,11 +53,11 @@ mvnw.cmd clean package -DskipTests
 java -jar target\clinic-1.0.0.jar
 ```
 
-La prima pornire, Hibernate creează automat tabelele (`ddl-auto=update`), iar aplicația populează automat baza de date cu date demo (doctori, pacienți, programări).
+La prima pornire pe o bază goală, Flyway aplică migrarea V1, apoi Hibernate validează schema (`ddl-auto=validate`). Datele demo sunt create numai dacă setezi `DEMO_DATA_ENABLED=true` pe o bază locală de demonstrație. Pentru o bază existentă, urmează [procedura de adoptare](docs/database-migrations.md) înainte de pornire.
 
 Aplicația pornește pe **http://localhost:8082**.
 
-## Conturi demo (create automat la prima pornire)
+## Conturi demo (numai cu DEMO_DATA_ENABLED=true)
 
 | Rol      | Email                | Parolă      |
 |----------|-----------------------|-------------|
@@ -67,19 +67,42 @@ Aplicația pornește pe **http://localhost:8082**.
 
 ## Probleme frecvente
 
-- **Diacritice afișate greșit (`?`, `�`, `Ã®`, etc.)** — baza de date nu a fost creată cu `utf8mb4` (vezi pasul 2). Șterge baza de date existentă și recreeaz-o corect, apoi repornește aplicația ca Hibernate să recreeze tabelele cu charset-ul corect.
+- **Diacritice afișate greșit (`?`, `�`, `Ã®`, etc.)** — baza de date nu a fost creată cu `utf8mb4` (vezi pasul 2). Fă un backup și verifică setările bazei și ale coloanelor înainte de conversia charset-ului. Nu șterge datele existente.
 - **Eroare de conectare la MySQL** — verifică dacă modulul MySQL este pornit în XAMPP și dacă portul `3306` nu este ocupat de o altă instanță MySQL.
 - **Port 8082 ocupat** — schimbă `server.port` în `application.properties` sau pornește cu `--server.port=ALTPORT`.
 - **Prima rulare durează mult / are nevoie de internet** — `mvnw` descarcă dependențele Maven o singură dată; rulările ulterioare folosesc cache-ul local.
 
-## Funcționalități opționale (dezactivate implicit)
+## Integrări externe
 
-Stripe (plăți), DeepSeek AI (analiză simptome), email și SMS (Twilio) sunt dezactivate implicit și nu necesită configurare pentru a rula/testa aplicația. Se pot activa prin variabilele de mediu din `application.properties` (`STRIPE_SECRET_KEY`, `DEEPSEEK_API_KEY`, `MAIL_ENABLED`, `SMS_ENABLED`).
+Stripe (plăți), DeepSeek AI (analiză simptome), email și SMS (Twilio) sunt neconfigurate sau dezactivate implicit și nu necesită configurare pentru a rula/testa aplicația. Se pot activa prin variabilele de mediu din `application.properties` (`STRIPE_SECRET_KEY`, `DEEPSEEK_API_KEY`, `MAIL_ENABLED`, `SMS_ENABLED`).
 
-## Plăți Stripe în mod local (fără Docker)
+## Configurare locală și Docker
 
-Fișierul `.env` din rădăcina proiectului conține deja o cheie Stripe de test. `application.properties` o încarcă automat (`spring.config.import=optional:file:.env[.properties]`), deci Stripe funcționează direct la `mvnw spring-boot:run` sau `java -jar`, fără Docker.
+Copiază `.env.example` în `.env`. Fișierul `.env` nu este inclus în Git și nu
+conține chei preconfigurate. Completează `MYSQL_PASSWORD` și
+`MYSQL_ROOT_PASSWORD` înainte de `docker compose up --build`.
 
-- **Localhost nu este o problemă** pentru plăți — API-ul Stripe este apelat de server (ieșire HTTPS către `api.stripe.com`), nu invers, deci merge din orice rețea cu acces la internet.
-- Testează cu cardul de test Stripe: `4242 4242 4242 4242`, orice dată viitoare, orice CVC.
-- **Webhook-ul Stripe** (`/stripe/webhook`) *nu* este necesar pentru demonstrație — confirmarea plății și rambursările sunt făcute direct de server (nu depind de un callback extern către localhost). Webhook-ul e doar un mecanism de rezervă pentru evenimente asincrone; dacă vrei totuși să-l testezi local, folosește [Stripe CLI](https://stripe.com/docs/stripe-cli): `stripe listen --forward-to localhost:8082/stripe/webhook`, care îți dă un `STRIPE_WEBHOOK_SECRET` temporar de pus în `.env`.
+Ollama este activat implicit (`OLLAMA_ENABLED=true`). Pentru Docker, descarcă
+modelul după pornirea serviciului: `docker compose exec ollama ollama pull qwen3:1.7b`.
+Pentru rulare fără Docker, pornește Ollama separat și descarcă același model,
+sau setează `OLLAMA_ENABLED=false`. În acest caz, recomandările de specialitate
+folosesc fallback-ul existent, iar `/api/ai/chat` răspunde cu 503.
+Testele folosesc un provider simulat și nu necesită Ollama.
+
+Stripe, DeepSeek, email și SMS necesită configurare separată. Pentru Stripe,
+setează cheile de test în `.env`. Pentru evenimente asincrone locale, folosește
+Stripe CLI cu `stripe listen --forward-to localhost:8082/stripe/webhook` și pune
+secretul returnat în `STRIPE_WEBHOOK_SECRET`.
+
+MySQL folosește Flyway și validare Hibernate în toate configurațiile MySQL.
+Vezi [migrarea bazelor existente](docs/database-migrations.md) și
+[ordinea de integrare a PR-urilor AI](docs/ai-integration-plan.md).
+
+Demo data is disabled by default. Enable `DEMO_DATA_ENABLED=true` only on a disposable local database. Turning it off does not delete demo accounts already created; review existing accounts before deployment.
+
+Docker publishes MySQL, Ollama, and phpMyAdmin only on localhost. The application remains on port 8082. The public health endpoint exposes status only.
+
+## Operational readiness
+
+For first-administrator provisioning, secret configuration, backup/restore tools,
+and provider acceptance tests, see [Operational readiness](docs/operational-readiness.md).
