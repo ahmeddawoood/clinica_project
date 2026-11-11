@@ -75,8 +75,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> searchAppointments(@Param("status") String status, @Param("name") String name);
     @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"patient", "doctor"})
     @Query("SELECT a FROM Appointment a WHERE (:status = '' OR a.status = :status) AND " +
-           "(:name = '' OR LOWER(CONCAT(a.patient.firstName, ' ', a.patient.lastName)) LIKE :name ESCAPE '!' " +
-           "OR LOWER(CONCAT(a.doctor.firstName, ' ', a.doctor.lastName)) LIKE :name ESCAPE '!')")
+           "(:name = '' OR LOWER(CONCAT(COALESCE(a.patient.firstName, ''), ' ', COALESCE(a.patient.lastName, ''))) LIKE :name ESCAPE '!' " +
+           "OR LOWER(CONCAT(COALESCE(a.doctor.firstName, ''), ' ', COALESCE(a.doctor.lastName, ''))) LIKE :name ESCAPE '!')")
     org.springframework.data.domain.Page<Appointment> searchAdminPage(
             @Param("status") String status, @Param("name") String name,
             org.springframework.data.domain.Pageable pageable);
