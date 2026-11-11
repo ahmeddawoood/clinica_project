@@ -63,6 +63,22 @@ with sync_playwright() as p:
             require(page.locator('.sidebar').evaluate('(el) => el.getBoundingClientRect().left') >= -1,
                     'Mobile navigation did not open')
         check(role + ' mobile dashboard', mobile)
+        if role == 'admin':
+            def search_appointments():
+                page.goto(BASE + '/admin/appointments')
+                require(page.locator('#apptTable tbody tr').count() <= 20, 'Unbounded appointment page')
+                page.locator('#appointment-search').fill('no-such-patient-fixture')
+                page.get_by_role('button', name='Caută', exact=True).click()
+                page.wait_for_url('**/admin/appointments?**')
+                require(page.locator('#apptTable tbody tr').count() == 0, 'Search ignored')
+                require('Nicio programare' in page.locator('body').inner_text(), 'Missing empty state')
+                page.get_by_role('link', name='Resetează', exact=True).click()
+                page.wait_for_url(BASE + '/admin/appointments')
+                require(page.locator('#apptTable tbody tr').count() > 0, 'Reset lost appointments')
+                dimensions = page.evaluate('({width: innerWidth, scroll: document.documentElement.scrollWidth})')
+                require(dimensions['scroll'] <= dimensions['width'] + 1, 'Appointment mobile overflow')
+                page.screenshot(path=str(OUT / 'admin-appointments-mobile.png'), full_page=True)
+            check('admin appointment search, reset and mobile layout', search_appointments)
         if role == 'patient':
             def save_profile():
                 page.goto(BASE + '/patient/profile')
