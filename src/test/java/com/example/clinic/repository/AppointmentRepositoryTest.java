@@ -207,4 +207,23 @@ class AppointmentRepositoryTest {
         assertThat(results.get(0).getAppointmentDate())
                 .isAfterOrEqualTo(results.get(1).getAppointmentDate());
     }
+
+    @Test
+    void adminSearchPagesHaveStableOrderAndCombineNameWithStatus() {
+        var date = LocalDateTime.of(2098, 2, 1, 10, 0);
+        var first = persist("CONFIRMED", date, null);
+        var second = persist("CONFIRMED", date, null);
+        persist("CANCELLED", date, null);
+        var sort = org.springframework.data.domain.Sort.by(
+                org.springframework.data.domain.Sort.Direction.DESC, "appointmentDate", "id");
+        var page0 = appointmentRepository.searchAdminPage("CONFIRMED", "%ion popescu%",
+                org.springframework.data.domain.PageRequest.of(0, 1, sort));
+        var page1 = appointmentRepository.searchAdminPage("CONFIRMED", "%elena marin%",
+                org.springframework.data.domain.PageRequest.of(1, 1, sort));
+        assertThat(page0.getTotalElements()).isEqualTo(2);
+        assertThat(page0.getContent()).extracting(Appointment::getId).containsExactly(second.getId());
+        assertThat(page1.getContent()).extracting(Appointment::getId).containsExactly(first.getId());
+        assertThat(appointmentRepository.searchAdminPage("", "%!%%",
+                org.springframework.data.domain.PageRequest.of(0, 20))).isEmpty();
+    }
 }

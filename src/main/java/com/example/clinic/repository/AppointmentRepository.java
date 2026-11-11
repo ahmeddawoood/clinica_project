@@ -73,6 +73,14 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
            "OR LOWER(a.patient.lastName) LIKE LOWER(CONCAT('%', :name, '%'))) " +
            "ORDER BY a.appointmentDate DESC")
     List<Appointment> searchAppointments(@Param("status") String status, @Param("name") String name);
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"patient", "doctor"})
+    @Query("SELECT a FROM Appointment a WHERE (:status = '' OR a.status = :status) AND " +
+           "(:name = '' OR LOWER(CONCAT(a.patient.firstName, ' ', a.patient.lastName)) LIKE :name ESCAPE '!' " +
+           "OR LOWER(CONCAT(a.doctor.firstName, ' ', a.doctor.lastName)) LIKE :name ESCAPE '!')")
+    org.springframework.data.domain.Page<Appointment> searchAdminPage(
+            @Param("status") String status, @Param("name") String name,
+            org.springframework.data.domain.Pageable pageable);
+
     @Query("SELECT HOUR(a.appointmentDate), COUNT(a) FROM Appointment a " +
            "WHERE a.status != 'CANCELLED' " +
            "GROUP BY HOUR(a.appointmentDate) ORDER BY HOUR(a.appointmentDate)")
