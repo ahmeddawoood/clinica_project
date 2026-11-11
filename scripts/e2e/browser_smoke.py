@@ -80,6 +80,19 @@ with sync_playwright() as p:
                 page.screenshot(path=str(OUT / 'admin-appointments-mobile.png'), full_page=True)
             check('admin appointment search, reset and mobile layout', search_appointments)
         if role == 'patient':
+            def medical_history():
+                page.set_viewport_size({'width': 390, 'height': 844})
+                for tab in ['records', 'rx', 'reports', 'invoices', 'timeline']:
+                    response = page.goto(BASE + '/patient/history?tab=' + tab)
+                    require(response.status == 200, 'History section failed: ' + tab)
+                    require(page.locator('.history-section').count() == 1, 'Inactive sections were loaded')
+                    require(page.locator('#' + tab + '-tab').get_attribute('aria-current') == 'page', 'Wrong active section')
+                    dimensions = page.evaluate('({width: innerWidth, scroll: document.documentElement.scrollWidth})')
+                    require(dimensions['scroll'] <= dimensions['width'] + 1, 'History mobile overflow: ' + tab)
+                    page.screenshot(path=str(OUT / ('history-' + tab + '-mobile.png')), full_page=True)
+                page.goto(BASE + '/patient/history#rx')
+                page.wait_for_url(BASE + '/patient/history?tab=rx')
+            check('patient medical history sections and legacy bookmark', medical_history)
             def save_profile():
                 page.goto(BASE + '/patient/profile')
                 page.locator('[name=phone]').fill('0700000123')
