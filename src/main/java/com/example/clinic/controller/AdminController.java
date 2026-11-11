@@ -118,14 +118,36 @@ public class AdminController {
     }
 
     @GetMapping("/appointments")
-    public String appointments(Model model) {
-        var all = appointmentRepository.findAllOrderByDateDesc();
-        model.addAttribute("appointments", all);
-        model.addAttribute("totalCount",     all.size());
-        model.addAttribute("pendingCount",   all.stream().filter(a -> "PENDING".equals(a.getStatus())).count());
-        model.addAttribute("confirmedCount", all.stream().filter(a -> "CONFIRMED".equals(a.getStatus())).count());
-        model.addAttribute("completedCount", all.stream().filter(a -> "COMPLETED".equals(a.getStatus())).count());
-        model.addAttribute("cancelledCount", all.stream().filter(a -> "CANCELLED".equals(a.getStatus())).count());
+    public String appointments(Model model,
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "") String q,
+                               @RequestParam(defaultValue = "") String status) {
+        q = q.strip();
+        status = status.strip();
+        if (q.length() > 100 || (!status.isEmpty() && !java.util.Set.of(
+                "PENDING_PAYMENT", "PENDING", "CONFIRMED", "COMPLETED", "CANCELLED").contains(status))) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "Invalid appointment filter");
+        }
+        String pattern = q.isEmpty() ? "" : "%" + q.toLowerCase(java.util.Locale.ROOT)
+                .replace("!", "!!").replace("%", "!%").replace("_", "!_") + "%";
+        var sort = org.springframework.data.domain.Sort.by(
+                org.springframework.data.domain.Sort.Direction.DESC, "appointmentDate", "id");
+        var results = appointmentRepository.searchAdminPage(status, pattern,
+                org.springframework.data.domain.PageRequest.of(Math.max(0, Math.min(page, 1000000)), 20, sort));
+        if (results.getNumber() > 0 && results.isEmpty()) {
+            results = appointmentRepository.searchAdminPage(status, pattern,
+                    org.springframework.data.domain.PageRequest.of(Math.max(0, results.getTotalPages() - 1), 20, sort));
+        }
+        model.addAttribute("appointments", results.getContent());
+        model.addAttribute("appointmentPage", results);
+        model.addAttribute("q", q);
+        model.addAttribute("status", status);
+        model.addAttribute("totalCount", appointmentRepository.count());
+        model.addAttribute("pendingCount", appointmentRepository.countByStatus("PENDING"));
+        model.addAttribute("confirmedCount", appointmentRepository.countByStatus("CONFIRMED"));
+        model.addAttribute("completedCount", appointmentRepository.countByStatus("COMPLETED"));
+        model.addAttribute("cancelledCount", appointmentRepository.countByStatus("CANCELLED"));
         return "admin/appointments";
     }
 

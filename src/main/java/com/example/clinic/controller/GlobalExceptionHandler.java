@@ -83,6 +83,23 @@ public class GlobalExceptionHandler {
         return "error/404";
     }
 
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public String responseStatus(org.springframework.web.server.ResponseStatusException ex,
+                                 jakarta.servlet.http.HttpServletResponse response, Model model) {
+        response.setStatus(ex.getStatusCode().value());
+        model.addAttribute("message", "Cererea nu poate fi procesată. Verifică datele și încearcă din nou.");
+        model.addAttribute("hint", null);
+        return "error/error";
+    }
+
+    @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String invalidParameter(Model model) {
+        model.addAttribute("message", "Parametrii cererii nu sunt valizi.");
+        model.addAttribute("hint", null);
+        return "error/error";
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String unexpectedError(Exception ex, Model model) {

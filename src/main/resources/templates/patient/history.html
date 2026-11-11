@@ -160,7 +160,7 @@
                     <div class="stat-card">
                         <div class="stat-icon" style="background:#fffbeb;color:#d97706;"><i class="bi bi-receipt"></i></div>
                         <div class="stat-body">
-                            <div class="stat-value" th:text="${#lists.size(invoices)}">0</div>
+                            <div class="stat-value" th:text="${totalInvoices}">0</div>
                             <div class="stat-label">Facturi</div>
                         </div>
                     </div>
@@ -170,51 +170,55 @@
             
             <div class="content-card">
                 <div class="content-card-body p-0">
-                    <ul class="nav history-tabs px-3 pt-3" id="historyTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="records-tab" data-bs-toggle="tab"
-                                    data-bs-target="#records-pane" type="button" role="tab">
+                    <ul class="nav history-tabs px-3 pt-3" id="historyTabs" aria-label="Secțiuni istoric medical">
+                        <li class="nav-item">
+                            <a class="nav-link" id="records-tab" th:classappend="${activeTab == 'records' ? 'active' : ''}" th:attr="aria-current=${activeTab == 'records' ? 'page' : null}" th:href="@{/patient/history(tab='records')}">
                                 <i class="bi bi-journal-medical me-1"></i>Fișe Medicale
                                 <span class="badge bg-primary-subtle text-primary ms-1" th:text="${totalRecords}"></span>
-                            </button>
+                            </a>
                         </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="rx-tab" data-bs-toggle="tab"
-                                    data-bs-target="#rx-pane" type="button" role="tab">
+                        <li class="nav-item">
+                            <a class="nav-link" id="rx-tab" th:classappend="${activeTab == 'rx' ? 'active' : ''}" th:attr="aria-current=${activeTab == 'rx' ? 'page' : null}" th:href="@{/patient/history(tab='rx')}">
                                 <i class="bi bi-capsule me-1"></i>Rețete
                                 <span class="badge bg-purple-subtle text-purple ms-1"
                                       style="background:#faf5ff;color:#9333ea;"
                                       th:text="${totalPrescriptions}"></span>
-                            </button>
+                            </a>
                         </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="reports-tab" data-bs-toggle="tab"
-                                    data-bs-target="#reports-pane" type="button" role="tab">
+                        <li class="nav-item">
+                            <a class="nav-link" id="reports-tab" th:classappend="${activeTab == 'reports' ? 'active' : ''}" th:attr="aria-current=${activeTab == 'reports' ? 'page' : null}" th:href="@{/patient/history(tab='reports')}">
                                 <i class="bi bi-file-earmark-medical me-1"></i>Rapoarte
                                 <span class="badge ms-1" style="background:#f0fdf4;color:#16a34a;"
                                       th:text="${totalReports}"></span>
-                            </button>
+                            </a>
                         </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="invoices-tab" data-bs-toggle="tab"
-                                    data-bs-target="#invoices-pane" type="button" role="tab">
+                        <li class="nav-item">
+                            <a class="nav-link" id="invoices-tab" th:classappend="${activeTab == 'invoices' ? 'active' : ''}" th:attr="aria-current=${activeTab == 'invoices' ? 'page' : null}" th:href="@{/patient/history(tab='invoices')}">
                                 <i class="bi bi-receipt me-1"></i>Facturi
                                 <span class="badge ms-1" style="background:#fffbeb;color:#d97706;"
-                                      th:text="${#lists.size(invoices)}"></span>
-                            </button>
+                                      th:text="${totalInvoices}"></span>
+                            </a>
                         </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="timeline-tab" data-bs-toggle="tab"
-                                    data-bs-target="#timeline-pane" type="button" role="tab">
+                        <li class="nav-item">
+                            <a class="nav-link" id="timeline-tab" th:classappend="${activeTab == 'timeline' ? 'active' : ''}" th:attr="aria-current=${activeTab == 'timeline' ? 'page' : null}" th:href="@{/patient/history(tab='timeline')}">
                                 <i class="bi bi-clock-history me-1"></i>Timeline
                                 <span class="badge ms-1" style="background:#f1f5f9;color:#475569;"
-                                      th:text="${#lists.size(timeline)}"></span>
-                            </button>
+                                      th:text="${totalTimeline}"></span>
+                            </a>
                         </li>
                     </ul>
 
+                    <nav class="d-flex justify-content-between align-items-center flex-wrap gap-2 p-3" aria-label="Pagini istoric">
+                        <span class="small text-muted" th:text="${historyPage.totalElements} + ' rezultate · Pagina ' + ${historyPage.number + 1} + ' / ' + ${T(java.lang.Math).max(1, historyPage.totalPages)}"></span>
+                        <div class="d-flex gap-2">
+                            <a th:if="${historyPage.hasPrevious()}" class="btn btn-sm btn-outline-secondary"
+                               th:href="@{/patient/history(tab=${activeTab},page=${historyPage.number - 1})}">Anterior</a>
+                            <a th:if="${historyPage.hasNext()}" class="btn btn-sm btn-outline-secondary"
+                               th:href="@{/patient/history(tab=${activeTab},page=${historyPage.number + 1})}">Următor</a>
+                        </div>
+                    </nav>
                     <div class="tab-content p-3" id="historyTabContent">
-<div class="tab-pane fade show active" id="records-pane" role="tabpanel">
+<div class="history-section" id="records-pane" th:if="${activeTab == 'records'}">
                             <div th:if="${#lists.isEmpty(records)}" class="empty-state">
                                 <i class="bi bi-journal-x empty-icon"></i>
                                 <p class="text-muted mb-0">Nu exista fișe medicale înregistrate.</p>
@@ -262,7 +266,7 @@
                                 </div>
                             </div>
                         </div>
-<div class="tab-pane fade" id="rx-pane" role="tabpanel">
+<div class="history-section" id="rx-pane" th:if="${activeTab == 'rx'}">
                             <div th:if="${#lists.isEmpty(prescriptions)}" class="empty-state">
                                 <i class="bi bi-capsule empty-icon"></i>
                                 <p class="text-muted mb-0">Nu ai rețete medicale emise.</p>
@@ -314,7 +318,7 @@
                                 </div>
                             </div>
                         </div>
-<div class="tab-pane fade" id="reports-pane" role="tabpanel">
+<div class="history-section" id="reports-pane" th:if="${activeTab == 'reports'}">
                             <div th:if="${#lists.isEmpty(reports)}" class="empty-state">
                                 <i class="bi bi-file-earmark-x empty-icon"></i>
                                 <p class="text-muted mb-0">Nu exista rapoarte medicale generate.</p>
@@ -365,7 +369,7 @@
                                 </div>
                             </div>
                         </div>
-<div class="tab-pane fade" id="invoices-pane" role="tabpanel">
+<div class="history-section" id="invoices-pane" th:if="${activeTab == 'invoices'}">
                             <div th:if="${#lists.isEmpty(invoices)}" class="empty-state">
                                 <i class="bi bi-receipt empty-icon"></i>
                                 <p class="text-muted mb-0">Nu exista facturi emise.</p>
@@ -413,7 +417,7 @@
                                 </table>
                             </div>
                         </div>
-<div class="tab-pane fade" id="timeline-pane" role="tabpanel">
+<div class="history-section" id="timeline-pane" th:if="${activeTab == 'timeline'}">
                             <div th:if="${#lists.isEmpty(timeline)}" class="empty-state">
                                 <i class="bi bi-clock-history empty-icon"></i>
                                 <p class="text-muted mb-0">Nu exista evenimente medicale înregistrate.</p>
@@ -472,18 +476,13 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/js/app.js}"></script>
 <script>
+// Preserve bookmarks from the former client-side tabs.
 (function () {
-    var hash = window.location.hash;
-    if (hash) {
-        var tab = document.querySelector('#historyTabs button[data-bs-target="' + hash + '-pane"]');
-        if (tab) new bootstrap.Tab(tab).show();
+    var section = window.location.hash.slice(1);
+    if (!new URLSearchParams(window.location.search).has('tab') &&
+        ['records', 'rx', 'reports', 'invoices', 'timeline'].includes(section)) {
+        window.location.replace('/patient/history?tab=' + encodeURIComponent(section));
     }
-    document.querySelectorAll('#historyTabs button').forEach(function(btn) {
-        btn.addEventListener('shown.bs.tab', function(e) {
-            var target = e.target.getAttribute('data-bs-target').replace('-pane','');
-            history.replaceState(null, null, target);
-        });
-    });
 })();
 </script>
 </body>

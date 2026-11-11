@@ -29,7 +29,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class PatientServiceImplTest {
+class AppointmentBookingServiceTest {
 
     @Mock PatientRepository patientRepository;
     @Mock UserRepository userRepository;
@@ -43,7 +43,8 @@ class PatientServiceImplTest {
     @Mock WebSocketNotificationService wsNotifications;
     @Mock MetricsService metricsService;
 
-    @InjectMocks PatientServiceImpl service;
+    AppointmentBookingService service;
+    @Mock com.example.clinic.repository.DoctorScheduleRepository schedules;
 
     private static final String PATIENT_EMAIL = "patient@example.com";
     private static final Long DOCTOR_ID = 10L;
@@ -55,6 +56,10 @@ class PatientServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        service = new AppointmentBookingService(patientRepository, userRepository, appointmentRepository,
+                doctorRepository, auditLogService, notificationService, activityLogService, aiService,
+                stripeService, wsNotifications, metricsService,
+                new AppointmentAvailabilityService(schedules, appointmentRepository));
         patientUser = new User();
         patientUser.setEmail(PATIENT_EMAIL);
         patientUser.setRole("PATIENT");
@@ -113,7 +118,7 @@ class PatientServiceImplTest {
         saved.setStatus("PENDING_PAYMENT");
         when(appointmentRepository.save(any())).thenReturn(saved);
 
-        LocalDateTime future10am = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0);
+        LocalDateTime future10am = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0).withSecond(0).withNano(0);
         service.bookAppointment(validForm(future10am), PATIENT_EMAIL);
 
         verify(appointmentRepository).save(argThat(a ->
@@ -167,7 +172,7 @@ class PatientServiceImplTest {
         stubPatientLookup();
         stubDoctorLookup();
 
-        LocalDateTime evening = LocalDateTime.now().plusDays(1).withHour(18).withMinute(0);
+        LocalDateTime evening = LocalDateTime.now().plusDays(1).withHour(18).withMinute(0).withSecond(0).withNano(0);
         AppointmentForm form = validForm(evening);
 
         assertThatThrownBy(() -> service.bookAppointment(form, PATIENT_EMAIL))
@@ -181,7 +186,7 @@ class PatientServiceImplTest {
         stubDoctorLookup();
         when(appointmentRepository.countConflicts(any(), any())).thenReturn(1L);
 
-        LocalDateTime future10am = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0);
+        LocalDateTime future10am = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0).withSecond(0).withNano(0);
 
         assertThatThrownBy(() -> service.bookAppointment(validForm(future10am), PATIENT_EMAIL))
                 .isInstanceOf(DuplicateBookingException.class);
@@ -201,7 +206,7 @@ class PatientServiceImplTest {
         saved.setStatus("PENDING_PAYMENT");
         when(appointmentRepository.save(any())).thenReturn(saved);
 
-        LocalDateTime future10am = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0);
+        LocalDateTime future10am = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0).withSecond(0).withNano(0);
         service.bookAppointment(validForm(future10am), PATIENT_EMAIL);
 
         verify(appointmentRepository).save(argThat(a -> "CRITICAL".equals(a.getPriority())));
@@ -210,7 +215,7 @@ class PatientServiceImplTest {
     @Test
     void cancelAppointment_happyPath_setsStatusAndNotifies() {
         Appointment appt = pendingPaidAppt();
-        when(appointmentRepository.findById(5L)).thenReturn(Optional.of(appt));
+        when(appointmentRepository.findByIdForUpdate(5L)).thenReturn(Optional.of(appt));
         when(appointmentRepository.save(any())).thenReturn(appt);
 
         service.cancelAppointment(5L, "Conflict de orar");
@@ -224,7 +229,7 @@ class PatientServiceImplTest {
     void cancelAppointment_alreadyCancelled_isIdempotent() {
         Appointment appt = new Appointment();
         appt.setStatus("CANCELLED");
-        when(appointmentRepository.findById(6L)).thenReturn(Optional.of(appt));
+        when(appointmentRepository.findByIdForUpdate(6L)).thenReturn(Optional.of(appt));
 
         service.cancelAppointment(6L, null);
 
@@ -235,7 +240,7 @@ class PatientServiceImplTest {
     void cancelAppointment_completed_throwsClinicException() {
         Appointment appt = new Appointment();
         appt.setStatus("COMPLETED");
-        when(appointmentRepository.findById(7L)).thenReturn(Optional.of(appt));
+        when(appointmentRepository.findByIdForUpdate(7L)).thenReturn(Optional.of(appt));
 
         assertThatThrownBy(() -> service.cancelAppointment(7L, null))
                 .isInstanceOf(ClinicException.class)
@@ -244,7 +249,7 @@ class PatientServiceImplTest {
 
     @Test
     void cancelAppointment_notFound_throwsAppointmentNotFoundException() {
-        when(appointmentRepository.findById(99L)).thenReturn(Optional.empty());
+        when(appointmentRepository.findByIdForUpdate(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.cancelAppointment(99L, null))
                 .isInstanceOf(AppointmentNotFoundException.class);
@@ -255,7 +260,7 @@ class PatientServiceImplTest {
         Appointment appt = pendingPaidAppt();
         appt.setStripePaymentIntentId("pi_test_123");
         appt.setBookingFeeRefunded(false);
-        when(appointmentRepository.findById(5L)).thenReturn(Optional.of(appt));
+        when(appointmentRepository.findByIdForUpdate(5L)).thenReturn(Optional.of(appt));
         when(appointmentRepository.save(any())).thenReturn(appt);
         when(stripeService.isEnabled()).thenReturn(true);
 
@@ -271,7 +276,7 @@ class PatientServiceImplTest {
         appt.setBookingFeePaid(false);
         appt.setDoctor(doctor);
         appt.setPatient(patient);
-        when(appointmentRepository.findById(5L)).thenReturn(Optional.of(appt));
+        when(appointmentRepository.findByIdForUpdate(5L)).thenReturn(Optional.of(appt));
         when(appointmentRepository.save(any())).thenReturn(appt);
 
         service.cancelAppointment(5L, null);
@@ -284,7 +289,7 @@ class PatientServiceImplTest {
         Appointment appt = pendingPaidAppt();
         appt.setStripePaymentIntentId("pi_test_123");
         appt.setBookingFeeRefunded(true);
-        when(appointmentRepository.findById(5L)).thenReturn(Optional.of(appt));
+        when(appointmentRepository.findByIdForUpdate(5L)).thenReturn(Optional.of(appt));
         when(appointmentRepository.save(any())).thenReturn(appt);
 
         service.cancelAppointment(5L, null);
