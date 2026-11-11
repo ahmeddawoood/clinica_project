@@ -4,7 +4,6 @@ import com.example.clinic.domain.Patient;
 import com.example.clinic.domain.Rating;
 import com.example.clinic.dto.AppointmentForm;
 import com.example.clinic.dto.ProfileForm;
-import com.example.clinic.dto.TimelineEvent;
 import com.example.clinic.exception.AppointmentNotFoundException;
 import com.example.clinic.exception.ClinicException;
 import com.example.clinic.repository.AppointmentRepository;
@@ -16,10 +15,8 @@ import com.example.clinic.service.ActivityLogService;
 import com.example.clinic.service.AiService;
 import com.example.clinic.service.AppNotificationService;
 import com.example.clinic.service.InvoicePdfService;
-import com.example.clinic.service.MedicalRecordService;
 import com.example.clinic.service.NotificationService;
 import com.example.clinic.service.PatientService;
-import com.example.clinic.service.PrescriptionService;
 import com.example.clinic.service.StripeService;
 import com.example.clinic.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,8 +40,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -58,6 +53,7 @@ public class PatientController {
     private static final Logger log = LoggerFactory.getLogger(PatientController.class);
 
     private final PatientService patientService;
+    private final com.example.clinic.service.PatientHistoryService patientHistoryService;
     private final DoctorRepository doctorRepository;
     private final AppointmentRepository appointmentRepository;
     private final InvoiceRepository invoiceRepository;
@@ -68,8 +64,6 @@ public class PatientController {
     private final NotificationService notificationService;
     private final ActivityLogService activityLogService;
     private final InvoicePdfService invoicePdfService;
-    private final MedicalRecordService medicalRecordService;
-    private final PrescriptionService prescriptionService;
     private final UserService userService;
     private final AppNotificationService appNotificationService;
 
@@ -80,6 +74,7 @@ public class PatientController {
     private String publishableKey;
 
     public PatientController(PatientService patientService,
+                              com.example.clinic.service.PatientHistoryService patientHistoryService,
                               DoctorRepository doctorRepository,
                               AppointmentRepository appointmentRepository,
                               InvoiceRepository invoiceRepository,
@@ -90,11 +85,10 @@ public class PatientController {
                               NotificationService notificationService,
                               ActivityLogService activityLogService,
                               InvoicePdfService invoicePdfService,
-                              MedicalRecordService medicalRecordService,
-                              PrescriptionService prescriptionService,
                               UserService userService,
                               AppNotificationService appNotificationService) {
         this.patientService = patientService;
+        this.patientHistoryService = patientHistoryService;
         this.doctorRepository = doctorRepository;
         this.appointmentRepository = appointmentRepository;
         this.invoiceRepository = invoiceRepository;
@@ -105,8 +99,6 @@ public class PatientController {
         this.notificationService = notificationService;
         this.activityLogService = activityLogService;
         this.invoicePdfService = invoicePdfService;
-        this.medicalRecordService = medicalRecordService;
-        this.prescriptionService = prescriptionService;
         this.userService = userService;
         this.appNotificationService = appNotificationService;
     }
@@ -422,46 +414,23 @@ public class PatientController {
     }
 
     @GetMapping("/history")
-    public String medicalHistory(Model model, Principal principal) {
+    public String medicalHistory(Model model, Principal principal,
+                                 @RequestParam(defaultValue = "records") String tab,
+                                 @RequestParam(defaultValue = "0") int page) {
         Patient patient = patientService.getPatientByEmail(principal.getName());
-        var records      = medicalRecordService.getRecordsByPatientEmail(principal.getName());
-        var prescriptions = prescriptionService.getPrescriptionsByPatientEmail(principal.getName());
-        var reports      = medicalReportRepository.findByPatientOrderByGeneratedAtDesc(patient);
-        var invoices     = invoiceRepository.findByPatientOrderByIssuedAtDesc(patient);
-        List<TimelineEvent> timeline = new ArrayList<>();
-        records.forEach(r -> timeline.add(new TimelineEvent(
-                r.getCreatedAt(), "RECORD",
-                r.getTitle() != null ? r.getTitle() : "Fișă medicală",
-                "Dr. " + r.getDoctor().getFullName(),
-                r.getDiagnosis(), r.getId())));
-        prescriptions.forEach(rx -> timeline.add(new TimelineEvent(
-                rx.getIssuedAt(), "PRESCRIPTION",
-                "Rețetă #" + rx.getId(),
-                "Dr. " + rx.getDoctor().getFullName(),
-                rx.getDiagnosis(), rx.getId())));
-        reports.forEach(rep -> timeline.add(new TimelineEvent(
-                rep.getGeneratedAt(), "REPORT",
-                "Raport medical #" + rep.getId(),
-                "Dr. " + rep.getDoctor().getFullName(),
-                rep.getDiagnosis(), rep.getId())));
-        patientService.getAppointments(principal.getName()).stream()
-                .filter(a -> "COMPLETED".equals(a.getStatus()))
-                .forEach(a -> timeline.add(new TimelineEvent(
-                        a.getAppointmentDate(), "APPOINTMENT",
-                        "Consultație finalizată",
-                        "Dr. " + a.getDoctor().getFullName(),
-                        a.getDoctor().getSpecialty(), a.getId())));
-        timeline.sort(Comparator.comparing(TimelineEvent::getDate, Comparator.nullsLast(Comparator.naturalOrder())).reversed());
-
-        model.addAttribute("patient",       patient);
-        model.addAttribute("records",       records);
-        model.addAttribute("prescriptions", prescriptions);
-        model.addAttribute("reports",       reports);
-        model.addAttribute("invoices",      invoices);
-        model.addAttribute("totalRecords",      records.size());
-        model.addAttribute("totalPrescriptions", prescriptions.size());
-        model.addAttribute("totalReports",   reports.size());
-        model.addAttribute("timeline",       timeline);
+        var history = patientHistoryService.load(patient, tab, page);
+        model.addAttribute("patient", patient);
+        model.addAttribute("activeTab", history.tab());
+        model.addAttribute("historyPage", history.page());
+        for (String section : List.of("records", "rx", "reports", "invoices", "timeline")) {
+            model.addAttribute(section.equals("rx") ? "prescriptions" : section,
+                    section.equals(tab) ? history.page().getContent() : List.of());
+        }
+        model.addAttribute("totalRecords", history.counts().get("records"));
+        model.addAttribute("totalPrescriptions", history.counts().get("rx"));
+        model.addAttribute("totalReports", history.counts().get("reports"));
+        model.addAttribute("totalInvoices", history.counts().get("invoices"));
+        model.addAttribute("totalTimeline", history.counts().get("timeline"));
         return "patient/history";
     }
 
