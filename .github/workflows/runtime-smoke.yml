@@ -55,9 +55,21 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install browser
+        timeout-minutes: 5
         run: |
           pip install playwright==1.56.0
-          python -m playwright install --with-deps chromium
+          # ubuntu-24.04 already supplies Chromium's shared libraries.
+          # Avoid apt mirror availability blocking unrelated font installation.
+          python -m playwright install chromium
+          python - <<'PYTHON'
+          from playwright.sync_api import sync_playwright
+          with sync_playwright() as p:
+              browser = p.chromium.launch()
+              page = browser.new_page()
+              page.set_content('<p>Browser ready</p>')
+              assert page.locator('p').inner_text() == 'Browser ready'
+              browser.close()
+          PYTHON
       - name: Start real local model
         run: |
           docker run -d --name smoke-ollama -p 127.0.0.1:11434:11434 ollama/ollama:0.40.14
