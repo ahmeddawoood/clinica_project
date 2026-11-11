@@ -41,6 +41,7 @@ class AdminAppointmentPageTest {
 
     @Test @WithMockUser(roles = "ADMIN")
     void rejectsInvalidFilters() throws Exception {
+        mvc.perform(get("/admin/appointments").param("page", "invalid")).andExpect(status().isBadRequest());
         mvc.perform(get("/admin/appointments").param("status", "UNKNOWN")).andExpect(status().isBadRequest());
         mvc.perform(get("/admin/appointments").param("q", "a".repeat(101))).andExpect(status().isBadRequest());
     }
