@@ -196,7 +196,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendPasswordResetEmail(String to, String resetLink) {
         String subject = "Resetare parolă | MediClinic";
         if (!mailEnabled || mailSender == null) {
-            log.info("Password reset link (email disabled) -> {}", resetLink);
+            log.info("Password reset email skipped: email delivery is disabled or unconfigured");
             return;
         }
         sendEmail(to, subject, "email/password-reset", Map.of("resetLink", resetLink, "expiryHours", 1));
