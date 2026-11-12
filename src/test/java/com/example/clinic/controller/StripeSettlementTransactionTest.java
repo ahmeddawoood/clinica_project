@@ -31,6 +31,7 @@ import static org.mockito.Mockito.*;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class StripeSettlementTransactionTest {
     @Autowired StripeController controller;
+    @Autowired PaymentController paymentController;
     @Autowired AppointmentRepository appointments;
     @Autowired InvoiceRepository invoices;
     @Autowired EntityManager em;
@@ -73,5 +74,36 @@ class StripeSettlementTransactionTest {
         assertThat(appointments.findById(id).orElseThrow().getStatus()).isEqualTo("PENDING");
         assertThat(invoices.count()).isEqualTo(invoicesBefore + 1);
         verify(notifications, times(2)).notifyPaymentSuccess(any()); // failed attempt + successful retry
+    }
+
+    @Test
+    void couponFailureRollsBackAndRetryPreservesOwnershipAndIdempotency() {
+        String email = "coupon-transaction@example.test";
+        Long id = new TransactionTemplate(transactionManager).execute(tx -> {
+            var user = new com.example.clinic.domain.User();
+            user.setEmail(email); user.setPassword("fixture"); user.setRole("PATIENT"); em.persist(user);
+            var patient = new Patient(); patient.setUser(user); em.persist(patient);
+            var doctor = new Doctor(); em.persist(doctor);
+            var appointment = new Appointment(); appointment.setPatient(patient); appointment.setDoctor(doctor);
+            appointment.setAppointmentDate(LocalDateTime.now().plusDays(4));
+            appointment.setStatus("PENDING_PAYMENT"); em.persist(appointment); em.flush();
+            return appointment.getId();
+        });
+        long before = invoices.count();
+        assertThatThrownBy(() -> paymentController.applyPaymentCoupon(id, "test-coupon", () -> "other@example.test"))
+                .isInstanceOf(org.springframework.security.access.AccessDeniedException.class);
+        verifyNoInteractions(notifications);
+        doThrow(new IllegalStateException("notification fixture failure")).when(notifications).notifyPaymentSuccess(any());
+        assertThatThrownBy(() -> paymentController.applyPaymentCoupon(id, "test-coupon", () -> email))
+                .isInstanceOf(IllegalStateException.class);
+        assertThat(appointments.findById(id).orElseThrow().isBookingFeePaid()).isFalse();
+        assertThat(invoices.count()).isEqualTo(before);
+        doNothing().when(notifications).notifyPaymentSuccess(any());
+        var response = paymentController.applyPaymentCoupon(id, "test-coupon", () -> email);
+        assertThat(response.getStatusCode().value()).isEqualTo(200);
+        assertThat(response.getBody()).containsEntry("redirectUrl", "/payment-success?appointmentId=" + id);
+        assertThat(paymentController.applyPaymentCoupon(id, "test-coupon", () -> email).getStatusCode().value()).isEqualTo(409);
+        assertThat(invoices.count()).isEqualTo(before + 1);
+        assertThat(appointments.findById(id).orElseThrow().getStripePaymentStatus()).isEqualTo("COUPON");
     }
 }

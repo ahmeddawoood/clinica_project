@@ -26,9 +26,10 @@ class ClosedAppointmentPaymentTest {
         var notifications = mock(NotificationService.class);
         var audit = mock(AuditLogService.class);
         var activity = mock(ActivityLogService.class);
-        var controller = new PaymentController(appointments, invoices, patients, stripe, notifications, audit, activity);
-        ReflectionTestUtils.setField(controller, "demoFallbackEnabled", true);
-        ReflectionTestUtils.setField(controller, "paymentCouponCode", "test-coupon");
+        var payments = new PaymentApplicationService(appointments, invoices, stripe, notifications, audit, activity);
+        var controller = new PaymentController(payments, patients);
+        ReflectionTestUtils.setField(payments, "demoFallbackEnabled", true);
+        ReflectionTestUtils.setField(payments, "paymentCouponCode", "test-coupon");
         var user = new User();
         user.setEmail("owner@example.test");
         var patient = new Patient();
@@ -53,8 +54,9 @@ class ClosedAppointmentPaymentTest {
         var invoices=mock(InvoiceRepository.class);
         var stripe=mock(StripeService.class);
         var notifications=mock(NotificationService.class);
-        var controller=new PaymentController(appointments,invoices,mock(PatientService.class),stripe,
+        var payments=new PaymentApplicationService(appointments,invoices,stripe,
                 notifications,mock(AuditLogService.class),mock(ActivityLogService.class));
+        var controller=new PaymentController(payments,mock(PatientService.class));
         var user=new User();user.setEmail("owner@example.test");
         var patient=new Patient();patient.setUser(user);
         var appointment=new Appointment();appointment.setPatient(patient);appointment.setStatus("PENDING_PAYMENT");
