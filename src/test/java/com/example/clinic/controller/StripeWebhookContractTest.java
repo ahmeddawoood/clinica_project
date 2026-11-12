@@ -25,7 +25,8 @@ class StripeWebhookContractTest {
     private final NotificationService notifications=mock(NotificationService.class);
     private final AuditLogService audit=mock(AuditLogService.class);
     private final ActivityLogService activity=mock(ActivityLogService.class);
-    private final StripeController controller=new StripeController(appointments,invoices,notifications,audit,activity);
+    private final StripeWebhookService settlement=new StripeWebhookService(appointments,invoices,notifications,audit,activity);
+    private final StripeController controller=new StripeController(settlement);
 
     private String payload(String type) {
         return "{\"id\":\"evt_fixture\",\"object\":\"event\",\"api_version\":\""+Stripe.API_VERSION
@@ -69,7 +70,7 @@ class StripeWebhookContractTest {
     @Test
     void signedSuccessIsAppliedOnceAndLaterFailureDoesNotUndoPayment() throws Exception {
         configured();
-        ReflectionTestUtils.setField(controller,"bookingFeeCents",200L);
+        ReflectionTestUtils.setField(settlement,"bookingFeeCents",200L);
         var appointment=new Appointment();
         ReflectionTestUtils.setField(appointment,"id",1L);
         appointment.setPatient(new Patient());
