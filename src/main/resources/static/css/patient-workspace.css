@@ -89,3 +89,6 @@ html[data-theme="dark"] .patient-workspace { --ws-bg:#151e24;--ws-surface:#1e2a3
 .patient-workspace .patient-appointments .badge.bg-light.text-dark { color:var(--ws-ink)!important;background:var(--ws-bg)!important; }
 .patient-workspace .patient-appointments .btn-action-info { color:var(--ws-muted); }
 @media(max-width:767px) { .patient-appointments td>.badge,.patient-appointments td>.priority-badge,.patient-appointments td>.status-badge { justify-self:start; } }
+html[data-theme="dark"] .patient-workspace :is(input,select,textarea) { color-scheme:dark; }
+.patient-workspace .form-control::placeholder { color:var(--ws-muted);opacity:1; }
+.patient-workspace .section-number { color:var(--ws-muted); }
