@@ -25,13 +25,13 @@ class StripeWebhookContractTest {
     private final NotificationService notifications=mock(NotificationService.class);
     private final AuditLogService audit=mock(AuditLogService.class);
     private final ActivityLogService activity=mock(ActivityLogService.class);
-    private final StripeWebhookService settlement=new StripeWebhookService(appointments,invoices,notifications,audit,activity);
+    private final StripeWebhookService settlement=new StripeWebhookService(appointments,new StripePaymentVerification(200L,"usd"),invoices,notifications,audit,activity);
     private final StripeController controller=new StripeController(settlement);
 
     private String payload(String type) {
         return "{\"id\":\"evt_fixture\",\"object\":\"event\",\"api_version\":\""+Stripe.API_VERSION
                 +"\",\"type\":\""+type+"\",\"data\":{\"object\":{\"id\":\"pi_fixture\",\"object\":\"payment_intent\","
-                +"\"amount\":200,\"currency\":\"usd\",\"status\":\"succeeded\",\"metadata\":{\"appointmentId\":\"1\"}}}}";
+                +"\"amount\":200,\"amount_received\":200,\"currency\":\"usd\",\"status\":\"succeeded\",\"metadata\":{\"appointmentId\":\"1\"}}}}";
     }
     private String signature(String body,long timestamp) throws Exception {
         var mac=Mac.getInstance("HmacSHA256");
@@ -105,5 +105,24 @@ class StripeWebhookContractTest {
         assertThat(appointment.isBookingFeePaid()).isTrue();
         verify(invoices,times(1)).save(any());
         verifyNoInteractions(notifications);
+    }
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.CsvSource({"199,200,usd", "201,200,usd", "200,199,usd", "200,201,usd", "200,200,eur"})
+    void signedMismatchedPaymentDoesNotMutateAppointment(long amount, long received, String currency) throws Exception {
+        configured();
+        var appointment = new Appointment();
+        ReflectionTestUtils.setField(appointment, "id", 1L);
+        appointment.setStatus("PENDING_PAYMENT");
+        when(appointments.findByIdForUpdate(1L)).thenReturn(Optional.of(appointment));
+        String body = payload("payment_intent.succeeded")
+                .replace("\"amount\":200", "\"amount\":" + amount)
+                .replace("\"amount_received\":200", "\"amount_received\":" + received)
+                .replace("\"currency\":\"usd\"", "\"currency\":\"" + currency + "\"");
+        assertThat(controller.webhook(body, signature(body, Instant.now().getEpochSecond())).getStatusCode().value()).isEqualTo(409);
+        assertThat(appointment.isBookingFeePaid()).isFalse();
+        assertThat(appointment.getStatus()).isEqualTo("PENDING_PAYMENT");
+        verify(appointments, never()).save(any());
+        verifyNoInteractions(invoices, notifications, audit, activity);
     }
 }

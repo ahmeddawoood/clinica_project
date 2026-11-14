@@ -86,7 +86,7 @@ public class PaymentController {
         Appointment appointment;
         try {
             appointment = payments.verifyPaymentReturn(appointmentId, sessionId, paymentIntentId, principal.getName());
-        } catch (PaymentApplicationService.PaymentMismatchException ex) {
+        } catch (com.example.clinic.service.StripePaymentVerification.RejectedPaymentException ex) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
         }
         if (!appointment.isBookingFeePaid()) return "redirect:/payment-cancel?appointmentId=" + appointmentId;

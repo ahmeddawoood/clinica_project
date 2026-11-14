@@ -27,17 +27,20 @@ public class StripeWebhookService {
     private long bookingFeeCents;
 
     private final AppointmentRepository appointmentRepository;
+    private final StripePaymentVerification paymentVerification;
     private final InvoiceRepository invoiceRepository;
     private final NotificationService notificationService;
     private final AuditLogService auditLogService;
     private final ActivityLogService activityLogService;
 
     public StripeWebhookService(AppointmentRepository appointmentRepository,
+                            StripePaymentVerification paymentVerification,
                             InvoiceRepository invoiceRepository,
                             NotificationService notificationService,
                             AuditLogService auditLogService,
                             ActivityLogService activityLogService) {
         this.appointmentRepository = appointmentRepository;
+        this.paymentVerification = paymentVerification;
         this.invoiceRepository = invoiceRepository;
         this.notificationService = notificationService;
         this.auditLogService = auditLogService;
@@ -95,6 +98,7 @@ public class StripeWebhookService {
                     return;
                 }
 
+                paymentVerification.verify(appointment, paymentIntent);
                 markAppointmentAsPaid(appointment, paymentIntent);
                 ensurePaidInvoice(appointment, paymentIntent.getId(), appointment.getStripeSessionId());
 

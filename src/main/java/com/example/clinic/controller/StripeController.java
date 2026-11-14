@@ -86,7 +86,12 @@ public class StripeController {
 
         log.info("Stripe webhook received: type={} eventId={}", event.getType(), event.getId());
 
-        stripeWebhookService.processVerifiedEvent(event);
+        try {
+            stripeWebhookService.processVerifiedEvent(event);
+        } catch (com.example.clinic.service.StripePaymentVerification.RejectedPaymentException ex) {
+            log.warn("Stripe payment rejected: type={} eventId={}", event.getType(), event.getId());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Payment verification failed");
+        }
 
         return ResponseEntity.ok("OK");
     }

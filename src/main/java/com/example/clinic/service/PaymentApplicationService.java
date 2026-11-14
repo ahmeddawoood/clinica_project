@@ -32,6 +32,7 @@ public class PaymentApplicationService {
     private final AppointmentRepository appointmentRepository;
     private final InvoiceRepository invoiceRepository;
     private final StripeService stripeService;
+    private final StripePaymentVerification paymentVerification;
     private final NotificationService notificationService;
     private final AuditLogService auditLogService;
     private final ActivityLogService activityLogService;
@@ -48,12 +49,14 @@ public class PaymentApplicationService {
     public PaymentApplicationService(AppointmentRepository appointmentRepository,
                              InvoiceRepository invoiceRepository,
                              StripeService stripeService,
+                             StripePaymentVerification paymentVerification,
                              NotificationService notificationService,
                              AuditLogService auditLogService,
                              ActivityLogService activityLogService) {
         this.appointmentRepository = appointmentRepository;
         this.invoiceRepository = invoiceRepository;
         this.stripeService = stripeService;
+        this.paymentVerification = paymentVerification;
         this.notificationService = notificationService;
         this.auditLogService = auditLogService;
         this.activityLogService = activityLogService;
@@ -65,9 +68,6 @@ public class PaymentApplicationService {
     }
     public enum PaymentStatus { SUCCESS, CONFLICT, UNAVAILABLE, INVALID, PROVIDER_FAILURE }
     public record PaymentResult(PaymentStatus status, Map<String, Object> data) {}
-    public static class PaymentMismatchException extends RuntimeException {
-        public PaymentMismatchException() { super("Payment does not belong to this appointment"); }
-    }
 
     @Transactional
     public CheckoutResult createCheckoutSession(Long appointmentId, String email, String baseUrl) {
@@ -251,10 +251,7 @@ public class PaymentApplicationService {
     }
 
     private void markPaidIfNeeded(Appointment appointment, Session session) {
-        if (session.getMetadata() == null || !String.valueOf(appointment.getId()).equals(
-                session.getMetadata().get("appointmentId"))) {
-            throw new PaymentMismatchException();
-        }
+        paymentVerification.verify(appointment, session);
         if (appointment.isBookingFeePaid()) {
             return;
         }
@@ -280,10 +277,7 @@ public class PaymentApplicationService {
     }
 
     private void markPaidIfNeeded(Appointment appointment, PaymentIntent paymentIntent) {
-        if (paymentIntent.getMetadata() == null || !String.valueOf(appointment.getId()).equals(
-                paymentIntent.getMetadata().get("appointmentId"))) {
-            throw new PaymentMismatchException();
-        }
+        paymentVerification.verify(appointment, paymentIntent);
         if (appointment.isBookingFeePaid()) {
             return;
         }

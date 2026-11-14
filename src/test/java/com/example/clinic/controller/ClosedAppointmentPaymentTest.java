@@ -26,7 +26,7 @@ class ClosedAppointmentPaymentTest {
         var notifications = mock(NotificationService.class);
         var audit = mock(AuditLogService.class);
         var activity = mock(ActivityLogService.class);
-        var payments = new PaymentApplicationService(appointments, invoices, stripe, notifications, audit, activity);
+        var payments = new PaymentApplicationService(appointments, invoices, stripe, new StripePaymentVerification(200L, "usd"), notifications, audit, activity);
         var controller = new PaymentController(payments, patients);
         ReflectionTestUtils.setField(payments, "demoFallbackEnabled", true);
         ReflectionTestUtils.setField(payments, "paymentCouponCode", "test-coupon");
@@ -54,7 +54,7 @@ class ClosedAppointmentPaymentTest {
         var invoices=mock(InvoiceRepository.class);
         var stripe=mock(StripeService.class);
         var notifications=mock(NotificationService.class);
-        var payments=new PaymentApplicationService(appointments,invoices,stripe,
+        var payments=new PaymentApplicationService(appointments,invoices,stripe,new StripePaymentVerification(200L,"usd"),
                 notifications,mock(AuditLogService.class),mock(ActivityLogService.class));
         var controller=new PaymentController(payments,mock(PatientService.class));
         var user=new User();user.setEmail("owner@example.test");
