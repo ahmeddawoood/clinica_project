@@ -53,7 +53,7 @@ class StripeSettlementTransactionTest {
         long invoicesBefore = invoices.count();
         String body = "{\"id\":\"evt_transaction\",\"object\":\"event\",\"api_version\":\"" + Stripe.API_VERSION
                 + "\",\"type\":\"payment_intent.succeeded\",\"data\":{\"object\":{\"id\":\"pi_transaction\","
-                + "\"object\":\"payment_intent\",\"amount\":200,\"currency\":\"usd\",\"status\":\"succeeded\","
+                + "\"object\":\"payment_intent\",\"amount\":200,\"amount_received\":200,\"currency\":\"usd\",\"status\":\"succeeded\","
                 + "\"metadata\":{\"appointmentId\":\"" + id + "\"}}}}";
         long timestamp = Instant.now().getEpochSecond();
         var mac = Mac.getInstance("HmacSHA256");
