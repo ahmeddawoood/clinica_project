@@ -8,18 +8,20 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
     <link th:href="@{/css/booking.css}" rel="stylesheet">
+    <link th:href="@{/css/patient-workspace.css}" rel="stylesheet">
 </head>
-<body class="booking-page">
+<body class="booking-page patient-workspace">
+<a href="#mainContent" class="workspace-skip">Sari la conținut</a>
 <div class="app-wrapper">
     <div th:replace="~{fragments/patient-nav :: sidebar(${patient})}"></div>
     <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100"></div>
-    <main class="main-content">
+    <main class="main-content" id="mainContent">
         <div th:replace="~{fragments/patient-nav :: topbar('Programare nouă')}"></div>
         <div class="page-content booking-workspace">
             <header class="booking-heading">
                 <a th:href="@{/patient/dashboard}" class="booking-back"><i class="bi bi-arrow-left" aria-hidden="true"></i> Înapoi la programările mele</a>
-                <p class="booking-eyebrow">MEDICLINIC / PROGRAMĂRI</p>
-                <h1>Găsește un moment pentru sănătatea ta.</h1>
+                <p class="booking-eyebrow">PROGRAMARE NOUĂ</p>
+                <h1>Programează o consultație.</h1>
                 <p>Alege medicul și un interval disponibil. Verifică detaliile înainte de pasul de plată.</p>
             </header>
             <div th:if="${error}" role="alert" class="alert alert-danger" th:text="${error}"></div>
@@ -35,7 +37,7 @@
                         </div>
                     </section>
                     <section class="booking-section" aria-labelledby="timeHeading">
-                        <div class="section-heading"><span class="section-number" aria-hidden="true">02</span><div><h2 id="timeHeading">Data și intervalul</h2><p>Orele afișate respectă programul medicului. Disponibilitatea se verifică din nou la trimitere.</p></div></div>
+                        <div class="section-heading"><span class="section-number" aria-hidden="true">02</span><div><h2 id="timeHeading">Data și intervalul</h2><p>Alege data, apoi unul dintre intervalele disponibile.</p></div></div>
                         <label for="bookingDate">Data consultației</label>
                         <input type="date" id="bookingDate" class="form-control booking-date" required th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
                         <fieldset class="slot-fieldset"><legend>Ora consultației</legend><div id="slotStatus" role="status" aria-live="polite">Alege un medic și o dată pentru a vedea orele disponibile.</div><div id="slotOptions" class="slot-options"></div></fieldset>

@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
+    <link th:href="@{/css/patient-workspace.css}" rel="stylesheet">
     <style>
         .stat-card-action { cursor: pointer; }
         .stat-card-action:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
@@ -17,7 +18,8 @@
         .priority-CRITICAL { background:#fef2f2;color:#dc2626; }
     </style>
 </head>
-<body>
+<body class="patient-workspace">
+<a href="#mainContent" class="workspace-skip">Sari la conținut</a>
 <div class="app-wrapper">
 
     
@@ -26,9 +28,9 @@
     
     <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100" style="background:rgba(0,0,0,.4);z-index:99;"></div>
 
-    <div class="main-content">
+    <div class="main-content" id="mainContent" role="main">
         
-        <div th:replace="~{fragments/patient-nav :: topbar('Dashboard')}"></div>
+        <div th:replace="~{fragments/patient-nav :: topbar('Programările mele')}"></div>
 
         <div class="page-content">
 
@@ -52,15 +54,32 @@
             
             <div class="page-header d-flex justify-content-between align-items-center">
                 <div>
-                    <h2>Bun venit, <span th:text="${patient.firstName}">Pacient</span>!</h2>
-                    <p class="text-muted mb-0 small">Iata un rezumat al programarilor tale</p>
+                    <p class="workspace-eyebrow">CONTUL TĂU MEDICAL</p><h1>Bună, <span th:text="${patient.firstName}">Pacient</span>.</h1>
+                    <p class="text-muted mb-0 small">Programările, documentele și următorii pași, într-un singur loc.</p>
                 </div>
                 <a th:href="@{/patient/book}" class="btn btn-primary">
                     <i class="bi bi-calendar-plus"></i> Programare noua
                 </a>
             </div>
             
-            <div class="row g-3 mb-4">
+            <div class="patient-overview">
+                <section class="next-visit" aria-labelledby="nextVisitHeading">
+                    <p class="workspace-eyebrow">URMĂTOAREA VIZITĂ</p>
+                    <div th:if="${nextAppointment != null}" class="visit-detail">
+                        <div class="visit-date" aria-hidden="true"><strong th:text="${#temporals.format(nextAppointment.appointmentDate, 'dd')}">24</strong><span th:text="${#temporals.format(nextAppointment.appointmentDate, 'MMM')}">nov</span></div>
+                        <div><span class="visit-status">Confirmată</span><h2 id="nextVisitHeading">Dr. <span th:text="${nextAppointment.doctor.fullName}"></span></h2><p th:text="${nextAppointment.doctor.specialty}"></p><p class="visit-time" th:text="${#temporals.format(nextAppointment.appointmentDate, 'dd MMMM yyyy · HH:mm')}"></p></div>
+                    </div>
+                    <div th:if="${nextAppointment == null}" class="visit-empty"><h2 id="nextVisitHeading">Nu ai o vizită confirmată.</h2><p>Poți alege un medic și un interval disponibil. Programările în așteptare sunt afișate mai jos.</p><a th:href="@{/patient/book}" class="workspace-text-link">Programează o consultație <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
+                    <a href="#appointmentsHeading" th:if="${nextAppointment != null}" class="workspace-text-link">Vezi programările și acțiunile <i class="bi bi-arrow-down" aria-hidden="true"></i></a>
+                </section>
+                <nav class="patient-resources" aria-label="Documente și comunicare">
+                    <h2>La îndemână</h2>
+                    <a th:href="@{/patient/prescriptions}"><i class="bi bi-file-medical" aria-hidden="true"></i><span>Rețetele mele<small>Consultă tratamentele prescrise</small></span><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                    <a th:href="@{/patient/history(tab='invoices')}"><i class="bi bi-receipt" aria-hidden="true"></i><span>Istoric și facturi<small>Documentele consultațiilor tale</small></span><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                    <a th:href="@{/patient/messages}"><i class="bi bi-chat-left-text" aria-hidden="true"></i><span>Mesaje<small>Conversațiile cu medicul</small></span><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                </nav>
+            </div>
+            <div class="row g-0 mb-4 appointment-metrics">
                 <div class="col-sm-6 col-lg-3">
                     <button type="button" class="stat-card stat-card-action w-100 text-start border-0" data-bs-toggle="modal" data-bs-target="#totalAppointmentsModal">
                         <div class="stat-icon stat-icon-blue"><i class="bi bi-calendar3"></i></div>
@@ -100,30 +119,16 @@
             </div>
 
             
-            <div th:if="${nextAppointment != null}"
-                 class="alert d-flex align-items-center gap-3 mb-4"
-                 style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:12px;padding:16px 20px;">
-                <i class="bi bi-calendar-check-fill text-success" style="font-size:1.8rem;"></i>
-                <div>
-                    <div class="fw-bold">Urmatoarea programare confirmata</div>
-                    <div class="text-muted small">
-                        Dr. <span th:text="${nextAppointment.doctor.fullName}"></span>
-                        &bull; <span th:text="${nextAppointment.doctor.specialty}"></span>
-                        &bull; <strong th:text="${#temporals.format(nextAppointment.appointmentDate, 'dd MMM yyyy, HH:mm')}"></strong>
-                    </div>
-                </div>
-            </div>
-
-            
             <div class="content-card">
                 <div class="content-card-header">
-                    <h5 class="content-card-title"><i class="bi bi-calendar-week me-2 text-primary"></i>Programarile mele</h5>
+                    <div><h2 id="appointmentsHeading" class="content-card-title" tabindex="-1">Programările mele</h2><p class="workspace-table-help">Verifică starea, finalizează plata sau gestionează o vizită.</p></div>
                     <a th:href="@{/patient/book}" class="btn btn-sm btn-primary">
                         <i class="bi bi-plus-lg"></i> Noua
                     </a>
                 </div>
                 <div class="table-responsive">
-                    <table class="clinic-table">
+                    <table class="clinic-table patient-appointments">
+                        <caption class="visually-hidden">Programările tale și acțiunile disponibile</caption>
                         <thead>
                             <tr>
                                 <th>Doctor</th>
@@ -137,7 +142,7 @@
                         </thead>
                         <tbody>
                             <tr th:each="appt : ${appointments}">
-                                <td>
+                                <td data-label="Medic">
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="avatar" style="background:#dcfce7;color:#166534">
                                             <span th:text="${appt.doctor.firstName != null ? appt.doctor.firstName.substring(0,1).toUpperCase() : 'D'}"></span>
@@ -145,14 +150,14 @@
                                         <span class="fw-600" th:text="${appt.doctor.fullName}"></span>
                                     </div>
                                 </td>
-                                <td><span class="badge bg-light text-dark" th:text="${appt.doctor.specialty}"></span></td>
-                                <td th:text="${#temporals.format(appt.appointmentDate, 'dd MMM yyyy, HH:mm')}"></td>
-                                <td>
+                                <td data-label="Specialitate"><span class="badge bg-light text-dark" th:text="${appt.doctor.specialty}"></span></td>
+                                <td data-label="Data și ora" th:text="${#temporals.format(appt.appointmentDate, 'dd MMM yyyy, HH:mm')}"></td>
+                                <td data-label="Prioritate">
                                     <span class="priority-badge"
                                           th:classappend="'priority-' + ${appt.priority}"
                                           th:text="${appt.priority}"></span>
                                 </td>
-                                <td>
+                                <td data-label="Status">
                                     <span th:if="${appt.status == 'PENDING_PAYMENT'}" class="status-badge badge-pending"><i class="bi bi-credit-card"></i> Plata necesara</span>
                                     <span th:if="${appt.status == 'PENDING'}"   class="status-badge badge-pending"><i class="bi bi-hourglass-split"></i> În așteptare</span>
                                     <span th:if="${appt.status == 'CONFIRMED'}" class="status-badge badge-confirmed"><i class="bi bi-check-circle-fill"></i> Confirmat</span>
@@ -163,8 +168,8 @@
                                         <i class="bi bi-arrow-counterclockwise"></i> $2 rambursat
                                     </span>
                                 </td>
-                                <td class="text-muted small" th:text="${appt.notes}"></td>
-                                <td>
+                                <td data-label="Note" class="text-muted small" th:text="${appt.notes}"></td>
+                                <td data-label="Acțiuni">
                                     <div class="d-flex gap-1 flex-wrap">
                                         
                                         <a th:if="${appt.status == 'PENDING_PAYMENT'}"
@@ -217,7 +222,7 @@
                                                 data-bs-target="#timelineModal"
                                                 th:data-appt-id="${appt.id}"
                                                 th:data-doctor-label="${'Dr. ' + appt.doctor.fullName}"
-                                                title="Istoricul programarii">
+                                                aria-label="Istoricul programării" title="Istoricul programarii">
                                             <i class="bi bi-clock-history"></i>
                                         </button>
                                     </div>

@@ -1,0 +1,94 @@
+/* Patient overview and booking pilot. Other role interfaces keep their own styles. */
+.patient-workspace { --ws-bg:#f5f6f8;--ws-surface:#fff;--ws-ink:#202e38;--ws-muted:#62717c;--ws-line:#dce3e7;--ws-accent:#17665b;--ws-tint:#edf5f2; background:var(--ws-bg);color:var(--ws-ink);font-size:14px; }
+html[data-theme="dark"] .patient-workspace { --ws-bg:#151e24;--ws-surface:#1e2a32;--ws-ink:#e6edf1;--ws-muted:#abbac4;--ws-line:#3b4c56;--ws-accent:#85d5c3;--ws-tint:#243d39; }
+.patient-workspace .sidebar-patient { background:var(--ws-surface);border-right:1px solid var(--ws-line);box-shadow:none; }
+.patient-workspace .sidebar-brand { border-color:var(--ws-line);padding:26px 22px; }
+.patient-workspace .sidebar-brand-text,.patient-workspace .sidebar-user-name { color:var(--ws-ink); }
+.patient-workspace .sidebar-brand-icon { background:var(--ws-accent);color:var(--ws-surface);border-radius:7px; }
+.patient-workspace .sidebar-link { color:var(--ws-muted);margin:3px 12px;padding:11px 14px;border-radius:6px; }
+.patient-workspace .sidebar-link:hover,.patient-workspace .sidebar-link.active { color:var(--ws-accent);background:var(--ws-tint); }
+.patient-workspace .sidebar-link.active::before { display:none; }
+.patient-workspace .sidebar-section-title,.patient-workspace .sidebar-user-role { color:var(--ws-muted); }
+.patient-workspace .sidebar-avatar { background:var(--ws-tint);color:var(--ws-accent); }
+.patient-workspace .sidebar-footer { border-color:var(--ws-line); }
+.patient-workspace .sidebar-footer button { color:var(--ws-muted);border-color:var(--ws-line); }
+.patient-workspace .top-navbar { background:var(--ws-surface);border-color:var(--ws-line);box-shadow:none; }
+.patient-workspace .top-navbar-title { color:var(--ws-muted);font-size:.85rem;font-weight:500; }
+.patient-workspace .page-content { width:100%;max-width:1440px;margin:0 auto;padding:36px 40px; }
+.patient-workspace .page-header { gap:20px;margin-bottom:28px; }
+.patient-workspace h1 { color:var(--ws-ink);font-size:clamp(1.65rem,3vw,2.1rem);font-weight:600;letter-spacing:-.035em;margin-bottom:8px; }
+.workspace-eyebrow,.patient-workspace .booking-eyebrow { color:var(--ws-muted);font-size:.68rem;font-weight:600;letter-spacing:.12em;margin:0 0 14px; }
+.patient-workspace .btn-primary { --bs-btn-bg:#17665b;--bs-btn-border-color:#17665b;--bs-btn-hover-bg:#104e45;--bs-btn-hover-border-color:#104e45;--bs-btn-active-bg:#104e45;background:#17665b;border-color:#17665b;color:white;box-shadow:none;border-radius:6px; }
+.patient-workspace .btn-primary:hover { background:#104e45; }
+.patient-workspace .btn { min-height:40px;display:inline-flex;align-items:center;justify-content:center;gap:6px; }
+.patient-overview { display:grid;grid-template-columns:minmax(0,1.6fr) minmax(260px,1fr);gap:24px;margin-bottom:28px; }
+.next-visit,.patient-resources { background:var(--ws-surface);border:1px solid var(--ws-line);border-radius:8px;padding:26px; }
+.next-visit { border-top:3px solid var(--ws-accent); }
+.visit-detail { display:flex;gap:22px;align-items:center;margin:22px 0; }
+.visit-date { flex-shrink:0;width:76px;padding:12px 8px;background:var(--ws-tint);color:var(--ws-accent);text-align:center;border-radius:6px; }
+.visit-date strong { display:block;font-size:2.2rem;font-weight:500;line-height:1.2; }
+.visit-date span { font-size:.85rem; }
+.next-visit h2 { font-size:1.25rem;line-height:1.4;margin:8px 0;color:var(--ws-ink); }
+.next-visit p:not(.workspace-eyebrow) { color:var(--ws-muted);line-height:1.7;margin-bottom:4px; }
+.visit-status { color:var(--ws-accent);font-size:.75rem; }
+.visit-status::before { content:'';display:inline-block;width:6px;height:6px;background:currentColor;border-radius:50%;margin-right:7px; }
+.workspace-text-link { color:var(--ws-accent);font-weight:600;font-size:.82rem;text-decoration:none;display:inline-flex;gap:12px;margin-top:14px; }
+.workspace-text-link:hover { text-decoration:underline; }
+.patient-resources h2 { font-size:.9rem;font-weight:600;margin:0 0 12px; }
+.patient-resources a { display:flex;align-items:center;gap:14px;padding:15px 0;color:var(--ws-ink);text-decoration:none; }
+.patient-resources a + a { border-top:1px solid var(--ws-line); }
+.patient-resources a>i { color:var(--ws-muted); }
+.patient-resources a>i:last-child { margin-left:auto;font-size:.75rem; }
+.patient-resources small { display:block;color:var(--ws-muted);font-size:.75rem;margin-top:4px; }
+.patient-resources a:hover span { color:var(--ws-accent); }
+.appointment-metrics { border:1px solid var(--ws-line);border-radius:8px;background:var(--ws-surface);overflow:hidden; }
+.patient-workspace .stat-card { border-radius:0;background:transparent;box-shadow:none;padding:20px;gap:12px;height:100%;color:var(--ws-ink); }
+.patient-workspace .stat-card:hover { transform:none;background:var(--ws-tint); }
+.appointment-metrics>div+div { border-left:1px solid var(--ws-line); }
+.patient-workspace .stat-icon { display:none; }
+.patient-workspace .stat-body { display:flex;align-items:baseline;gap:12px; }
+.patient-workspace .stat-value { font-size:1.5rem;font-weight:500;color:var(--ws-ink); }
+.patient-workspace .stat-label { font-size:.75rem;color:var(--ws-muted); }
+.patient-workspace .content-card { border:1px solid var(--ws-line);border-radius:8px;box-shadow:none;background:var(--ws-surface); }
+.patient-workspace .content-card-header { padding:24px;border-color:var(--ws-line);gap:12px; }
+.patient-workspace .content-card-title { font-size:1.05rem;color:var(--ws-ink); }
+.workspace-table-help { color:var(--ws-muted);font-size:.78rem;margin:6px 0 0; }
+.patient-workspace .patient-appointments th { background:var(--ws-bg);color:var(--ws-muted);font-size:.68rem;letter-spacing:.04em;padding:14px 18px; }
+.patient-workspace .patient-appointments td { padding:18px;border-color:var(--ws-line);font-size:.8rem;vertical-align:middle; }
+.patient-workspace .patient-appointments td[data-label="Note"] { max-width:200px;overflow-wrap:anywhere; }
+.patient-workspace .status-badge { border-radius:4px;font-size:.7rem; }
+.patient-workspace .booking-heading { margin-bottom:26px;max-width:800px; }
+.patient-workspace .booking-heading h1 { font-size:2rem;color:var(--ws-ink); }
+.patient-workspace .booking-back { margin-bottom:24px;color:var(--ws-muted); }
+.patient-workspace .booking-heading>p:last-child { margin-top:12px;color:var(--ws-muted); }
+.patient-workspace .booking-sections,.patient-workspace .booking-summary { border-color:var(--ws-line);background:var(--ws-surface);border-radius:8px; }
+.patient-workspace .booking-summary { border-top:3px solid var(--ws-accent); }
+.patient-workspace .booking-section+.booking-section { border-color:var(--ws-line); }
+.patient-workspace .booking-section h2,.patient-workspace .booking-summary h2,.patient-workspace .booking-section label,.patient-workspace .booking-summary dd { color:var(--ws-ink); }
+.patient-workspace .section-heading p,.patient-workspace .booking-summary dt,.patient-workspace .booking-next,.patient-workspace .summary-footnote,.patient-workspace #slotStatus,.patient-workspace #notesHelp { color:var(--ws-muted); }
+.patient-workspace .booking-next { border-color:var(--ws-line); }
+.workspace-skip { position:fixed;top:-100px;left:16px;z-index:1100;background:#17665b;color:white;padding:12px 20px; }
+.workspace-skip:focus { top:12px; }
+.patient-workspace :is(a,button):focus-visible { outline:3px solid var(--ws-accent);outline-offset:3px; }
+@media(max-width:1200px) { .patient-workspace .page-content { padding:28px; }.patient-overview { grid-template-columns:1fr; }.patient-resources { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px; }.patient-resources h2 { grid-column:1/-1;margin:0; }.patient-resources a+a { border:0; }.patient-resources a>i:last-child { display:none; } }
+@media(max-width:767px) {
+ .patient-workspace .page-content { padding:24px 16px; }.patient-workspace .page-header { align-items:flex-start!important;flex-direction:column;gap:18px; }.patient-workspace .page-header>.btn { width:100%; }
+ .patient-overview { gap:16px; }.next-visit,.patient-resources { padding:20px; }.patient-resources { display:block; }.patient-resources a+a { border-top:1px solid var(--ws-line); }
+ .appointment-metrics>div { width:50%; }.appointment-metrics>div:nth-child(3) { border-left:0; }.appointment-metrics>div:nth-child(n+3) { border-top:1px solid var(--ws-line); }
+ .patient-workspace .stat-card { padding:16px; }.patient-workspace .stat-body { display:block; }.patient-workspace .content-card-header { padding:20px; }
+ .patient-appointments thead { position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden; }
+ .patient-appointments,.patient-appointments tbody,.patient-appointments tr,.patient-appointments td { display:block;width:100%; }
+ .patient-workspace .patient-appointments tr { padding:16px 20px;border-bottom:1px solid var(--ws-line); }
+ .patient-workspace .patient-appointments td { border:0;padding:6px 0;white-space:normal;max-width:none!important; }
+ .patient-appointments td[data-label] { display:grid;grid-template-columns:90px minmax(0,1fr);gap:12px; }
+ .patient-appointments td[data-label]::before { content:attr(data-label);font-size:.72rem;color:var(--ws-muted);padding-top:3px; }
+ .patient-workspace .top-navbar { padding:0 16px; }.patient-workspace .top-navbar-actions>.badge { display:none; }
+ .patient-workspace .booking-heading h1 { font-size:1.7rem; }
+}
+@media(prefers-reduced-motion:reduce) { .patient-workspace * { transition:none!important;animation:none!important; } }
+.patient-workspace .patient-appointments .badge.bg-light.text-dark { color:var(--ws-ink)!important;background:var(--ws-bg)!important; }
+.patient-workspace .patient-appointments .btn-action-info { color:var(--ws-muted); }
+@media(max-width:767px) { .patient-appointments td>.badge,.patient-appointments td>.priority-badge,.patient-appointments td>.status-badge { justify-self:start; } }
+html[data-theme="dark"] .patient-workspace :is(input,select,textarea) { color-scheme:dark; }
+.patient-workspace .form-control::placeholder { color:var(--ws-muted);opacity:1; }
+.patient-workspace .section-number { color:var(--ws-muted); }
