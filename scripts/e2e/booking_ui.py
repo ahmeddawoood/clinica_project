@@ -31,6 +31,23 @@ with sync_playwright() as pw:
     page.screenshot(path=str(out/'patient-overview-dark.png'),full_page=True,animations='disabled')
     page.locator('#darkToggle').click()
     page.set_viewport_size({'width':1440,'height':1050})
+    # Shared shell across the patient journey, including responsive and dark views.
+    for path in ['doctors', 'history', 'prescriptions', 'messages', 'notifications', 'profile']:
+        response = page.goto('http://127.0.0.1:8082/patient/' + path)
+        assert response.status == 200
+        expect(page.locator('body')).to_have_class(re.compile(r'.*patient-workspace.*'))
+        if path == 'messages':
+            page.locator('[data-bs-target="#composeForm"]').click()
+            expect(page.get_by_label('Subiect', exact=True)).to_be_visible()
+        page.screenshot(path=str(out/('patient-' + path + '-desktop.png')),full_page=True,animations='disabled')
+        page.set_viewport_size({'width':390,'height':844})
+        page.wait_for_function("document.querySelector('.sidebar').getBoundingClientRect().right <= 1")
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), path
+        page.screenshot(path=str(out/('patient-' + path + '-mobile.png')),full_page=True,animations='disabled')
+        page.locator('#darkToggle').click()
+        page.screenshot(path=str(out/('patient-' + path + '-dark.png')),full_page=True,animations='disabled')
+        page.locator('#darkToggle').click()
+        page.set_viewport_size({'width':1440,'height':1050})
     page.goto('http://127.0.0.1:8082/patient/book')
     expect(page.locator('#bookingSubmit')).to_be_disabled()
     day=datetime.date.today()+datetime.timedelta(days=120)

@@ -14,12 +14,14 @@
         .msg-body-box { background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:18px; white-space:pre-wrap; line-height:1.7; }
         .compose-card { border-radius:14px; border:none; box-shadow:0 2px 16px rgba(0,0,0,.07); }
     </style>
+    <link th:href="@{/css/patient-workspace.css}" rel="stylesheet">
 </head>
-<body>
+<body class="patient-workspace">
+<a href="#mainContent" class="workspace-skip">Sari la conținut</a>
 <div class="app-wrapper">
     <div th:replace="~{fragments/patient-nav :: sidebar(${patient})}"></div>
     <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100" style="background:rgba(0,0,0,.4);z-index:99;"></div>
-    <div class="main-content">
+    <div class="main-content" id="mainContent" role="main">
         <div th:replace="~{fragments/patient-nav :: topbar('Mesaje')}"></div>
         <div class="page-content">
             <div class="page-header">
@@ -41,14 +43,17 @@
                             <div class="collapse mt-3" id="composeForm">
                                 <form th:action="@{/patient/messages/send}" method="post">
                                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                                    <select name="receiverId" class="form-select form-select-sm mb-2" required>
+                                    <label for="messageDoctor" class="form-label">Medic</label>
+                                    <select id="messageDoctor" name="receiverId" class="form-select form-select-sm mb-2" required>
                                         <option value="">- Alege medicul -</option>
                                         <option th:each="doc : ${doctors}"
                                                 th:value="${doc.user.id}"
                                                 th:text="'Dr. ' + ${doc.fullName} + ' - ' + ${doc.specialty}"></option>
                                     </select>
-                                    <input name="subject" class="form-control form-control-sm mb-2" placeholder="Subiect" required>
-                                    <textarea name="body" class="form-control form-control-sm mb-2" rows="4" placeholder="Mesajul tau..." required></textarea>
+                                    <label for="messageSubject" class="form-label">Subiect</label>
+                                    <input id="messageSubject" name="subject" class="form-control form-control-sm mb-2" placeholder="Subiect" required>
+                                    <label for="messageBody" class="form-label">Mesaj</label>
+                                    <textarea id="messageBody" name="body" class="form-control form-control-sm mb-2" rows="4" placeholder="Mesajul tau..." required></textarea>
                                     <button type="submit" class="btn btn-success btn-sm w-100">
                                         <i class="bi bi-send me-1"></i>Trimite
                                     </button>

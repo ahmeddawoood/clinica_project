@@ -110,14 +110,16 @@
             box-shadow: 0 28px 60px rgba(15, 23, 42, 0.28);
         }
     </style>
+    <link th:href="@{/css/patient-workspace.css}" rel="stylesheet">
 </head>
-<body>
+<body class="patient-workspace">
+<a href="#mainContent" class="workspace-skip">Sari la conținut</a>
 <div class="app-wrapper">
     <div th:replace="~{fragments/patient-nav :: sidebar(${patient})}"></div>
     <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100"
          style="background:rgba(0,0,0,.4);z-index:99;"></div>
 
-    <div class="main-content">
+    <div class="main-content" id="mainContent" role="main">
         <div th:replace="~{fragments/patient-nav :: topbar('Plata securizata')}"></div>
 
         <div class="page-content">

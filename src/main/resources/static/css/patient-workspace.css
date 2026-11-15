@@ -92,3 +92,38 @@ html[data-theme="dark"] .patient-workspace { --ws-bg:#151e24;--ws-surface:#1e2a3
 html[data-theme="dark"] .patient-workspace :is(input,select,textarea) { color-scheme:dark; }
 .patient-workspace .form-control::placeholder { color:var(--ws-muted);opacity:1; }
 .patient-workspace .section-number { color:var(--ws-muted); }
+/* Shared patient pages: directory, clinical documents, communication and payment. */
+.patient-workspace .page-header h2 { color:var(--ws-ink);font-size:1.7rem;letter-spacing:-.025em; }
+.patient-workspace :is(.doctor-card,.record-card,.tl-card,.review-card,.compose-card,.pay-card) { background:var(--ws-surface);color:var(--ws-ink);border:1px solid var(--ws-line);border-radius:8px;box-shadow:none; }
+.patient-workspace :is(.doctor-card,.record-card,.tl-card,.review-card):hover { transform:none;box-shadow:none;background:var(--ws-surface);border-color:var(--ws-accent); }
+.patient-workspace :is(.doctor-avatar,.reviewer-avatar,.hero-avatar) { background:var(--ws-tint);color:var(--ws-accent);border:1px solid var(--ws-line);border-radius:8px; }
+.patient-workspace .doctor-avatar { width:56px;height:56px;font-size:1.25rem; }
+.patient-workspace .doctor-name { white-space:normal;overflow-wrap:anywhere;font-size:1.05rem;line-height:1.5; }
+.patient-workspace :is(.specialty-chip,.specialty-badge,.pay-pill) { background:var(--ws-tint);color:var(--ws-accent);border-color:var(--ws-line);border-radius:4px;white-space:normal; }
+.patient-workspace :is(.doctor-hero,.pay-hero) { background:var(--ws-surface);color:var(--ws-ink);border:1px solid var(--ws-line);border-top:3px solid var(--ws-accent);border-radius:8px;box-shadow:none; }
+.patient-workspace .stat-pill { background:var(--ws-bg);border:1px solid var(--ws-line);border-radius:6px;backdrop-filter:none; }
+.patient-workspace .filter-pill { border-radius:6px;background:var(--ws-surface);color:var(--ws-muted);border-color:var(--ws-line);min-height:40px;display:inline-flex;align-items:center; }
+.patient-workspace .filter-pill:is(.active,:hover) { background:var(--ws-tint);color:var(--ws-accent);border-color:var(--ws-accent); }
+.patient-workspace :is(.rating-fill,.rating-bar-fill) { background:#b97b14; }
+.patient-workspace .btn.rounded-pill { border-radius:6px!important; }
+.patient-workspace .btn-outline-primary { color:var(--ws-accent);border-color:var(--ws-accent); }
+.patient-workspace .btn-outline-primary:hover { background:var(--ws-tint); }
+.patient-workspace .history-tabs { border-color:var(--ws-line);gap:4px; }
+.patient-workspace .history-tabs .nav-link { color:var(--ws-muted);padding:12px 16px; }
+.patient-workspace .history-tabs .nav-link:is(.active,:hover) { color:var(--ws-accent);border-bottom-color:var(--ws-accent); }
+.patient-workspace :is(.field-label,.tl-date) { color:var(--ws-muted); }
+.patient-workspace .field-value { color:var(--ws-ink);overflow-wrap:anywhere; }
+.patient-workspace .msg-body-box { background:var(--ws-bg);border-color:var(--ws-line);color:var(--ws-ink);overflow-wrap:anywhere; }
+.patient-workspace :is(.msg-unread,.notif-unread) { background:var(--ws-tint);border-left-color:var(--ws-accent)!important; }
+.patient-workspace :is(.msg-list-item,.notif-item):hover { background:var(--ws-tint); }
+.patient-workspace .list-group-item.active { background:#17665b;border-color:#17665b; }
+.patient-workspace .pay-btn { background:#17665b;border-radius:6px;box-shadow:none; }
+.patient-workspace .pay-btn:hover:not(:disabled) { transform:none;box-shadow:none;background:#104e45; }
+.patient-workspace .summary-total { background:var(--ws-tint);border-radius:6px; }
+.patient-workspace .summary-row { border-color:var(--ws-line); }
+.patient-workspace .text-dark { color:var(--ws-ink)!important; }
+.patient-workspace .text-primary { color:var(--ws-accent)!important; }
+.patient-workspace :is(.content-card,.record-card,.tl-card,.compose-card) { overflow-wrap:anywhere; }
+@media(max-width:767px) { .patient-workspace :is(.doctor-hero,.pay-hero) { padding:20px; }.patient-workspace .stat-pill { padding:12px 6px; }.patient-workspace .history-tabs .nav-link { padding:10px;font-size:.8rem; } }
+.patient-workspace .pay-hero .text-white-50 { color:var(--ws-muted)!important; }
+.patient-workspace .overlay-card { background:var(--ws-surface);color:var(--ws-ink); }
