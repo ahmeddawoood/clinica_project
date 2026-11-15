@@ -32,13 +32,15 @@
         .score-bar-wrap { width: 80px; background: #e2e8f0; border-radius: 4px; height: 6px; overflow: hidden; }
         .score-bar      { height: 6px; background: var(--primary); border-radius: 4px; }
     </style>
+<link th:href="@{/css/clinic-workspace.css}" rel="stylesheet">
 </head>
-<body>
+<body class="staff-workspace clinic-workspace">
+<a href="#mainContent" class="workspace-skip">Sari la conținut</a>
 <div class="app-wrapper">
     <div th:replace="~{fragments/doctor-nav :: sidebar(${doctor})}"></div>
     <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100"
          style="background:rgba(0,0,0,.4);z-index:99;"></div>
-    <div class="main-content">
+    <div class="main-content" id="mainContent" role="main">
         <div th:replace="~{fragments/doctor-nav :: topbar('Coada inteligenta')}"></div>
         <div class="page-content">
 

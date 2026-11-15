@@ -13,12 +13,14 @@
         .msg-unread { border-left-color:#10b981!important; background:#f0fdf4; font-weight:600; }
         .msg-body-box { background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:18px; white-space:pre-wrap; line-height:1.7; }
     </style>
+<link th:href="@{/css/clinic-workspace.css}" rel="stylesheet">
 </head>
-<body>
+<body class="staff-workspace clinic-workspace">
+<a href="#mainContent" class="workspace-skip">Sari la conținut</a>
 <div class="app-wrapper">
     <div th:replace="~{fragments/doctor-nav :: sidebar(${doctor})}"></div>
     <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100" style="background:rgba(0,0,0,.4);z-index:99;"></div>
-    <div class="main-content">
+    <div class="main-content" id="mainContent" role="main">
         <div th:replace="~{fragments/doctor-nav :: topbar('Mesaje')}"></div>
         <div class="page-content">
             <div class="page-header">

@@ -18,13 +18,15 @@
         .priority-CRITICAL { background:#fef2f2;color:#dc2626; }
         .today-card { border-left:4px solid #10b981; }
     </style>
+<link th:href="@{/css/clinic-workspace.css}" rel="stylesheet">
 </head>
-<body class="doctor-workspace">
+<body class="doctor-workspace staff-workspace clinic-workspace">
+<a href="#mainContent" class="workspace-skip">Sari la conținut</a>
 <div class="app-wrapper">
     <div th:replace="~{fragments/doctor-nav :: sidebar(${doctor})}"></div>
     <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100" style="background:rgba(0,0,0,.4);z-index:99;"></div>
 
-    <div class="main-content">
+    <div class="main-content" id="mainContent" role="main">
         <div th:replace="~{fragments/doctor-nav :: topbar('Dashboard')}"></div>
 
         <div class="page-content">

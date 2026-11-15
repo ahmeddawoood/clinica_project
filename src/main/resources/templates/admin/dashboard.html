@@ -19,21 +19,24 @@
             font-size: .85rem;
         }
     </style>
+<link th:href="@{/css/clinic-workspace.css}" rel="stylesheet">
 </head>
-<body>
+<body class="staff-workspace clinic-workspace">
+<a href="#mainContent" class="workspace-skip">Sari la conținut</a>
 <div class="app-wrapper">
     <div th:replace="~{fragments/admin-nav :: sidebar}"></div>
     <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100" style="background:rgba(0,0,0,.4);z-index:99;"></div>
 
-    <div class="main-content">
+    <div class="main-content" id="mainContent" role="main">
         <div th:replace="~{fragments/admin-nav :: topbar('Dashboard')}"></div>
 
         <div class="page-content">
             <div class="page-header">
-                <h2>Dashboard Administrator</h2>
-                <p class="text-muted small mb-0">Prezentare generala a sistemului clinic</p>
+                <p class="workspace-eyebrow">ADMINISTRAREA CLINICII</p><h1>Activitatea clinicii</h1>
+                <p class="text-muted small mb-0">Gestionează programările, echipa medicală și accesul la sistem.</p>
             </div>
 
+            <nav class="staff-actions" aria-label="Acțiuni administrative"><a th:href="@{/admin/appointments}" class="btn btn-primary">Gestionează programările</a><a th:href="@{/admin/doctors}" class="btn btn-outline-secondary">Echipa medicală</a><a th:href="@{/admin/users}" class="btn btn-outline-secondary">Acces utilizatori</a></nav>
             <div class="row g-3 mb-3">
                 <div class="col-sm-6 col-lg-3">
                     <button type="button" class="stat-card stat-card-action w-100 text-start border-0" data-bs-toggle="modal" data-bs-target="#patientsModal">

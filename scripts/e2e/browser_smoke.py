@@ -48,6 +48,15 @@ with sync_playwright() as p:
                     require(page.evaluate("Chart.getChart('monthlyChart').data.labels.length === 6"), 'Missing monthly chart labels')
                     require(page.evaluate("Chart.getChart('monthlyChart').data.datasets[0].data.some(n => n > 0)"), 'Monthly chart has no fixture appointments')
                 page.screenshot(path=str(OUT / f'{role}-{path}.png'), full_page=True)
+                if role in ('doctor', 'admin'):
+                    page.set_viewport_size({'width':390,'height':844})
+                    page.wait_for_function("document.querySelector('.sidebar').getBoundingClientRect().right <= 1")
+                    require(page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), role + '/' + path + ' overflow')
+                    page.screenshot(path=str(OUT / f'{role}-{path}-mobile.png'), full_page=True, animations='disabled')
+                    page.locator('#darkToggle').click()
+                    page.screenshot(path=str(OUT / f'{role}-{path}-dark.png'), full_page=True, animations='disabled')
+                    page.locator('#darkToggle').click()
+                    page.set_viewport_size({'width':1440,'height':1000})
                 require(not errors, 'Browser errors: ' + '; '.join(errors))
             check(role + ' ' + path, visit)
         def mobile():

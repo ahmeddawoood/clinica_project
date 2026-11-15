@@ -90,9 +90,9 @@
         html[data-theme="dark"] .timeline::before { background: linear-gradient(to bottom, #334155 0%, transparent 100%); }
         html[data-theme="dark"] .tl-dot { border-color: var(--dm-surface, #1e293b); }
     </style>
-    <link th:href="@{/css/patient-workspace.css}" rel="stylesheet">
+    <link th:href="@{/css/clinic-workspace.css}" rel="stylesheet">
 </head>
-<body class="patient-workspace">
+<body class="patient-workspace clinic-workspace">
 <a href="#mainContent" class="workspace-skip">Sari la conținut</a>
 <div class="app-wrapper">
     <div th:replace="~{fragments/patient-nav :: sidebar(${patient})}"></div>
