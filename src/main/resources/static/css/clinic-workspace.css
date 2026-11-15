@@ -147,3 +147,9 @@ html[data-theme="dark"] .clinic-workspace .allergy-notice { background:#382a19;c
 .staff-workspace .list-group-item { background:var(--ws-surface);color:var(--ws-ink);border-color:var(--ws-line); }
 .staff-workspace .list-group-item.active { background:#17665b;color:#fff; }
 @media(max-width:767px) { .staff-actions { flex-direction:column; }.staff-workspace .page-header { flex-wrap:wrap; }.staff-workspace .clinic-table { min-width:600px; }.staff-workspace .content-card-body { padding:18px; } }
+.staff-workspace #calendar-wrap { background:var(--ws-surface);border:1px solid var(--ws-line);border-radius:8px;box-shadow:none; }
+.staff-workspace .fc { --fc-border-color:var(--ws-line);--fc-page-bg-color:var(--ws-surface);--fc-neutral-bg-color:var(--ws-bg);--fc-list-event-hover-bg-color:var(--ws-tint);--fc-today-bg-color:var(--ws-tint); }
+.staff-workspace .fc :is(.fc-col-header-cell-cushion,.fc-daygrid-day-number) { color:var(--ws-ink);text-decoration:none; }
+.staff-workspace .day-card.available { background:var(--ws-tint);border-color:var(--ws-accent); }
+.staff-workspace .day-card.unavailable { background:var(--ws-bg); }
+@media(max-width:767px) { .staff-workspace #calendar-wrap { padding:12px; }.staff-workspace .fc .fc-toolbar { flex-wrap:wrap;gap:12px; }.staff-workspace .fc .fc-toolbar-chunk { max-width:100%; }.staff-workspace .fc .fc-button { padding:6px;font-size:.75rem; } }
