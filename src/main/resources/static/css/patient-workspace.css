@@ -127,3 +127,6 @@ html[data-theme="dark"] .patient-workspace :is(input,select,textarea) { color-sc
 @media(max-width:767px) { .patient-workspace :is(.doctor-hero,.pay-hero) { padding:20px; }.patient-workspace .stat-pill { padding:12px 6px; }.patient-workspace .history-tabs .nav-link { padding:10px;font-size:.8rem; } }
 .patient-workspace .pay-hero .text-white-50 { color:var(--ws-muted)!important; }
 .patient-workspace .overlay-card { background:var(--ws-surface);color:var(--ws-ink); }
+.patient-workspace .allergy-notice { background:#fff7ed;color:#78350f;border:1px solid #fed7aa;border-radius:8px;padding:12px 16px; }
+html[data-theme="dark"] .patient-workspace .allergy-notice { background:#382a19;color:#ffddb0;border-color:#8b6634; }
+.patient-workspace .profile-actions .btn { white-space:nowrap; }

@@ -120,8 +120,7 @@
 
             
             <div th:if="${patient.allergies != null and !#strings.isEmpty(patient.allergies)}"
-                 class="alert d-flex align-items-center gap-2 mb-4"
-                 style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px 16px;">
+                 class="alert allergy-notice d-flex align-items-center gap-2 mb-4">
                 <i class="bi bi-exclamation-triangle-fill text-warning fs-5 flex-shrink-0"></i>
                 <div>
                     <span class="fw-bold small">Alergii înregistrate: </span>
