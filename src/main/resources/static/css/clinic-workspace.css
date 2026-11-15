@@ -153,3 +153,8 @@ html[data-theme="dark"] .clinic-workspace .allergy-notice { background:#382a19;c
 .staff-workspace .day-card.available { background:var(--ws-tint);border-color:var(--ws-accent); }
 .staff-workspace .day-card.unavailable { background:var(--ws-bg); }
 @media(max-width:767px) { .staff-workspace #calendar-wrap { padding:12px; }.staff-workspace .fc .fc-toolbar { flex-wrap:wrap;gap:12px; }.staff-workspace .fc .fc-toolbar-chunk { max-width:100%; }.staff-workspace .fc .fc-button { padding:6px;font-size:.75rem; } }
+
+.staff-workspace .msg-list-item > .d-flex { flex-wrap:wrap;gap:8px; }
+.staff-workspace .msg-list-item > .d-flex > div { min-width:0;max-width:100%;overflow-wrap:anywhere; }
+.staff-workspace .msg-list-item .text-truncate { max-width:100%!important; }
+.staff-workspace .fc .fc-list-day-cushion { background:var(--ws-bg);color:var(--ws-ink); }

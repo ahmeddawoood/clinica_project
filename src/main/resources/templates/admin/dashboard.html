@@ -455,10 +455,10 @@
             labels: ['In asteptare', 'Confirmate', 'Finalizate', 'Anulate'],
             datasets: [{
                 data: [
-                    0,
-                    0,
-                    0,
-                    0
+                    /*[[${statusPending}]]*/ 0,
+                    /*[[${statusConfirmed}]]*/ 0,
+                    /*[[${statusCompleted}]]*/ 0,
+                    /*[[${statusCancelled}]]*/ 0
                 ],
                 backgroundColor: ['#f59e0b', '#10b981', '#3b82f6', '#ef4444'],
                 borderWidth: 2,
@@ -479,8 +479,8 @@
             datasets: [{
                 label: 'RON',
                 data: [
-                    0,
-                    0
+                    /*[[${totalPaid}]]*/ 0,
+                    /*[[${totalPending}]]*/ 0
                 ],
                 backgroundColor: ['#10b981', '#f59e0b'],
                 borderRadius: 6
@@ -497,10 +497,10 @@
     new Chart(document.getElementById('monthlyRevenueChart'), {
         type: 'bar',
         data: {
-            labels:  [],
+            labels: /*[[${revenueLabels}]]*/ [],
             datasets: [{
                 label: 'Venituri (RON)',
-                data:  [],
+                data: /*[[${revenueValues}]]*/ [],
                 backgroundColor: 'rgba(34,197,94,0.75)',
                 borderColor: '#16a34a',
                 borderWidth: 1,
@@ -518,10 +518,10 @@
     new Chart(document.getElementById('busiestHoursChart'), {
         type: 'line',
         data: {
-            labels:  [],
+            labels: /*[[${hourLabels}]]*/ [],
             datasets: [{
                 label: 'Programari',
-                data:  [],
+                data: /*[[${hourValues}]]*/ [],
                 fill: true,
                 tension: 0.4,
                 backgroundColor: 'rgba(234,179,8,0.15)',
@@ -544,10 +544,10 @@
     new Chart(document.getElementById('monthlyChart'), {
         type: 'line',
         data: {
-            labels:  [],
+            labels: /*[[${monthLabels}]]*/ [],
             datasets: [{
                 label: 'Programari',
-                data:  [],
+                data: /*[[${monthValues}]]*/ [],
                 borderColor: '#3b82f6',
                 backgroundColor: 'rgba(59,130,246,.12)',
                 borderWidth: 2,
@@ -567,5 +567,6 @@
         }
     });
 </script>
+<script th:src="@{/js/chart-theme.js}"></script>
 </body>
 </html>
