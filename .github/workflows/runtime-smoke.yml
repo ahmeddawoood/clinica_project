@@ -98,6 +98,8 @@ jobs:
             sleep 2
           done
           grep -q "Initial dataset loaded:" e2e-results/application.log
+      - name: Public discovery and account entry
+        run: python scripts/e2e/public_journey.py
       - name: Browser and live AI checks
         run: python scripts/e2e/browser_smoke.py
       - name: Booking interface and failure states

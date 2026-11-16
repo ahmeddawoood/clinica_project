@@ -34,14 +34,16 @@
                            border-radius: 20px; background: rgba(255,255,255,.2);
                            font-size: .85rem; font-weight: 600; }
     </style>
+    <link th:href="@{/css/clinic-workspace.css}" rel="stylesheet">
 </head>
-<body>
+<body class="patient-workspace clinic-workspace">
+<a href="#mainContent" class="workspace-skip">Sari la conținut</a>
 <div class="app-wrapper">
     <div th:replace="~{fragments/patient-nav :: sidebar(${patient})}"></div>
     <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100"
          style="background:rgba(0,0,0,.4);z-index:99;"></div>
 
-    <div class="main-content">
+    <div class="main-content" id="mainContent" role="main">
         <div th:replace="~{fragments/patient-nav :: topbar('Profil Doctor')}"></div>
 
         <div class="page-content">

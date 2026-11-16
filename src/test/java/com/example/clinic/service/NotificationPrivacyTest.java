@@ -17,7 +17,7 @@ class NotificationPrivacyTest {
         appender.start();
         logger.addAppender(appender);
         try {
-            var service=new NotificationServiceImpl(mock(TemplateEngine.class),mock(MetricsService.class));
+            var service=new NotificationServiceImpl(mock(TemplateEngine.class),mock(MetricsService.class),new PaymentDisplay(200,"usd"));
             service.sendPasswordResetEmail("fixture@example.test", "http://localhost/reset-password?token=private-reset-marker");
             assertThat(appender.list).isNotEmpty();
             assertThat(appender.list).allSatisfy(e -> assertThat(e.getFormattedMessage())

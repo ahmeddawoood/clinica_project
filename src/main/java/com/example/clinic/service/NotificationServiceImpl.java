@@ -31,6 +31,7 @@ public class NotificationServiceImpl implements NotificationService {
     private JavaMailSender mailSender;
 
     private final TemplateEngine templateEngine;
+    private final PaymentDisplay paymentDisplay;
 
     @Value("${app.mail.from:noreply@mediclinic.ro}")
     private String fromEmail;
@@ -54,8 +55,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final MetricsService metricsService;
 
-    public NotificationServiceImpl(TemplateEngine templateEngine, MetricsService metricsService) {
+    public NotificationServiceImpl(TemplateEngine templateEngine, MetricsService metricsService, PaymentDisplay paymentDisplay) {
         this.templateEngine = templateEngine;
+        this.paymentDisplay = paymentDisplay;
         this.metricsService = metricsService;
     }
 
@@ -204,6 +206,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     private Map<String, Object> buildVars(Appointment appt, String reason) {
         return Map.of(
+                "bookingFee", paymentDisplay.getBookingFee(),
+                "paidAmount", paymentDisplay.paid(appt),
                 "patientName",   appt.getPatient().getFullName(),
                 "doctorName",    "Dr. " + appt.getDoctor().getFullName(),
                 "specialty",     appt.getDoctor().getSpecialty(),

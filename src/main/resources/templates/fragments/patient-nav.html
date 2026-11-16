@@ -12,7 +12,7 @@
     <nav class="sidebar-nav">
         <div class="sidebar-section-title">Principal</div>
         <a th:href="@{/patient/dashboard}" class="sidebar-link">
-            <i class="bi bi-speedometer2"></i> Dashboard
+            <i class="bi bi-calendar3"></i> Programările mele
         </a>
         <a th:href="@{/patient/book}" class="sidebar-link">
             <i class="bi bi-calendar-plus"></i> Programare noua
@@ -53,7 +53,7 @@
         </div>
         <form th:action="@{/logout}" method="post">
             <button type="submit" class="btn btn-outline-light btn-sm w-100">
-                <i class="bi bi-box-arrow-right me-1"></i> Logout
+                <i class="bi bi-box-arrow-right me-1"></i> Deconectare
             </button>
         </form>
     </div>
@@ -67,7 +67,7 @@
     <span id="ws-patient-id" th:attr="data-id=${patient != null ? patient.id : ''}" hidden></span>
 
     <div class="d-flex align-items-center gap-3">
-        <button class="mobile-toggle" id="sidebarToggle">
+        <button class="mobile-toggle" id="sidebarToggle" aria-label="Deschide meniul">
             <i class="bi bi-list fs-5"></i>
         </button>
         <span class="top-navbar-title" th:text="${title}">Dashboard</span>

@@ -90,14 +90,16 @@
         html[data-theme="dark"] .timeline::before { background: linear-gradient(to bottom, #334155 0%, transparent 100%); }
         html[data-theme="dark"] .tl-dot { border-color: var(--dm-surface, #1e293b); }
     </style>
+    <link th:href="@{/css/clinic-workspace.css}" rel="stylesheet">
 </head>
-<body>
+<body class="patient-workspace clinic-workspace">
+<a href="#mainContent" class="workspace-skip">Sari la conținut</a>
 <div class="app-wrapper">
     <div th:replace="~{fragments/patient-nav :: sidebar(${patient})}"></div>
     <div id="sidebarOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100"
          style="background:rgba(0,0,0,.4);z-index:99;"></div>
 
-    <div class="main-content">
+    <div class="main-content" id="mainContent" role="main">
         <div th:replace="~{fragments/patient-nav :: topbar('Istoric Medical')}"></div>
 
         <div class="page-content">
@@ -118,8 +120,7 @@
 
             
             <div th:if="${patient.allergies != null and !#strings.isEmpty(patient.allergies)}"
-                 class="alert d-flex align-items-center gap-2 mb-4"
-                 style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px 16px;">
+                 class="alert allergy-notice d-flex align-items-center gap-2 mb-4">
                 <i class="bi bi-exclamation-triangle-fill text-warning fs-5 flex-shrink-0"></i>
                 <div>
                     <span class="fw-bold small">Alergii înregistrate: </span>
