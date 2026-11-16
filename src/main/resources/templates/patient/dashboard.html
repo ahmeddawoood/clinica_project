@@ -165,7 +165,7 @@
                                     <span th:if="${appt.status == 'COMPLETED'}" class="status-badge badge-completed"><i class="bi bi-patch-check-fill"></i> Finalizat</span>
                                     <span th:if="${appt.bookingFeeRefunded}"
                                           class="d-block mt-1" style="font-size:.7rem;color:#7e22ce">
-                                        <i class="bi bi-arrow-counterclockwise"></i> $2 rambursat
+                                        <i class="bi bi-arrow-counterclockwise"></i> Taxă rambursată
                                     </span>
                                 </td>
                                 <td data-label="Note" class="text-muted small" th:text="${appt.notes}"></td>
@@ -175,7 +175,7 @@
                                         <a th:if="${appt.status == 'PENDING_PAYMENT'}"
                                            th:href="@{/patient/appointments/{id}/pay(id=${appt.id})}"
                                            class="btn btn-sm btn-primary">
-                                            <i class="bi bi-credit-card me-1"></i> Platește $2 USD
+                                            <i class="bi bi-credit-card me-1"></i> <span th:text="'Plătește ' + ${@paymentDisplay.bookingFee}">Plătește taxa</span>
                                         </a>
                                         
                                         <button th:if="${appt.status == 'PENDING'}"
@@ -411,7 +411,7 @@
                     </p>
                     <div id="cancelRefundWarning" class="alert alert-warning d-none small py-2">
                         <i class="bi bi-exclamation-triangle me-1"></i>
-                        Programarea este deja confirmata. Taxa de rezervare ($2) <strong>nu va fi rambursata automat</strong>.
+                        Programarea este deja confirmata. Taxa de rezervare <strong>nu va fi rambursata automat</strong>.
                     </div>
                     <label class="form-label">Motivul anularii <span class="text-muted">(opțional)</span></label>
                     <textarea name="cancelReason" class="form-control" rows="3"

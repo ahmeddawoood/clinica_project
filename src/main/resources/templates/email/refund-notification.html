@@ -37,7 +37,7 @@
           <h2 style="color:#6a1b9a;margin:0 0 8px;font-size:20px;">Rambursare procesata</h2>
           <p style="color:#546e7a;margin:0 0 24px;font-size:14px;line-height:1.6;">
             Buna ziua, <strong th:text="${patientName}">Pacient</strong>!<br>
-            Programarea ta a fost anulata și taxa de rezervare de <strong>$2</strong> a fost rambursata.
+            Programarea ta a fost anulata și taxa de rezervare de <strong th:text="${paidAmount}">—</strong> a fost rambursata.
           </p>
 
           
@@ -56,7 +56,7 @@
                   </tr>
                   <tr>
                     <td style="color:#90a4ae;font-size:12px;font-weight:600;text-transform:uppercase;padding:4px 0 2px;">SUMA RAMBURSATA</td>
-                    <td style="color:#4a148c;font-size:16px;font-weight:700;">$2.00 USD</td>
+                    <td style="color:#4a148c;font-size:16px;font-weight:700;" th:text="${paidAmount}">—</td>
                   </tr>
                   <tr>
                     <td style="color:#90a4ae;font-size:12px;font-weight:600;text-transform:uppercase;padding:4px 0 2px;">NUMAR PROGRAMARE</td>

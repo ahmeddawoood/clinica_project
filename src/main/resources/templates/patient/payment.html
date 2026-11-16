@@ -221,17 +221,17 @@
 
                             <div class="summary-row">
                                 <span class="text-muted">Taxa rezervare</span>
-                                <span class="fw-600" th:text="'$' + ${bookingFeeCents / 100.0}">$2.00</span>
+                                <span class="fw-600" th:text="${@paymentDisplay.bookingFee}">—</span>
                             </div>
                             <div class="summary-row">
                                 <span class="text-muted">Taxe suplimentare</span>
-                                <span class="fw-600 text-success">$0.00</span>
+                                <span class="fw-600 text-success">Fără comision</span>
                             </div>
 
                             <div class="summary-total d-flex justify-content-between align-items-center">
                                 <div>
                                     <div class="text-muted small mb-1">Total de plata</div>
-                                    <div class="fw-700 fs-4 text-primary" th:text="'$' + ${bookingFeeCents / 100.0}">$2.00</div>
+                                    <div class="fw-700 fs-4 text-primary" th:text="${@paymentDisplay.bookingFee}">—</div>
                                 </div>
                                 <div class="text-end">
                                     <div class="text-muted small mb-1">Programare #</div>

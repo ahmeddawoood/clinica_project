@@ -34,6 +34,17 @@ def booking_mail():
         require(any(marker in s for s in subjects),'Missing booking lifecycle email')
 check('SMTP captures booking payment confirmation and cancellation emails',booking_mail)
 
+def payment_amount_mail():
+    paid = [m for m in messages() if 'Plată confirmată' in m['Subject']]
+    require(bool(paid), 'Missing payment email')
+    bodies = []
+    for message in paid:
+        with urllib.request.urlopen(MAIL+'/api/v1/message/'+message['ID'],timeout=10) as r:
+            bodies.append(json.load(r)['HTML'])
+    require(any('0.00 USD' in body for body in bodies), 'Coupon email must show zero paid in recorded currency')
+    require(all('<strong>$2</strong>' not in body for body in bodies), 'Payment email retained fixed fee')
+check('Payment email shows the recorded amount for coupon payments', payment_amount_mail)
+
 with sync_playwright() as pw:
     browser=pw.chromium.launch()
     context=browser.new_context()

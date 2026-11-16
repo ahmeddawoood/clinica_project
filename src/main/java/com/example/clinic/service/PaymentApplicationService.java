@@ -40,6 +40,9 @@ public class PaymentApplicationService {
     @Value("${stripe.booking-fee-cents:200}")
     private long bookingFeeCents;
 
+    @Value("${stripe.currency:usd}")
+    private String bookingCurrency = "usd";
+
     @Value("${payment.coupon-code:ahmad123}")
     private String paymentCouponCode;
 
@@ -308,7 +311,7 @@ public class PaymentApplicationService {
         appointment.setStripePaymentIntentId(null);
         appointment.setStripeSessionId(null);
         appointment.setStripeAmountCents(0L);
-        appointment.setStripeCurrency("usd");
+        appointment.setStripeCurrency(bookingCurrency.trim().toLowerCase(java.util.Locale.ROOT));
         appointment.setStripePaidAt(LocalDateTime.now());
         appointmentRepository.save(appointment);
 
@@ -363,7 +366,7 @@ public class PaymentApplicationService {
         appointment.setStripePaymentIntentId(demoPi);
         appointment.setStripeSessionId(demoSession);
         appointment.setStripeAmountCents(bookingFeeCents);
-        appointment.setStripeCurrency("usd");
+        appointment.setStripeCurrency(bookingCurrency.trim().toLowerCase(java.util.Locale.ROOT));
         appointment.setStripePaidAt(LocalDateTime.now());
         appointmentRepository.save(appointment);
 
