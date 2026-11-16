@@ -43,10 +43,11 @@ with sync_playwright() as p:
     page.wait_for_url(BASE+booking_path)
     expect(page.locator('#doctorSelect')).to_have_value(selected_doctor)
     expect(page.locator('#bookingSubmit')).to_be_disabled()
-    # Authenticated discovery also preserves the chosen doctor.
+    # The home route redirects signed-in patients to their dashboard.
+    # A saved directory link must still work when opened while signed in.
     page.goto(BASE+'/')
-    expect(page.locator('.directory-doctor')).to_have_count(6)
-    page.locator('.directory-doctor a').first.click()
+    page.wait_for_url('**/patient/dashboard')
+    page.goto(BASE+booking_path)
     page.wait_for_url(BASE+booking_path)
     expect(page.locator('#doctorSelect')).to_have_value(selected_doctor)
     page.goto(BASE+'/patient/book?doctorId=invalid')
