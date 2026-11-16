@@ -2,6 +2,12 @@
     'use strict';
     const el = id => document.getElementById(id);
     const doctor = el('doctorSelect'), date = el('bookingDate'), timestamp = el('appointmentDate');
+    // Use only an ID present in the server-rendered doctor list.
+    const selectedDoctor = new URLSearchParams(window.location.search).get('doctorId');
+    if (!doctor.value && selectedDoctor && /^[1-9][0-9]{0,18}$/.test(selectedDoctor)
+            && Array.from(doctor.options).some(option => option.value === selectedDoctor && !option.disabled)) {
+        doctor.value = selectedDoctor;
+    }
     let requestNumber = 0;
     const initial = timestamp.value;
     if (initial) date.value = initial.slice(0, 10);

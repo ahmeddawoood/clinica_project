@@ -18,7 +18,7 @@
             const initial = document.createElement('span'); initial.className = 'doctor-initial'; initial.setAttribute('aria-hidden', 'true'); initial.textContent = (d.fullName || 'M').charAt(0);
             const name = document.createElement('h3'); name.textContent = 'Dr. ' + d.fullName;
             const field = document.createElement('p'); field.textContent = d.specialty || 'Specialitate nespecificată';
-            const link = document.createElement('a'); link.href = '/login'; link.className = 'public-text-link'; link.textContent = 'Intră în cont pentru programare →';
+            const link = document.createElement('a'); link.href = Number.isSafeInteger(d.id) && d.id > 0 ? '/patient/book?doctorId=' + d.id : '/login'; link.className = 'public-text-link'; link.textContent = 'Intră în cont pentru programare →';
             card.append(initial, name, field, link); list.append(card);
         });
         status.textContent = matches.length ? `${matches.length} medici găsiți · ${Math.min(visible, matches.length)} afișați` : 'Nu am găsit medici pentru această căutare. Încearcă alt nume sau resetează filtrele.';
